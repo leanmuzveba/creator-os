@@ -190,3 +190,32 @@ TikTok's Content Posting API, for example, specifies access-token request limits
 Platform approval
 Some platform capabilities may require application review/auditing before public publishing is permitted. For example, YouTube restricts videos uploaded through certain unverified API projects to private visibility until the API project passes the relevant audit.
 
+
+9. Non-Functional Requirements
+
+These are just as important.
+
+Performance
+
+Dashboard data should load within an acceptable period under normal network conditions.
+
+Security
+OAuth authentication
+Encrypted credentials/tokens
+HTTPS
+Secure session management
+No storage of social-media passwords
+Proper access controls
+Availability
+
+The application should remain available even if one social-media API temporarily becomes unavailable.
+Scalability- The architecture should allow additional platforms to be added later.
+Maintainability- Platform integrations should be modular.
+
+For example:
+/social/youtube /tiktok/instagram/facebook
+rather than mixing all platform-specific code together.
+
+Usability
+The interface should minimise the number of steps required to:
+Upload → customise → schedule → publish
