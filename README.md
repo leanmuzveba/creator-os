@@ -19,7 +19,6 @@ Switching between 4–5 different applications increases the time and effort req
 
 ##PRELIMINARY INVESTIGATION
 Existing System 
-
                 LEAN
                  │
        ┌─────────┼─────────┐
@@ -40,7 +39,6 @@ The current workflow involves using multiple independent platforms. I have to ed
 -- Youtube - same flow as Tiktok Studio
 
 Proposed system
-
                     LEAN CREATOR OS
                            │
         ┌──────────────────┼──────────────────┐
