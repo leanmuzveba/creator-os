@@ -117,43 +117,23 @@ E. AI Content Assistant
 The AI assistant will generate:
 
 Video idea
-
-↓
-
 Visual hook
-
-↓
-
 Written hook
-
-↓
-
 Voiceover
-
-↓
-
 On-screen text
-
-↓
-
 Shot list
-
-↓
-
 Editing recommendations
-
-↓
-
 CTA
 
 The generation will be based on Lean's five content pillars:
 
-💜 Tech Education
-💚 Breaking Into Tech
-💙 Free Tech Resources
-💗 Student & Academic Life
-🧡 Microsoft Journey
-F. Trend Explorer
+Tech Education
+Breaking Into Tech
+Free Tech Resources
+Student & Academic Life
+Microsoft Journey
+
+--------------------------F. Trend Explorer-------------------------------------------------------
 
 The system will allow trend discovery using filters such as:
 
@@ -168,12 +148,10 @@ Keyword
 The AI will then provide:
 
 Trend summary → Why it works → Hook analysis → How Lean could adapt it
-
 One important requirement here is that we cannot assume every platform will provide unrestricted access to all trending/public video data. YouTube, for example, provides a mostPopular video chart through its API, while TikTok's developer ecosystem has different products and access restrictions.
-
 Therefore, the final trend engine will be designed around officially available data sources and platform terms, rather than scraping platforms indiscriminately.
 
-G. Content Calendar
+---------------------------G. Content Calendar--------------------------------------------
 
 The creator will be able to:
 
@@ -201,24 +179,14 @@ However, the system should not assume that "one upload" means identical metadata
 ##7. Constraints
 Technical Constraints
 API limitations
-
 The application depends heavily on third-party APIs.
-
 If a platform does not expose a particular metric or publishing function, the application cannot simply manufacture it.
-
 Authentication
-
 The application will use OAuth-based authorisation rather than collecting users' social-media passwords.
-
 Rate limits
-
 API requests may be subject to rate limits.
-
 TikTok's Content Posting API, for example, specifies access-token request limits and publishing restrictions.
 
 Platform approval
-
-Some platform capabilities may require application review/auditing before public publishing is permitted.
-
-For example, YouTube restricts videos uploaded through certain unverified API projects to private visibility until the API project passes the relevant audit.
+Some platform capabilities may require application review/auditing before public publishing is permitted. For example, YouTube restricts videos uploaded through certain unverified API projects to private visibility until the API project passes the relevant audit.
 
