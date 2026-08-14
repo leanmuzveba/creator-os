@@ -166,13 +166,7 @@ View publishing status
 H. Multi-platform Publishing
 
 The creator will be able to select:
-
-☑ TikTok
-☑ Instagram
-☑ YouTube
-☑ Facebook
-
-and prepare one piece of content for multiple platforms.
+TikTok, Instagram, YouTube, Facebook and prepare one piece of content for multiple platforms.
 
 However, the system should not assume that "one upload" means identical metadata or identical publishing behaviour everywhere. Each platform may require platform-specific metadata, permissions, processing and publishing flows. TikTok, for example, requires the application to query creator information and respect the creator's available privacy options.
 
@@ -192,13 +186,9 @@ Some platform capabilities may require application review/auditing before public
 
 
 9. Non-Functional Requirements
-
 These are just as important.
-
 Performance
-
 Dashboard data should load within an acceptable period under normal network conditions.
-
 Security
 OAuth authentication
 Encrypted credentials/tokens
