@@ -89,6 +89,18 @@ export const AiAssistantView: React.FC = () => {
         }),
       });
 
+      if (!res.ok) {
+        const errorText = await res.text();
+        let message = `AI generation error (${res.status})`;
+        try {
+          const parsed = JSON.parse(errorText);
+          if (parsed.error) message = parsed.error;
+        } catch {
+          // ignore
+        }
+        throw new Error(message);
+      }
+
       const data = await res.json();
       if (activeSubTab === 'ideas') {
         setIdeasResults(Array.isArray(data.result) ? data.result : [data.result]);
@@ -101,9 +113,9 @@ export const AiAssistantView: React.FC = () => {
       }
 
       showToast(`AI ${activeSubTab} generated! ✨`, 'success');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Generation failed:', err);
-      showToast('Generation failed, please try again', 'error');
+      showToast(err.message || 'Generation failed, please try again', 'error');
     } finally {
       setIsLoading(false);
     }

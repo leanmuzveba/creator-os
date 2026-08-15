@@ -160,6 +160,23 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return () => window.removeEventListener('message', handleOAuthMessage);
   }, []);
 
+  // Helper for resilient JSON response parsing
+  const handleJsonResponse = async <T,>(res: Response, defaultMessage: string): Promise<T> => {
+    const text = await res.text();
+    let data: any = null;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      if (!res.ok) {
+        throw new Error(text && text.length < 150 && !text.startsWith('<') ? text : `${defaultMessage} (${res.status})`);
+      }
+    }
+    if (!res.ok) {
+      throw new Error(data?.error || `${defaultMessage} (${res.status})`);
+    }
+    return data as T;
+  };
+
   const addPost = async (postData: Omit<PostItem, 'id'>): Promise<PostItem> => {
     try {
       const res = await fetch('/api/posts', {
@@ -167,13 +184,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(postData),
       });
-      const newPost = await res.json();
+      const newPost = await handleJsonResponse<PostItem>(res, 'Failed to create post');
       setPosts((prev) => [newPost, ...prev]);
       showToast(`Post "${newPost.title}" created successfully!`, 'success');
       return newPost;
-    } catch (err) {
-      console.error(err);
-      showToast('Failed to create post', 'error');
+    } catch (err: any) {
+      console.error('addPost error:', err);
+      showToast(err.message || 'Failed to create post', 'error');
       throw err;
     }
   };
@@ -185,31 +202,32 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       });
-      const updated = await res.json();
+      const updated = await handleJsonResponse<PostItem>(res, 'Failed to update post');
       setPosts((prev) => prev.map((p) => (p.id === id ? updated : p)));
       if (previewPost && previewPost.id === id) {
         setPreviewPost(updated);
       }
       showToast('Post updated successfully', 'success');
       return updated;
-    } catch (err) {
-      console.error(err);
-      showToast('Failed to update post', 'error');
+    } catch (err: any) {
+      console.error('updatePost error:', err);
+      showToast(err.message || 'Failed to update post', 'error');
       throw err;
     }
   };
 
   const deletePost = async (id: string): Promise<void> => {
     try {
-      await fetch(`/api/posts/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/posts/${id}`, { method: 'DELETE' });
+      await handleJsonResponse<{ success: boolean }>(res, 'Failed to delete post');
       setPosts((prev) => prev.filter((p) => p.id !== id));
       if (previewPost?.id === id) {
         setPreviewPost(null);
       }
       showToast('Post deleted', 'info');
-    } catch (err) {
-      console.error(err);
-      showToast('Failed to delete post', 'error');
+    } catch (err: any) {
+      console.error('deletePost error:', err);
+      showToast(err.message || 'Failed to delete post', 'error');
       throw err;
     }
   };
@@ -231,7 +249,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setPreviewPost(updated);
       }
       showToast(`Published to ${target.platforms.map((p) => p.toUpperCase()).join(', ')}! 🚀`, 'success');
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
       showToast('Failed to publish post', 'error');
     }
@@ -244,29 +262,27 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       });
-      if (res.ok) {
-        const updated = await res.json();
-        setSocialAccounts((prev) => prev.map((a) => (a.id === id ? updated : a)));
-        showToast(`${updated.name} profile and metrics updated!`, 'success');
-      }
-    } catch (err) {
-      console.error(err);
-      showToast('Failed to update account metrics', 'error');
+      const updated = await handleJsonResponse<SocialAccount>(res, 'Failed to update account metrics');
+      setSocialAccounts((prev) => prev.map((a) => (a.id === id ? updated : a)));
+      showToast(`${updated.name} profile and metrics updated!`, 'success');
+    } catch (err: any) {
+      console.error('updateAccount error:', err);
+      showToast(err.message || 'Failed to update account metrics', 'error');
     }
   };
 
   const toggleAccountConnection = async (id: PlatformType): Promise<void> => {
     try {
       const res = await fetch(`/api/accounts/${id}/toggle`, { method: 'POST' });
-      const updated = await res.json();
+      const updated = await handleJsonResponse<SocialAccount>(res, 'Account sync failed');
       setSocialAccounts((prev) => prev.map((a) => (a.id === id ? updated : a)));
       showToast(
         `${updated.name} ${updated.connected ? 'connected' : 'disconnected'} successfully`,
         updated.connected ? 'success' : 'info'
       );
-    } catch (err) {
-      console.error(err);
-      showToast('Account sync failed', 'error');
+    } catch (err: any) {
+      console.error('toggleAccountConnection error:', err);
+      showToast(err.message || 'Account sync failed', 'error');
     }
   };
 

@@ -9,7 +9,8 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Initialize GoogleGenAI client lazily if key exists
 let genAiClient: GoogleGenAI | null = null;
@@ -384,7 +385,8 @@ app.get('/api/auth/tiktok/url', (req, res) => {
   const clientKey = process.env.TIKTOK_CLIENT_KEY;
   const redirectUri = getTikTokRedirectUri(req);
   const state = 'creator_os_' + Math.random().toString(36).substring(2, 15);
-  const scope = 'user.info.basic,video.upload,video.publish';
+  // Default to user.info.basic for universal compatibility with all TikTok app tiers
+  const requestedScope = (req.query.scope as string) || 'user.info.basic';
 
   if (!clientKey) {
     return res.json({
@@ -392,14 +394,14 @@ app.get('/api/auth/tiktok/url', (req, res) => {
       redirectUri,
       devCallbackUrl: 'https://ais-dev-trgypbutyowyfjrxvbpubj-294594473820.europe-west1.run.app/api/auth/tiktok/callback',
       sharedCallbackUrl: 'https://ais-pre-trgypbutyowyfjrxvbpubj-294594473820.europe-west1.run.app/api/auth/tiktok/callback',
-      scopes: scope,
+      scopes: requestedScope,
       message: 'TIKTOK_CLIENT_KEY not configured in environment variables yet.',
     });
   }
 
   const params = new URLSearchParams({
     client_key: clientKey,
-    scope: scope,
+    scope: requestedScope,
     response_type: 'code',
     redirect_uri: redirectUri,
     state: state,
@@ -446,8 +448,9 @@ app.get(['/api/auth/tiktok/callback', '/api/auth/tiktok/callback/'], async (req,
     const clientSecret = process.env.TIKTOK_CLIENT_SECRET;
     const redirectUri = getTikTokRedirectUri(req);
 
-    let profileDisplayName = '@lean.muzveba';
-    let profileAvatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
+    const existingTiktokAcc = socialAccounts.find((a) => a.id === 'tiktok');
+    let profileDisplayName = existingTiktokAcc?.handle || '@my_tiktok';
+    let profileAvatar = existingTiktokAcc?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
 
     if (clientKey && clientSecret) {
       // Exchange code for token
@@ -467,6 +470,30 @@ app.get(['/api/auth/tiktok/callback', '/api/auth/tiktok/callback/'], async (req,
       });
 
       const tokenData = await tokenRes.json();
+      console.log('TikTok OAuth token response:', tokenData);
+
+      if (tokenData.error) {
+        const errorDetail = tokenData.error_description || (typeof tokenData.error === 'object' ? tokenData.error.message || tokenData.error.code : tokenData.error);
+        console.warn('TikTok token error received:', errorDetail);
+        return res.send(`
+          <!DOCTYPE html>
+          <html>
+            <head><title>TikTok Authorization Failed</title></head>
+            <body style="font-family: system-ui, sans-serif; background: #0b0d17; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+              <div style="text-align: center; max-width: 440px; padding: 28px; border: 1px solid rgba(244,63,94,0.3); border-radius: 16px; background: #131627;">
+                <h2 style="color: #f43f5e; margin: 0 0 10px 0; font-size: 18px;">TikTok Connection Notice</h2>
+                <p style="color: #cbd5e1; font-size: 13px; line-height: 1.5; margin-bottom: 16px;">${errorDetail || 'Could not verify token. In TikTok Sandbox mode, ensure your redirect URI matches and your user is whitelisted.'}</p>
+                <button onclick="window.close()" style="background: #e11d48; color: #fff; border: none; padding: 8px 18px; border-radius: 8px; font-weight: bold; cursor: pointer;">Close Window</button>
+                <script>
+                  if (window.opener) {
+                    window.opener.postMessage({ type: 'OAUTH_AUTH_ERROR', platform: 'tiktok', error: '${errorDetail || 'Authentication failed'}' }, '*');
+                  }
+                </script>
+              </div>
+            </body>
+          </html>
+        `);
+      }
 
       if (tokenData.access_token) {
         tiktokTokens = {
@@ -476,28 +503,83 @@ app.get(['/api/auth/tiktok/callback', '/api/auth/tiktok/callback/'], async (req,
           expiresAt: Date.now() + (tokenData.expires_in || 86400) * 1000,
         };
 
-        // Fetch User Info
+        // Fetch User Info & Stats from TikTok API v2 (with fallback if stats scope is unapproved)
         try {
-          const userRes = await fetch(
-            'https://open.tiktokapis.com/v2/user/info/?fields=open_id,union_id,avatar_url,display_name,username',
+          let userRes = await fetch(
+            'https://open.tiktokapis.com/v2/user/info/?fields=open_id,union_id,avatar_url,display_name,username,follower_count,following_count,likes_count,video_count',
             {
               headers: {
                 Authorization: `Bearer ${tokenData.access_token}`,
               },
             }
           );
-          const userData = await userRes.json();
+          let userData = await userRes.json();
+          console.log('TikTok user info response:', userData);
+
+          // If stats fields caused an error code, fallback to basic fields
+          if (!userData.data?.user && userData.error?.code && userData.error?.code !== 'ok') {
+            console.log('Retrying user info with basic fields only...');
+            userRes = await fetch(
+              'https://open.tiktokapis.com/v2/user/info/?fields=open_id,union_id,avatar_url,display_name',
+              {
+                headers: {
+                  Authorization: `Bearer ${tokenData.access_token}`,
+                },
+              }
+            );
+            userData = await userRes.json();
+            console.log('TikTok fallback user info response:', userData);
+          }
+
           if (userData.data?.user) {
             const u = userData.data.user;
-            if (u.display_name || u.username) {
-              profileDisplayName = u.username ? `@${u.username}` : `@${u.display_name}`;
+            if (u.username) {
+              profileDisplayName = `@${u.username}`;
+            } else if (u.display_name) {
+              profileDisplayName = `@${u.display_name.replace(/\s+/g, '_').toLowerCase()}`;
             }
             if (u.avatar_url) {
               profileAvatar = u.avatar_url;
             }
+
+            const tiktokAcc = socialAccounts.find((a) => a.id === 'tiktok');
+            if (tiktokAcc) {
+              if (u.follower_count !== undefined && u.follower_count !== null) {
+                const count = Number(u.follower_count);
+                tiktokAcc.followers = count >= 1000 ? `${(count / 1000).toFixed(1)}K` : `${count}`;
+              }
+              if (u.likes_count !== undefined && u.likes_count !== null) {
+                const likes = Number(u.likes_count);
+                tiktokAcc.views = likes >= 1000 ? `${(likes / 1000).toFixed(1)}K` : `${likes}`;
+              }
+            }
           }
         } catch (uErr) {
           console.warn('Could not fetch TikTok user info:', uErr);
+        }
+
+        // Also attempt video query to calculate total video views/engagement
+        try {
+          const videoRes = await fetch('https://open.tiktokapis.com/v2/video/list/?fields=id,title,view_count,like_count,comment_count,share_count', {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${tokenData.access_token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ max_count: 20 }),
+          });
+          const videoData = await videoRes.json();
+          console.log('TikTok video list response:', videoData);
+          if (videoData.data?.videos && Array.isArray(videoData.data.videos)) {
+            const videos = videoData.data.videos;
+            const totalViews = videos.reduce((acc: number, v: any) => acc + (Number(v.view_count) || 0), 0);
+            const tiktokAcc = socialAccounts.find((a) => a.id === 'tiktok');
+            if (tiktokAcc && totalViews > 0) {
+              tiktokAcc.views = totalViews >= 1000 ? `${(totalViews / 1000).toFixed(1)}K` : `${totalViews}`;
+            }
+          }
+        } catch (vErr) {
+          console.warn('Could not fetch TikTok videos:', vErr);
         }
       }
     }
@@ -551,6 +633,538 @@ app.get(['/api/auth/tiktok/callback', '/api/auth/tiktok/callback/'], async (req,
     `);
   }
 });
+
+// Meta (Instagram & Facebook) OAuth helper to construct redirect URI
+function getMetaRedirectUri(req: express.Request, platform: 'instagram' | 'facebook'): string {
+  const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
+  return `${baseUrl.replace(/\/$/, '')}/api/auth/${platform}/callback`;
+}
+
+// In-memory store for Meta access tokens
+let metaTokens: {
+  instagram?: { accessToken: string; expiresAt: number; userId?: string };
+  facebook?: { accessToken: string; expiresAt: number; pageId?: string };
+} = {};
+
+// 5c. Instagram OAuth Authorization URL
+app.get('/api/auth/instagram/url', (req, res) => {
+  const appId = process.env.META_APP_ID;
+  const redirectUri = getMetaRedirectUri(req, 'instagram');
+  const state = 'creator_os_ig_' + Math.random().toString(36).substring(2, 15);
+  // Default to standard public_profile only so no unrequested permissions are sent
+  const scope = (req.query.scope as string) || 'public_profile';
+
+  if (!appId) {
+    return res.json({
+      configured: false,
+      redirectUri,
+      devCallbackUrl: 'https://ais-dev-trgypbutyowyfjrxvbpubj-294594473820.europe-west1.run.app/api/auth/instagram/callback',
+      sharedCallbackUrl: 'https://ais-pre-trgypbutyowyfjrxvbpubj-294594473820.europe-west1.run.app/api/auth/instagram/callback',
+      scopes: scope,
+      message: 'META_APP_ID not configured in environment variables yet.',
+    });
+  }
+
+  const params = new URLSearchParams({
+    client_id: appId,
+    redirect_uri: redirectUri,
+    scope: scope,
+    response_type: 'code',
+    state: state,
+  });
+
+  const authUrl = `https://www.facebook.com/v19.0/dialog/oauth?${params.toString()}`;
+
+  res.json({
+    configured: true,
+    url: authUrl,
+    redirectUri,
+    state,
+  });
+});
+
+// 5d. Instagram OAuth Callback Endpoint
+app.get(['/api/auth/instagram/callback', '/api/auth/instagram/callback/'], async (req, res) => {
+  const { code, error, error_description } = req.query;
+
+  if (error || !code) {
+    const errorMsg = (error_description as string) || (error as string) || 'Access denied';
+    return res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head><title>Instagram Authorization Failed</title></head>
+        <body style="font-family: system-ui, sans-serif; background: #0b0d17; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+          <div style="text-align: center; max-width: 440px; padding: 28px; border: 1px solid rgba(244,63,94,0.3); border-radius: 16px; background: #131627;">
+            <h2 style="color: #f43f5e; margin: 0 0 10px 0; font-size: 18px;">Instagram Connection Notice</h2>
+            <p style="color: #cbd5e1; font-size: 13px; line-height: 1.5; margin-bottom: 16px;">${errorMsg}</p>
+            <button onclick="window.close()" style="background: #e11d48; color: #fff; border: none; padding: 8px 18px; border-radius: 8px; font-weight: bold; cursor: pointer;">Close Window</button>
+            <script>
+              if (window.opener) {
+                window.opener.postMessage({ type: 'OAUTH_AUTH_ERROR', platform: 'instagram', error: '${errorMsg}' }, '*');
+              }
+            </script>
+          </div>
+        </body>
+      </html>
+    `);
+  }
+
+  try {
+    const appId = process.env.META_APP_ID;
+    const appSecret = process.env.META_APP_SECRET;
+    const redirectUri = getMetaRedirectUri(req, 'instagram');
+
+    const existingIgAcc = socialAccounts.find((a) => a.id === 'instagram');
+    let profileDisplayName = existingIgAcc?.handle || '@creator_ig';
+    let profileAvatar = existingIgAcc?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
+
+    if (appId && appSecret) {
+      // Exchange code for short-lived User Access Token
+      const tokenUrl = `https://graph.facebook.com/v19.0/oauth/access_token?${new URLSearchParams({
+        client_id: appId,
+        client_secret: appSecret,
+        redirect_uri: redirectUri,
+        code: code as string,
+      }).toString()}`;
+
+      const tokenRes = await fetch(tokenUrl);
+      const tokenData = await tokenRes.json();
+      console.log('Meta Instagram OAuth token response:', tokenData);
+
+      if (tokenData.access_token) {
+        metaTokens.instagram = {
+          accessToken: tokenData.access_token,
+          expiresAt: Date.now() + (tokenData.expires_in || 5184000) * 1000,
+        };
+
+        // Query Connected Instagram Business Account via Pages
+        try {
+          const accountsRes = await fetch(
+            `https://graph.facebook.com/v19.0/me/accounts?fields=name,instagram_business_account{id,username,profile_picture_url,followers_count,media_count}&access_token=${tokenData.access_token}`
+          );
+          const accountsData = await accountsRes.json();
+          console.log('Meta Instagram pages/business account response:', accountsData);
+
+          if (accountsData.data && accountsData.data.length > 0) {
+            for (const page of accountsData.data) {
+              if (page.instagram_business_account) {
+                const ig = page.instagram_business_account;
+                if (ig.username) profileDisplayName = `@${ig.username}`;
+                if (ig.profile_picture_url) profileAvatar = ig.profile_picture_url;
+                if (existingIgAcc && ig.followers_count !== undefined) {
+                  const fc = Number(ig.followers_count);
+                  existingIgAcc.followers = fc >= 1000 ? `${(fc / 1000).toFixed(1)}K` : `${fc}`;
+                }
+                break;
+              }
+            }
+          }
+        } catch (igErr) {
+          console.warn('Could not fetch Instagram business profile:', igErr);
+        }
+      }
+    }
+
+    if (existingIgAcc) {
+      existingIgAcc.connected = true;
+      existingIgAcc.handle = profileDisplayName;
+      existingIgAcc.avatar = profileAvatar;
+      existingIgAcc.status = 'active';
+    }
+
+    return res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head><title>Instagram Connected</title></head>
+        <body style="font-family: system-ui, sans-serif; background: #0b0d17; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+          <div style="text-align: center; max-width: 400px; padding: 32px; border: 1px solid rgba(236,72,153,0.3); border-radius: 20px; background: #131627; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <div style="width: 52px; height: 52px; border-radius: 50%; background: rgba(236,72,153,0.2); border: 2px solid #ec4899; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 24px;">✓</div>
+            <h2 style="color: #fff; margin: 0 0 8px 0; font-size: 18px;">Instagram Connected!</h2>
+            <p style="color: #94a3b8; font-size: 13px; margin: 0 0 16px 0;">Account ${profileDisplayName} has been linked to Creator OS.</p>
+            <p style="color: #64748b; font-size: 11px;">This window should close automatically...</p>
+            <script>
+              if (window.opener) {
+                window.opener.postMessage({ type: 'OAUTH_AUTH_SUCCESS', platform: 'instagram', handle: '${profileDisplayName}' }, '*');
+                setTimeout(() => window.close(), 1200);
+              } else {
+                setTimeout(() => { window.location.href = '/'; }, 1500);
+              }
+            </script>
+          </div>
+        </body>
+      </html>
+    `);
+  } catch (err: any) {
+    console.error('Instagram OAuth error:', err);
+    return res.send(`
+      <!DOCTYPE html>
+      <html>
+        <body style="font-family: system-ui; background: #0b0d17; color: #fff; text-align: center; padding: 40px;">
+          <h3>Connection Error</h3>
+          <p>${err.message || 'Failed to exchange Instagram authorization'}</p>
+          <script>
+            if (window.opener) {
+              window.opener.postMessage({ type: 'OAUTH_AUTH_ERROR', platform: 'instagram', error: '${err.message || 'Instagram connection failed'}' }, '*');
+            }
+          </script>
+        </body>
+      </html>
+    `);
+  }
+});
+
+// 5e. Facebook OAuth Authorization URL
+app.get('/api/auth/facebook/url', (req, res) => {
+  const appId = process.env.META_APP_ID;
+  const redirectUri = getMetaRedirectUri(req, 'facebook');
+  const state = 'creator_os_fb_' + Math.random().toString(36).substring(2, 15);
+  // Default to public_profile only (no email required)
+  const scope = (req.query.scope as string) || 'public_profile';
+
+  if (!appId) {
+    return res.json({
+      configured: false,
+      redirectUri,
+      devCallbackUrl: 'https://ais-dev-trgypbutyowyfjrxvbpubj-294594473820.europe-west1.run.app/api/auth/facebook/callback',
+      sharedCallbackUrl: 'https://ais-pre-trgypbutyowyfjrxvbpubj-294594473820.europe-west1.run.app/api/auth/facebook/callback',
+      scopes: scope,
+      message: 'META_APP_ID not configured in environment variables yet.',
+    });
+  }
+
+  const params = new URLSearchParams({
+    client_id: appId,
+    redirect_uri: redirectUri,
+    scope: scope,
+    response_type: 'code',
+    state: state,
+  });
+
+  const authUrl = `https://www.facebook.com/v19.0/dialog/oauth?${params.toString()}`;
+
+  res.json({
+    configured: true,
+    url: authUrl,
+    redirectUri,
+    state,
+  });
+});
+
+// 5f. Facebook OAuth Callback Endpoint
+app.get(['/api/auth/facebook/callback', '/api/auth/facebook/callback/'], async (req, res) => {
+  const { code, error, error_description } = req.query;
+
+  if (error || !code) {
+    const errorMsg = (error_description as string) || (error as string) || 'Access denied';
+    return res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head><title>Facebook Authorization Failed</title></head>
+        <body style="font-family: system-ui, sans-serif; background: #0b0d17; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+          <div style="text-align: center; max-width: 440px; padding: 28px; border: 1px solid rgba(59,130,246,0.3); border-radius: 16px; background: #131627;">
+            <h2 style="color: #3b82f6; margin: 0 0 10px 0; font-size: 18px;">Facebook Connection Notice</h2>
+            <p style="color: #cbd5e1; font-size: 13px; line-height: 1.5; margin-bottom: 16px;">${errorMsg}</p>
+            <button onclick="window.close()" style="background: #2563eb; color: #fff; border: none; padding: 8px 18px; border-radius: 8px; font-weight: bold; cursor: pointer;">Close Window</button>
+            <script>
+              if (window.opener) {
+                window.opener.postMessage({ type: 'OAUTH_AUTH_ERROR', platform: 'facebook', error: '${errorMsg}' }, '*');
+              }
+            </script>
+          </div>
+        </body>
+      </html>
+    `);
+  }
+
+  try {
+    const appId = process.env.META_APP_ID;
+    const appSecret = process.env.META_APP_SECRET;
+    const redirectUri = getMetaRedirectUri(req, 'facebook');
+
+    const existingFbAcc = socialAccounts.find((a) => a.id === 'facebook');
+    let profileDisplayName = existingFbAcc?.handle || 'Creator Page';
+    let profileAvatar = existingFbAcc?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
+
+    if (appId && appSecret) {
+      const tokenUrl = `https://graph.facebook.com/v19.0/oauth/access_token?${new URLSearchParams({
+        client_id: appId,
+        client_secret: appSecret,
+        redirect_uri: redirectUri,
+        code: code as string,
+      }).toString()}`;
+
+      const tokenRes = await fetch(tokenUrl);
+      const tokenData = await tokenRes.json();
+      console.log('Meta Facebook OAuth token response:', tokenData);
+
+      if (tokenData.access_token) {
+        metaTokens.facebook = {
+          accessToken: tokenData.access_token,
+          expiresAt: Date.now() + (tokenData.expires_in || 5184000) * 1000,
+        };
+
+        // Query Managed Facebook Pages
+        try {
+          const pagesRes = await fetch(
+            `https://graph.facebook.com/v19.0/me/accounts?fields=name,id,fan_count,picture{url}&access_token=${tokenData.access_token}`
+          );
+          const pagesData = await pagesRes.json();
+          console.log('Meta Facebook pages response:', pagesData);
+
+          if (pagesData.data && pagesData.data.length > 0) {
+            const page = pagesData.data[0];
+            if (page.name) profileDisplayName = page.name;
+            if (page.picture?.data?.url) profileAvatar = page.picture.data.url;
+            if (existingFbAcc && page.fan_count !== undefined) {
+              const count = Number(page.fan_count);
+              existingFbAcc.followers = count >= 1000 ? `${(count / 1000).toFixed(1)}K` : `${count}`;
+            }
+          }
+        } catch (fbErr) {
+          console.warn('Could not fetch Facebook pages:', fbErr);
+        }
+      }
+    }
+
+    if (existingFbAcc) {
+      existingFbAcc.connected = true;
+      existingFbAcc.handle = profileDisplayName;
+      existingFbAcc.avatar = profileAvatar;
+      existingFbAcc.status = 'active';
+    }
+
+    return res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head><title>Facebook Connected</title></head>
+        <body style="font-family: system-ui, sans-serif; background: #0b0d17; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+          <div style="text-align: center; max-width: 400px; padding: 32px; border: 1px solid rgba(59,130,246,0.3); border-radius: 20px; background: #131627; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <div style="width: 52px; height: 52px; border-radius: 50%; background: rgba(59,130,246,0.2); border: 2px solid #3b82f6; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 24px;">✓</div>
+            <h2 style="color: #fff; margin: 0 0 8px 0; font-size: 18px;">Facebook Connected!</h2>
+            <p style="color: #94a3b8; font-size: 13px; margin: 0 0 16px 0;">Page ${profileDisplayName} has been linked to Creator OS.</p>
+            <p style="color: #64748b; font-size: 11px;">This window should close automatically...</p>
+            <script>
+              if (window.opener) {
+                window.opener.postMessage({ type: 'OAUTH_AUTH_SUCCESS', platform: 'facebook', handle: '${profileDisplayName}' }, '*');
+                setTimeout(() => window.close(), 1200);
+              } else {
+                setTimeout(() => { window.location.href = '/'; }, 1500);
+              }
+            </script>
+          </div>
+        </body>
+      </html>
+    `);
+  } catch (err: any) {
+    console.error('Facebook OAuth error:', err);
+    return res.send(`
+      <!DOCTYPE html>
+      <html>
+        <body style="font-family: system-ui; background: #0b0d17; color: #fff; text-align: center; padding: 40px;">
+          <h3>Connection Error</h3>
+          <p>${err.message || 'Failed to exchange Facebook authorization'}</p>
+          <script>
+            if (window.opener) {
+              window.opener.postMessage({ type: 'OAUTH_AUTH_ERROR', platform: 'facebook', error: '${err.message || 'Facebook connection failed'}' }, '*');
+            }
+          </script>
+        </body>
+      </html>
+    `);
+  }
+});
+
+// Google / YouTube OAuth helper
+function getYouTubeRedirectUri(req: express.Request): string {
+  const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
+  return `${baseUrl.replace(/\/$/, '')}/api/auth/youtube/callback`;
+}
+
+let googleTokens: {
+  youtube?: { accessToken: string; refreshToken?: string; expiresAt: number; channelId?: string };
+} = {};
+
+// 5e. YouTube OAuth Authorization URL
+app.get('/api/auth/youtube/url', (req, res) => {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const redirectUri = getYouTubeRedirectUri(req);
+  const state = 'creator_os_yt_' + Math.random().toString(36).substring(2, 15);
+  // Request YouTube readonly channel access and profile
+  const scopes = [
+    'https://www.googleapis.com/auth/youtube.readonly',
+    'https://www.googleapis.com/auth/userinfo.profile'
+  ].join(' ');
+
+  if (!clientId) {
+    return res.json({
+      configured: false,
+      message: 'GOOGLE_CLIENT_ID not found in environment variables',
+      redirectUri,
+    });
+  }
+
+  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${new URLSearchParams({
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    response_type: 'code',
+    scope: scopes,
+    access_type: 'offline',
+    prompt: 'consent',
+    state,
+  }).toString()}`;
+
+  res.json({
+    configured: true,
+    url: authUrl,
+    redirectUri,
+  });
+});
+
+// 5f. YouTube OAuth Callback Handler
+app.get('/api/auth/youtube/callback', async (req, res) => {
+  const { code, error, error_description } = req.query;
+
+  if (error) {
+    console.error('YouTube OAuth authorization error:', error, error_description);
+    return res.send(`
+      <!DOCTYPE html>
+      <html>
+        <body style="font-family: system-ui; background: #0b0d17; color: #fff; text-align: center; padding: 40px;">
+          <h3 style="color: #ef4444;">YouTube Authorization Cancelled</h3>
+          <p>${error_description || error}</p>
+          <script>
+            if (window.opener) {
+              window.opener.postMessage({ type: 'OAUTH_AUTH_ERROR', platform: 'youtube', error: '${error}' }, '*');
+              setTimeout(() => window.close(), 2500);
+            }
+          </script>
+        </body>
+      </html>
+    `);
+  }
+
+  if (!code) {
+    return res.status(400).send('Authorization code missing');
+  }
+
+  try {
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    const redirectUri = getYouTubeRedirectUri(req);
+
+    const existingYtAcc = socialAccounts.find((a) => a.id === 'youtube');
+    let channelTitle = existingYtAcc?.handle || 'YouTube Creator';
+    let channelAvatar = existingYtAcc?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
+
+    if (clientId && clientSecret) {
+      const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          code: code as string,
+          client_id: clientId,
+          client_secret: clientSecret,
+          redirect_uri: redirectUri,
+          grant_type: 'authorization_code',
+        }),
+      });
+
+      const tokenData = await tokenRes.json();
+      console.log('Google YouTube OAuth token response status:', tokenRes.status);
+
+      if (tokenData.access_token) {
+        googleTokens.youtube = {
+          accessToken: tokenData.access_token,
+          refreshToken: tokenData.refresh_token,
+          expiresAt: Date.now() + (tokenData.expires_in || 3600) * 1000,
+        };
+
+        // Fetch live YouTube channel details via YouTube Data API v3
+        try {
+          const ytRes = await fetch(
+            'https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&mine=true',
+            {
+              headers: {
+                Authorization: `Bearer ${tokenData.access_token}`,
+              },
+            }
+          );
+          const ytData = await ytRes.json();
+          console.log('YouTube channels response:', ytData);
+
+          if (ytData.items && ytData.items.length > 0) {
+            const channel = ytData.items[0];
+            if (channel.snippet?.title) {
+              channelTitle = channel.snippet.customUrl || channel.snippet.title;
+            }
+            if (channel.snippet?.thumbnails?.default?.url) {
+              channelAvatar = channel.snippet.thumbnails.default.url;
+            }
+            if (existingYtAcc && channel.statistics) {
+              const subs = Number(channel.statistics.subscriberCount);
+              if (!isNaN(subs)) {
+                existingYtAcc.followers = subs >= 1000 ? `${(subs / 1000).toFixed(1)}K` : `${subs}`;
+              }
+              const views = Number(channel.statistics.viewCount);
+              if (!isNaN(views)) {
+                existingYtAcc.views = views >= 1000000 ? `${(views / 1000000).toFixed(1)}M` : views >= 1000 ? `${(views / 1000).toFixed(1)}K` : `${views}`;
+              }
+            }
+          }
+        } catch (ytErr) {
+          console.warn('Could not fetch YouTube channel data:', ytErr);
+        }
+      }
+    }
+
+    if (existingYtAcc) {
+      existingYtAcc.connected = true;
+      existingYtAcc.handle = channelTitle;
+      existingYtAcc.avatar = channelAvatar;
+      existingYtAcc.status = 'active';
+    }
+
+    return res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head><title>YouTube Connected</title></head>
+        <body style="font-family: system-ui, sans-serif; background: #0b0d17; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+          <div style="text-align: center; max-width: 400px; padding: 32px; border: 1px solid rgba(239,68,68,0.3); border-radius: 20px; background: #131627; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <div style="width: 52px; height: 52px; border-radius: 50%; background: rgba(239,68,68,0.2); border: 2px solid #ef4444; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 24px;">✓</div>
+            <h2 style="color: #fff; margin: 0 0 8px 0; font-size: 18px;">YouTube Connected!</h2>
+            <p style="color: #94a3b8; font-size: 13px; margin: 0 0 16px 0;">Channel <strong>${channelTitle}</strong> has been linked to Creator OS.</p>
+            <p style="color: #64748b; font-size: 11px;">This window should close automatically...</p>
+            <script>
+              if (window.opener) {
+                window.opener.postMessage({ type: 'OAUTH_AUTH_SUCCESS', platform: 'youtube', handle: '${channelTitle}' }, '*');
+                setTimeout(() => window.close(), 1200);
+              } else {
+                setTimeout(() => { window.location.href = '/'; }, 1500);
+              }
+            </script>
+          </div>
+        </body>
+      </html>
+    `);
+  } catch (err: any) {
+    console.error('YouTube OAuth error:', err);
+    return res.send(`
+      <!DOCTYPE html>
+      <html>
+        <body style="font-family: system-ui; background: #0b0d17; color: #fff; text-align: center; padding: 40px;">
+          <h3>Connection Error</h3>
+          <p>${err.message || 'Failed to exchange YouTube authorization'}</p>
+          <script>
+            if (window.opener) {
+              window.opener.postMessage({ type: 'OAUTH_AUTH_ERROR', platform: 'youtube', error: '${err.message || 'YouTube connection failed'}' }, '*');
+            }
+          </script>
+        </body>
+      </html>
+    `);
+  }
+});
+
 
 app.post('/api/accounts/:id/toggle', (req, res) => {
   const { id } = req.params;
@@ -939,6 +1553,116 @@ function generateFallbackAI({ type, prompt, category, platform }: any) {
   }
 }
 
+// Dedicated Privacy Policy endpoint for Meta & TikTok App verification
+app.get(['/privacy', '/privacy-policy'], (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Privacy Policy - Creator OS</title>
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0b0d17; color: #e2e8f0; line-height: 1.6; padding: 40px 20px; margin: 0; }
+          .container { max-width: 760px; margin: 0 auto; background: #131627; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 40px; }
+          h1 { color: #fff; font-size: 28px; margin-top: 0; }
+          h2 { color: #f43f5e; font-size: 18px; margin-top: 28px; }
+          p, li { color: #94a3b8; font-size: 14px; }
+          ul { padding-left: 20px; }
+          .badge { display: inline-block; background: rgba(244,63,94,0.15); color: #f43f5e; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: bold; margin-bottom: 20px; }
+          a { color: #38bdf8; text-decoration: none; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="badge">Legal Document</div>
+          <h1>Privacy Policy</h1>
+          <p><strong>Effective Date:</strong> January 1, 2026 | <strong>Last Updated:</strong> August 15, 2026</p>
+          
+          <p>Creator OS ("we", "our", or "us") operates the Creator OS content creation and scheduling platform. This Privacy Policy describes how we collect, use, and protect your information when you authenticate through social media platforms including Meta (Facebook and Instagram) and TikTok.</p>
+
+          <h2>1. Information We Collect</h2>
+          <p>When you connect your social media accounts via OAuth, we only collect the minimum information required to display your creator stats and manage content:</p>
+          <ul>
+            <li><strong>Public Profile Information:</strong> Display name, username/handle, and avatar image.</li>
+            <li><strong>Creator Analytics:</strong> Follower counts, video/post performance statistics, views, likes, and engagement figures.</li>
+            <li><strong>Authorization Tokens:</strong> Secure OAuth access tokens used strictly on your behalf to fetch analytics or schedule posts.</li>
+          </ul>
+
+          <h2>2. How We Use Your Information</h2>
+          <p>We use your information exclusively to provide and enhance Creator OS services:</p>
+          <ul>
+            <li>Displaying unified multi-platform analytics on your creator dashboard.</li>
+            <li>Enabling content scheduling and automated publishing to your linked accounts.</li>
+            <li>Generating AI-assisted video scripts and hooks tailored to your content niche.</li>
+          </ul>
+
+          <h2>3. Data Storage & Security</h2>
+          <p>We implement industry-standard encryption protocols. We never sell, trade, or rent your personal data or social media tokens to third parties.</p>
+
+          <h2>4. User Rights & Data Deletion</h2>
+          <p>You can revoke access to your connected accounts at any time through the <strong>Connected Accounts</strong> settings modal in Creator OS or through your account settings on Facebook, Instagram, or TikTok. Upon disconnection, stored authorization tokens are immediately purged.</p>
+
+          <h2>5. Contact Us</h2>
+          <p>If you have any questions regarding this Privacy Policy, please contact our support team at <a href="mailto:leanne1mu@gmail.com">leanne1mu@gmail.com</a>.</p>
+        </div>
+      </body>
+    </html>
+  `);
+});
+
+// Dedicated Terms of Service endpoint for Meta & TikTok App verification
+app.get(['/terms', '/terms-of-service'], (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Terms of Service - Creator OS</title>
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0b0d17; color: #e2e8f0; line-height: 1.6; padding: 40px 20px; margin: 0; }
+          .container { max-width: 760px; margin: 0 auto; background: #131627; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 40px; }
+          h1 { color: #fff; font-size: 28px; margin-top: 0; }
+          h2 { color: #38bdf8; font-size: 18px; margin-top: 28px; }
+          p, li { color: #94a3b8; font-size: 14px; }
+          ul { padding-left: 20px; }
+          .badge { display: inline-block; background: rgba(56,189,248,0.15); color: #38bdf8; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: bold; margin-bottom: 20px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="badge">Terms & Conditions</div>
+          <h1>Terms of Service</h1>
+          <p><strong>Effective Date:</strong> January 1, 2026</p>
+          <p>By using Creator OS, you agree to comply with these terms, as well as the platform terms and developer policies of Meta (Facebook, Instagram) and TikTok.</p>
+          <h2>1. Use of Services</h2>
+          <p>You agree to use Creator OS solely for lawful creator workflow management, scheduling, and analytics tracking.</p>
+          <h2>2. Intellectual Property</h2>
+          <p>You retain full ownership of all scripts, video assets, and content created or scheduled via Creator OS.</p>
+        </div>
+      </body>
+    </html>
+  `);
+});
+
+// Fallback for unmatched API routes so they return JSON instead of HTML
+app.all('/api/*', (req, res) => {
+  res.status(404).json({ error: `API route ${req.method} ${req.path} not found` });
+});
+
+// Global JSON error handling middleware
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (err) {
+    console.error('Server request error:', err);
+    if (err.type === 'entity.too.large' || err.status === 413) {
+      return res.status(413).json({ error: 'Payload or file is too large. Please select a smaller file.' });
+    }
+    return res.status(err.status || 500).json({ error: err.message || 'Internal Server Error' });
+  }
+  next();
+});
+
 // In production, serve the built Vite app
 const distPath = path.join(__dirname, 'dist');
 app.use(express.static(distPath));
@@ -946,7 +1670,7 @@ app.use(express.static(distPath));
 // For SPA routing
 app.get('*', (req, res, next) => {
   if (req.path.startsWith('/api/')) {
-    return next();
+    return res.status(404).json({ error: 'Endpoint not found' });
   }
   res.sendFile(path.join(distPath, 'index.html'), (err) => {
     if (err) {
