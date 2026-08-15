@@ -1,0 +1,8 @@
+{
+  "name": "Creator OS",
+  "description": "AI-powered social media management and content intelligence platform for multi-platform publishing, scheduling, unified analytics, and AI content creation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

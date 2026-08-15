@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+@layer base {
+  * {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  body {
+    background-color: #0b0d17;
+    color: #f8fafc;
+    overflow-x: hidden;
+  }
+}
+
+/* Custom scrollbar for clean dark UI */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0f111e;
+}
+::-webkit-scrollbar-thumb {
+  background: #282c44;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3c4263;
+}
+
+/* Smooth glass and neon glow styling */
+.creator-card {
+  background: #131627;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+}
+
+.creator-card-interactive {
+  background: #131627;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.creator-card-interactive:hover {
+  border-color: rgba(236, 72, 153, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(236, 72, 153, 0.2);
+}
+
+.purple-glow-btn, .pink-glow-btn {
+  background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+  box-shadow: 0 4px 18px rgba(236, 72, 153, 0.4);
+}
+.purple-glow-btn:hover, .pink-glow-btn:hover {
+  background: linear-gradient(135deg, #f43f5e 0%, #be185d 100%);
+  box-shadow: 0 6px 24px rgba(236, 72, 153, 0.6);
+}
+
+/* Custom pulse animations for live status */
+@keyframes softPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.05); }
+}
+.soft-pulse {
+  animation: softPulse 2.5s infinite ease-in-out;
+}
