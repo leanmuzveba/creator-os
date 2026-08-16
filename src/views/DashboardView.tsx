@@ -90,38 +90,38 @@ export const DashboardView: React.FC = () => {
         </div>
       </div>
 
-      {/* 4 Platform Stat Cards (2x2 grid matching Screen 1) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      {/* 4 Platform Stat Cards (Compact 2x2 / 4-col grid) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
         {/* TikTok Card */}
         {(() => {
           const tiktok = socialAccounts.find((a) => a.id === 'tiktok');
           return (
-            <div className="creator-card-interactive p-4 relative overflow-hidden flex flex-col justify-between">
+            <div className="creator-card-interactive p-3 sm:p-3.5 relative overflow-hidden flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-black border border-white/15 flex items-center justify-center text-white relative">
-                    <PlatformIcon platform="tiktok" size={16} />
+                  <div className="w-7 h-7 rounded-lg bg-black border border-white/15 flex items-center justify-center text-white relative">
+                    <PlatformIcon platform="tiktok" size={14} />
                     {tiktok?.connected && (
-                      <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-[#0b0d17]" />
+                      <span className="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-400 ring-1.5 ring-[#0b0d17]" />
                     )}
                   </div>
                   <div>
-                    <span className="text-xs font-bold text-slate-200 block">TikTok</span>
+                    <span className="text-[11px] sm:text-xs font-bold text-slate-200 block leading-tight">TikTok</span>
                     {tiktok?.connected && (
-                      <span className="text-[9px] text-emerald-400 font-mono">Live</span>
+                      <span className="text-[8.5px] text-emerald-400 font-mono leading-none">Live</span>
                     )}
                   </div>
                 </div>
-                <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center gap-0.5">
+                <span className="px-1.5 py-0.5 rounded text-[8.5px] sm:text-[9px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center gap-0.5">
                   ↑ {tiktok?.viewsGrowth || '18.6%'}
                 </span>
               </div>
 
-              <div className="mt-4">
-                <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">{tiktok?.views || '124.8K'}</h3>
-                <div className="flex items-center justify-between mt-0.5">
-                  <p className="text-[11px] text-slate-400 font-medium">Views</p>
-                  <p className="text-[10px] text-pink-300 font-mono">{tiktok?.followers || '128.4K'} fans</p>
+              <div className="mt-2.5 sm:mt-3">
+                <h3 className="text-base sm:text-lg font-extrabold text-white tracking-tight leading-tight">{tiktok?.views || '124.8K'}</h3>
+                <div className="flex items-center justify-between mt-0.5 text-[10px]">
+                  <p className="text-slate-400 font-medium">Views</p>
+                  <p className="text-pink-300/90 font-mono">{tiktok?.followers || '128.4K'} fans</p>
                 </div>
               </div>
             </div>
@@ -132,32 +132,32 @@ export const DashboardView: React.FC = () => {
         {(() => {
           const ig = socialAccounts.find((a) => a.id === 'instagram');
           return (
-            <div className="creator-card-interactive p-4 relative overflow-hidden flex flex-col justify-between">
+            <div className="creator-card-interactive p-3 sm:p-3.5 relative overflow-hidden flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#f58529] via-[#dd2a7b] to-[#8134af] flex items-center justify-center text-white relative">
-                    <PlatformIcon platform="instagram" size={16} />
+                  <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#f58529] via-[#dd2a7b] to-[#8134af] flex items-center justify-center text-white relative">
+                    <PlatformIcon platform="instagram" size={14} />
                     {ig?.connected && (
-                      <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-[#0b0d17]" />
+                      <span className="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-400 ring-1.5 ring-[#0b0d17]" />
                     )}
                   </div>
                   <div>
-                    <span className="text-xs font-bold text-slate-200 block">Instagram</span>
+                    <span className="text-[11px] sm:text-xs font-bold text-slate-200 block leading-tight">Instagram</span>
                     {ig?.connected && (
-                      <span className="text-[9px] text-emerald-400 font-mono">Live</span>
+                      <span className="text-[8.5px] text-emerald-400 font-mono leading-none">Live</span>
                     )}
                   </div>
                 </div>
-                <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center gap-0.5">
+                <span className="px-1.5 py-0.5 rounded text-[8.5px] sm:text-[9px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center gap-0.5">
                   ↑ {ig?.viewsGrowth || '12.4%'}
                 </span>
               </div>
 
-              <div className="mt-4">
-                <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">{ig?.views || '89.4K'}</h3>
-                <div className="flex items-center justify-between mt-0.5">
-                  <p className="text-[11px] text-slate-400 font-medium">Reach</p>
-                  <p className="text-[10px] text-pink-300 font-mono">{ig?.followers || '89.4K'} fans</p>
+              <div className="mt-2.5 sm:mt-3">
+                <h3 className="text-base sm:text-lg font-extrabold text-white tracking-tight leading-tight">{ig?.views || '89.4K'}</h3>
+                <div className="flex items-center justify-between mt-0.5 text-[10px]">
+                  <p className="text-slate-400 font-medium">Reach</p>
+                  <p className="text-pink-300/90 font-mono">{ig?.followers || '89.4K'} fans</p>
                 </div>
               </div>
             </div>
@@ -168,32 +168,32 @@ export const DashboardView: React.FC = () => {
         {(() => {
           const yt = socialAccounts.find((a) => a.id === 'youtube');
           return (
-            <div className="creator-card-interactive p-4 relative overflow-hidden flex flex-col justify-between">
+            <div className="creator-card-interactive p-3 sm:p-3.5 relative overflow-hidden flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-[#ff0000] flex items-center justify-center text-white relative">
-                    <PlatformIcon platform="youtube" size={16} />
+                  <div className="w-7 h-7 rounded-lg bg-[#ff0000] flex items-center justify-center text-white relative">
+                    <PlatformIcon platform="youtube" size={14} />
                     {yt?.connected && (
-                      <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-[#0b0d17]" />
+                      <span className="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-400 ring-1.5 ring-[#0b0d17]" />
                     )}
                   </div>
                   <div>
-                    <span className="text-xs font-bold text-slate-200 block">YouTube</span>
+                    <span className="text-[11px] sm:text-xs font-bold text-slate-200 block leading-tight">YouTube</span>
                     {yt?.connected && (
-                      <span className="text-[9px] text-emerald-400 font-mono">Live</span>
+                      <span className="text-[8.5px] text-emerald-400 font-mono leading-none">Live</span>
                     )}
                   </div>
                 </div>
-                <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center gap-0.5">
+                <span className="px-1.5 py-0.5 rounded text-[8.5px] sm:text-[9px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center gap-0.5">
                   ↑ {yt?.viewsGrowth || '9.3%'}
                 </span>
               </div>
 
-              <div className="mt-4">
-                <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">{yt?.views || '56.7K'}</h3>
-                <div className="flex items-center justify-between mt-0.5">
-                  <p className="text-[11px] text-slate-400 font-medium">Views</p>
-                  <p className="text-[10px] text-pink-300 font-mono">{yt?.followers || '56.7K'} subs</p>
+              <div className="mt-2.5 sm:mt-3">
+                <h3 className="text-base sm:text-lg font-extrabold text-white tracking-tight leading-tight">{yt?.views || '56.7K'}</h3>
+                <div className="flex items-center justify-between mt-0.5 text-[10px]">
+                  <p className="text-slate-400 font-medium">Views</p>
+                  <p className="text-pink-300/90 font-mono">{yt?.followers || '56.7K'} subs</p>
                 </div>
               </div>
             </div>
@@ -204,32 +204,32 @@ export const DashboardView: React.FC = () => {
         {(() => {
           const fb = socialAccounts.find((a) => a.id === 'facebook');
           return (
-            <div className="creator-card-interactive p-4 relative overflow-hidden flex flex-col justify-between">
+            <div className="creator-card-interactive p-3 sm:p-3.5 relative overflow-hidden flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-[#1877f2] flex items-center justify-center text-white relative">
-                    <PlatformIcon platform="facebook" size={16} />
+                  <div className="w-7 h-7 rounded-lg bg-[#1877f2] flex items-center justify-center text-white relative">
+                    <PlatformIcon platform="facebook" size={14} />
                     {fb?.connected && (
-                      <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-[#0b0d17]" />
+                      <span className="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-400 ring-1.5 ring-[#0b0d17]" />
                     )}
                   </div>
                   <div>
-                    <span className="text-xs font-bold text-slate-200 block">Facebook</span>
+                    <span className="text-[11px] sm:text-xs font-bold text-slate-200 block leading-tight">Facebook</span>
                     {fb?.connected && (
-                      <span className="text-[9px] text-emerald-400 font-mono">Live</span>
+                      <span className="text-[8.5px] text-emerald-400 font-mono leading-none">Live</span>
                     )}
                   </div>
                 </div>
-                <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center gap-0.5">
+                <span className="px-1.5 py-0.5 rounded text-[8.5px] sm:text-[9px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center gap-0.5">
                   ↑ {fb?.viewsGrowth || '6.8%'}
                 </span>
               </div>
 
-              <div className="mt-4">
-                <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">{fb?.views || '23.1K'}</h3>
-                <div className="flex items-center justify-between mt-0.5">
-                  <p className="text-[11px] text-slate-400 font-medium">Reach</p>
-                  <p className="text-[10px] text-pink-300 font-mono">{fb?.followers || '23.1K'} fans</p>
+              <div className="mt-2.5 sm:mt-3">
+                <h3 className="text-base sm:text-lg font-extrabold text-white tracking-tight leading-tight">{fb?.views || '23.1K'}</h3>
+                <div className="flex items-center justify-between mt-0.5 text-[10px]">
+                  <p className="text-slate-400 font-medium">Reach</p>
+                  <p className="text-pink-300/90 font-mono">{fb?.followers || '23.1K'} fans</p>
                 </div>
               </div>
             </div>

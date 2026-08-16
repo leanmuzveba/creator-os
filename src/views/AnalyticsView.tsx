@@ -85,77 +85,77 @@ export const AnalyticsView: React.FC = () => {
         </div>
       </div>
 
-      {/* Overview 2x2 Metric Cards (matching Screen 4) */}
+      {/* Overview 2x2 Metric Cards (Compact matching Dashboard) */}
       <div className="space-y-2">
         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Overview</h3>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
           {/* Views */}
-          <div className="creator-card-interactive p-4 sm:p-5 flex flex-col justify-between">
+          <div className="creator-card-interactive p-3 sm:p-3.5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <div className="w-8 h-8 rounded-xl bg-pink-600/20 border border-pink-500/30 flex items-center justify-center text-pink-400">
-                <Eye className="w-4 h-4" />
+              <div className="w-7 h-7 rounded-lg bg-pink-600/20 border border-pink-500/30 flex items-center justify-center text-pink-400">
+                <Eye className="w-3.5 h-3.5" />
               </div>
-              <span className="text-[9px] font-semibold font-mono text-emerald-400 bg-emerald-500/15 px-1.5 py-0.5 rounded-md border border-emerald-500/20">
+              <span className="text-[8.5px] sm:text-[9px] font-semibold font-mono text-emerald-400 bg-emerald-500/15 px-1.5 py-0.5 rounded border border-emerald-500/20">
                 ↑ {overview.views?.growth || '16.8%'}
               </span>
             </div>
-            <div className="mt-3">
-              <span className="text-xs text-slate-400 font-medium">Views</span>
-              <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-0.5">
+            <div className="mt-2.5 sm:mt-3">
+              <span className="text-[10px] text-slate-400 font-medium block">Views</span>
+              <h3 className="text-base sm:text-lg font-extrabold text-white tracking-tight leading-tight mt-0.5">
                 {overview.views?.value || '0'}
               </h3>
             </div>
           </div>
 
           {/* Reach */}
-          <div className="creator-card-interactive p-4 sm:p-5 flex flex-col justify-between">
+          <div className="creator-card-interactive p-3 sm:p-3.5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <div className="w-8 h-8 rounded-xl bg-cyan-600/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
-                <Users className="w-4 h-4" />
+              <div className="w-7 h-7 rounded-lg bg-cyan-600/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                <Users className="w-3.5 h-3.5" />
               </div>
-              <span className="text-[9px] font-semibold font-mono text-emerald-400 bg-emerald-500/15 px-1.5 py-0.5 rounded-md border border-emerald-500/20">
+              <span className="text-[8.5px] sm:text-[9px] font-semibold font-mono text-emerald-400 bg-emerald-500/15 px-1.5 py-0.5 rounded border border-emerald-500/20">
                 ↑ {overview.reach?.growth || '12.3%'}
               </span>
             </div>
-            <div className="mt-3">
-              <span className="text-xs text-slate-400 font-medium">Reach</span>
-              <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-0.5">
+            <div className="mt-2.5 sm:mt-3">
+              <span className="text-[10px] text-slate-400 font-medium block">Reach</span>
+              <h3 className="text-base sm:text-lg font-extrabold text-white tracking-tight leading-tight mt-0.5">
                 {overview.reach?.value || '0'}
               </h3>
             </div>
           </div>
 
           {/* Engagement */}
-          <div className="creator-card-interactive p-4 sm:p-5 flex flex-col justify-between">
+          <div className="creator-card-interactive p-3 sm:p-3.5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <div className="w-8 h-8 rounded-xl bg-pink-600/20 border border-pink-500/30 flex items-center justify-center text-pink-400">
-                <Heart className="w-4 h-4" />
+              <div className="w-7 h-7 rounded-lg bg-pink-600/20 border border-pink-500/30 flex items-center justify-center text-pink-400">
+                <Heart className="w-3.5 h-3.5" />
               </div>
-              <span className="text-[9px] font-semibold font-mono text-emerald-400 bg-emerald-500/15 px-1.5 py-0.5 rounded-md border border-emerald-500/20">
+              <span className="text-[8.5px] sm:text-[9px] font-semibold font-mono text-emerald-400 bg-emerald-500/15 px-1.5 py-0.5 rounded border border-emerald-500/20">
                 ↑ {overview.engagement?.growth || '9.6%'}
               </span>
             </div>
-            <div className="mt-3">
-              <span className="text-xs text-slate-400 font-medium">Engagement</span>
-              <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-0.5">
+            <div className="mt-2.5 sm:mt-3">
+              <span className="text-[10px] text-slate-400 font-medium block">Engagement</span>
+              <h3 className="text-base sm:text-lg font-extrabold text-white tracking-tight leading-tight mt-0.5">
                 {overview.engagement?.value || '0'}
               </h3>
             </div>
           </div>
 
           {/* New Followers */}
-          <div className="creator-card-interactive p-4 sm:p-5 flex flex-col justify-between">
+          <div className="creator-card-interactive p-3 sm:p-3.5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <div className="w-8 h-8 rounded-xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                <UserPlus className="w-4 h-4" />
+              <div className="w-7 h-7 rounded-lg bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                <UserPlus className="w-3.5 h-3.5" />
               </div>
-              <span className="text-[9px] font-semibold font-mono text-emerald-400 bg-emerald-500/15 px-1.5 py-0.5 rounded-md border border-emerald-500/20">
+              <span className="text-[8.5px] sm:text-[9px] font-semibold font-mono text-emerald-400 bg-emerald-500/15 px-1.5 py-0.5 rounded border border-emerald-500/20">
                 ↑ {overview.newFollowers?.growth || '10.1%'}
               </span>
             </div>
-            <div className="mt-3">
-              <span className="text-xs text-slate-400 font-medium">New Followers</span>
-              <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-0.5">
+            <div className="mt-2.5 sm:mt-3">
+              <span className="text-[10px] text-slate-400 font-medium block">New Followers</span>
+              <h3 className="text-base sm:text-lg font-extrabold text-white tracking-tight leading-tight mt-0.5">
                 {overview.newFollowers?.value || '0'}
               </h3>
             </div>
