@@ -1,8 +1,8 @@
 CURRENT ISSUES - Updated 16 August
 
-After connecting my youtube and tiktok, It only updates the followers, or subscribers on the dashboard, but the views overview card still has inaccurate metrics.
+After connecting my youtube and tiktok, It only updates the followers, or subscribers on the dashboard, but the views overview card still has inaccurate metrics. FIXED BUT NOT TESTED
 
-After refreshing the app, it logs me out of my accounts and keeps the demo metrics.
+After refreshing the app, it logs me out of my accounts and keeps the demo metrics. FIXED BUT NOT TESTED
 
 Reduce the dashboard cards for Social analytics
 
