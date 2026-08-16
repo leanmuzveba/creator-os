@@ -3,6 +3,7 @@ import cors from 'cors';
 import { GoogleGenAI } from '@google/genai';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -57,7 +58,7 @@ export interface PostItem {
   };
 }
 
-let posts: PostItem[] = [
+const defaultPosts: PostItem[] = [
   {
     id: 'post-1',
     title: 'AI Tools Every Student Should Know',
@@ -164,8 +165,8 @@ let posts: PostItem[] = [
   }
 ];
 
-// Connected platforms status
-let socialAccounts = [
+// Connected platforms default status
+const defaultSocialAccounts = [
   {
     id: 'tiktok',
     name: 'TikTok',
@@ -219,6 +220,70 @@ let socialAccounts = [
     status: 'active'
   }
 ];
+
+let posts: PostItem[] = [...defaultPosts];
+let socialAccounts = [...defaultSocialAccounts];
+
+let tiktokTokens: {
+  accessToken?: string;
+  refreshToken?: string;
+  openId?: string;
+  expiresAt?: number;
+} = {};
+
+let metaTokens: {
+  instagram?: { accessToken: string; expiresAt: number; userId?: string };
+  facebook?: { accessToken: string; expiresAt: number; pageId?: string };
+} = {};
+
+let googleTokens: {
+  youtube?: { accessToken: string; refreshToken?: string; expiresAt: number; channelId?: string };
+} = {};
+
+const STORAGE_FILE = path.join(process.cwd(), 'creator_storage.json');
+
+function loadStorage() {
+  try {
+    if (fs.existsSync(STORAGE_FILE)) {
+      const raw = fs.readFileSync(STORAGE_FILE, 'utf-8');
+      const data = JSON.parse(raw);
+      if (data.posts && Array.isArray(data.posts) && data.posts.length > 0) {
+        posts = data.posts;
+      }
+      if (data.socialAccounts && Array.isArray(data.socialAccounts) && data.socialAccounts.length > 0) {
+        socialAccounts = defaultSocialAccounts.map((defAcc) => {
+          const saved = data.socialAccounts.find((s: any) => s.id === defAcc.id);
+          return saved ? { ...defAcc, ...saved } : defAcc;
+        });
+      }
+      if (data.googleTokens) googleTokens = { ...googleTokens, ...data.googleTokens };
+      if (data.tiktokTokens) tiktokTokens = { ...tiktokTokens, ...data.tiktokTokens };
+      if (data.metaTokens) metaTokens = { ...metaTokens, ...data.metaTokens };
+      console.log('✅ Persistent store loaded successfully from disk.');
+    }
+  } catch (err) {
+    console.error('Failed to load storage file:', err);
+  }
+}
+
+function saveStorage() {
+  try {
+    const data = {
+      posts,
+      socialAccounts,
+      googleTokens,
+      tiktokTokens,
+      metaTokens,
+      updatedAt: new Date().toISOString(),
+    };
+    fs.writeFileSync(STORAGE_FILE, JSON.stringify(data, null, 2), 'utf-8');
+  } catch (err) {
+    console.error('Failed to write storage file:', err);
+  }
+}
+
+// Initial storage load
+loadStorage();
 
 // Trends feed
 const trendsFeed = [
@@ -335,6 +400,7 @@ app.post('/api/posts', (req, res) => {
   };
 
   posts.unshift(newPost);
+  saveStorage();
   res.status(201).json(newPost);
 });
 
@@ -351,6 +417,7 @@ app.put('/api/posts/:id', (req, res) => {
     ...req.body
   };
 
+  saveStorage();
   res.json(posts[index]);
 });
 
@@ -358,6 +425,7 @@ app.put('/api/posts/:id', (req, res) => {
 app.delete('/api/posts/:id', (req, res) => {
   const { id } = req.params;
   posts = posts.filter(p => p.id !== id);
+  saveStorage();
   res.json({ success: true, id });
 });
 
@@ -366,19 +434,38 @@ app.get('/api/accounts', (req, res) => {
   res.json(socialAccounts);
 });
 
+// Batch sync/save social accounts state from client
+app.post('/api/accounts/sync', (req, res) => {
+  const incomingAccounts = req.body;
+  if (Array.isArray(incomingAccounts) && incomingAccounts.length > 0) {
+    socialAccounts = socialAccounts.map(existing => {
+      const matched = incomingAccounts.find((inc: any) => inc.id === existing.id);
+      if (matched) {
+        return {
+          ...existing,
+          ...matched,
+          connected: matched.connected !== undefined ? matched.connected : existing.connected,
+        };
+      }
+      return existing;
+    });
+    saveStorage();
+  }
+  res.json(socialAccounts);
+});
+
+// Reset social accounts to default state
+app.post('/api/accounts/reset', (req, res) => {
+  socialAccounts = defaultSocialAccounts.map(a => ({ ...a }));
+  saveStorage();
+  res.json(socialAccounts);
+});
+
 // TikTok OAuth helper to construct redirect URI
 function getTikTokRedirectUri(req: express.Request): string {
   const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
   return `${baseUrl.replace(/\/$/, '')}/api/auth/tiktok/callback`;
 }
-
-// In-memory store for TikTok OAuth access token
-let tiktokTokens: {
-  accessToken?: string;
-  refreshToken?: string;
-  openId?: string;
-  expiresAt?: number;
-} = {};
 
 // 5a. Get TikTok OAuth authorization URL
 app.get('/api/auth/tiktok/url', (req, res) => {
@@ -591,6 +678,7 @@ app.get(['/api/auth/tiktok/callback', '/api/auth/tiktok/callback/'], async (req,
       tiktokAcc.handle = profileDisplayName;
       tiktokAcc.avatar = profileAvatar;
       tiktokAcc.status = 'active';
+      saveStorage();
     }
 
     return res.send(`
@@ -639,12 +727,6 @@ function getMetaRedirectUri(req: express.Request, platform: 'instagram' | 'faceb
   const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
   return `${baseUrl.replace(/\/$/, '')}/api/auth/${platform}/callback`;
 }
-
-// In-memory store for Meta access tokens
-let metaTokens: {
-  instagram?: { accessToken: string; expiresAt: number; userId?: string };
-  facebook?: { accessToken: string; expiresAt: number; pageId?: string };
-} = {};
 
 // 5c. Instagram OAuth Authorization URL
 app.get('/api/auth/instagram/url', (req, res) => {
@@ -770,6 +852,7 @@ app.get(['/api/auth/instagram/callback', '/api/auth/instagram/callback/'], async
       existingIgAcc.handle = profileDisplayName;
       existingIgAcc.avatar = profileAvatar;
       existingIgAcc.status = 'active';
+      saveStorage();
     }
 
     return res.send(`
@@ -931,6 +1014,7 @@ app.get(['/api/auth/facebook/callback', '/api/auth/facebook/callback/'], async (
       existingFbAcc.handle = profileDisplayName;
       existingFbAcc.avatar = profileAvatar;
       existingFbAcc.status = 'active';
+      saveStorage();
     }
 
     return res.send(`
@@ -979,10 +1063,6 @@ function getYouTubeRedirectUri(req: express.Request): string {
   const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
   return `${baseUrl.replace(/\/$/, '')}/api/auth/youtube/callback`;
 }
-
-let googleTokens: {
-  youtube?: { accessToken: string; refreshToken?: string; expiresAt: number; channelId?: string };
-} = {};
 
 // 5e. YouTube OAuth Authorization URL
 app.get('/api/auth/youtube/url', (req, res) => {
@@ -1122,6 +1202,7 @@ app.get('/api/auth/youtube/callback', async (req, res) => {
       existingYtAcc.handle = channelTitle;
       existingYtAcc.avatar = channelAvatar;
       existingYtAcc.status = 'active';
+      saveStorage();
     }
 
     return res.send(`
@@ -1171,6 +1252,7 @@ app.post('/api/accounts/:id/toggle', (req, res) => {
   const account = socialAccounts.find(a => a.id === id);
   if (account) {
     account.connected = !account.connected;
+    saveStorage();
     res.json(account);
   } else {
     res.status(404).json({ error: 'Account not found' });
@@ -1192,6 +1274,7 @@ app.put('/api/accounts/:id', (req, res) => {
   if (viewsGrowth !== undefined) account.viewsGrowth = viewsGrowth;
   if (avatar !== undefined) account.avatar = avatar;
 
+  saveStorage();
   res.json(account);
 });
 
@@ -1205,41 +1288,141 @@ app.get('/api/trends', (req, res) => {
   }
 });
 
-// 7. Analytics Data
+// 7. Analytics Data (Dynamically aggregated from connected social accounts)
+function parseMetricServer(val: string | number | undefined | null): number {
+  if (val === undefined || val === null || val === '') return 0;
+  if (typeof val === 'number') return isNaN(val) ? 0 : val;
+  const str = String(val).trim().toUpperCase().replace(/,/g, '');
+  if (str.endsWith('B')) return (parseFloat(str.slice(0, -1)) || 0) * 1000000000;
+  if (str.endsWith('M')) return (parseFloat(str.slice(0, -1)) || 0) * 1000000;
+  if (str.endsWith('K')) return (parseFloat(str.slice(0, -1)) || 0) * 1000;
+  return parseFloat(str) || 0;
+}
+
+function formatMetricServer(num: number): string {
+  if (isNaN(num) || num <= 0) return '0';
+  if (num >= 1000000000) return `${(num / 1000000000).toFixed(1).replace(/\.0$/, '')}B`;
+  if (num >= 1000000) return `${(num / 1000000).toFixed(1).replace(/\.0$/, '')}M`;
+  if (num >= 1000) return `${(num / 1000).toFixed(1).replace(/\.0$/, '')}K`;
+  return Math.round(num).toLocaleString();
+}
+
 app.get('/api/analytics', (req, res) => {
-  const range = req.query.range || '7d';
-  
-  // 7 days views time-series points
-  const viewSeries = [
-    { date: 'May 12', tiktok: 48000, instagram: 36000, youtube: 22000, facebook: 12000, total: 118000 },
-    { date: 'May 13', tiktok: 62000, instagram: 41000, youtube: 26000, facebook: 14000, total: 143000 },
-    { date: 'May 14', tiktok: 58000, instagram: 44000, youtube: 29000, facebook: 15500, total: 146500 },
-    { date: 'May 15', tiktok: 98000, instagram: 52000, youtube: 38000, facebook: 18000, total: 206000 },
-    { date: 'May 16', tiktok: 84000, instagram: 49000, youtube: 34000, facebook: 16200, total: 183200 },
-    { date: 'May 17', tiktok: 112000, instagram: 68000, youtube: 46000, facebook: 21000, total: 247000 },
-    { date: 'May 18', tiktok: 124800, instagram: 89400, youtube: 56700, facebook: 23100, total: 294500 },
-  ];
+  const range = (req.query.range as string) || '7d';
+
+  const tiktokAcc = socialAccounts.find((a) => a.id === 'tiktok');
+  const igAcc = socialAccounts.find((a) => a.id === 'instagram');
+  const ytAcc = socialAccounts.find((a) => a.id === 'youtube');
+  const fbAcc = socialAccounts.find((a) => a.id === 'facebook');
+
+  const tiktokViews = parseMetricServer(tiktokAcc?.views);
+  const igViews = parseMetricServer(igAcc?.views);
+  const ytViews = parseMetricServer(ytAcc?.views);
+  const fbViews = parseMetricServer(fbAcc?.views);
+
+  const tiktokFollowers = parseMetricServer(tiktokAcc?.followers);
+  const igFollowers = parseMetricServer(igAcc?.followers);
+  const ytFollowers = parseMetricServer(ytAcc?.followers);
+  const fbFollowers = parseMetricServer(fbAcc?.followers);
+
+  const totalViews = tiktokViews + igViews + ytViews + fbViews;
+  const totalFollowers = tiktokFollowers + igFollowers + ytFollowers + fbFollowers;
+  const totalReach = Math.round(totalViews * 0.72);
+  const totalEngagement = Math.round(totalViews * 0.095);
+  const newFollowers = Math.round(totalFollowers * 0.024);
+
+  // Generate dynamic time-series points ending at the current latest view counts
+  let numDays = 7;
+  if (range === '14d') numDays = 14;
+  else if (range === '30d') numDays = 30;
+  else if (range === '90d') numDays = 12; // weekly intervals
+  else if (range === 'all') numDays = 12; // monthly/quarterly intervals
+
+  const now = new Date();
+  const viewSeries = [];
+
+  for (let i = numDays - 1; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i * (range === '90d' ? 7 : range === 'all' ? 30 : 1));
+    const dateLabel = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+    // Progression ratio from ~60% up to 100% on the final day
+    const progress = 1 - (i / (numDays - 1 || 1)) * 0.4;
+    // Add small realistic daily fluctuation
+    const noise = i === 0 ? 1 : 0.96 + ((i * 17) % 9) * 0.01;
+    const factor = progress * noise;
+
+    const curTt = Math.round(tiktokViews * factor);
+    const curIg = Math.round(igViews * factor);
+    const curYt = Math.round(ytViews * factor);
+    const curFb = Math.round(fbViews * factor);
+
+    viewSeries.push({
+      date: dateLabel,
+      tiktok: curTt,
+      instagram: curIg,
+      youtube: curYt,
+      facebook: curFb,
+      total: curTt + curIg + curYt + curFb,
+    });
+  }
 
   const overview = {
-    views: { value: '294.5K', growth: '+16.8%', trend: 'up' },
-    reach: { value: '182.7K', growth: '+12.3%', trend: 'up' },
-    engagement: { value: '24.6K', growth: '+9.6%', trend: 'up' },
-    newFollowers: { value: '3.2K', growth: '+10.1%', trend: 'up' }
+    views: { value: formatMetricServer(totalViews), numericValue: totalViews, growth: '+16.8%', trend: 'up' },
+    reach: { value: formatMetricServer(totalReach), numericValue: totalReach, growth: '+12.3%', trend: 'up' },
+    engagement: { value: formatMetricServer(totalEngagement), numericValue: totalEngagement, growth: '+9.6%', trend: 'up' },
+    newFollowers: { value: formatMetricServer(newFollowers), numericValue: newFollowers, growth: '+10.1%', trend: 'up' }
   };
 
   const platformPerformance = [
-    { platform: 'TikTok', views: '124.8K', reach: '92.4K', engagement: '12.4K', growth: '+18.6%', color: '#25f4ee', postsCount: 14 },
-    { platform: 'Instagram', views: '89.4K', reach: '68.2K', engagement: '8.9K', growth: '+12.4%', color: '#e1306c', postsCount: 11 },
-    { platform: 'YouTube', views: '56.7K', reach: '44.1K', engagement: '6.4K', growth: '+9.3%', color: '#ff0000', postsCount: 8 },
-    { platform: 'Facebook', views: '23.1K', reach: '18.0K', engagement: '2.3K', growth: '+6.8%', color: '#1877f2', postsCount: 5 }
+    {
+      platform: 'TikTok',
+      views: tiktokAcc?.views || formatMetricServer(tiktokViews),
+      reach: formatMetricServer(tiktokViews * 0.74),
+      engagement: formatMetricServer(tiktokViews * 0.099),
+      growth: tiktokAcc?.viewsGrowth || '+18.6%',
+      color: '#25f4ee',
+      postsCount: 14,
+      connected: tiktokAcc?.connected || false,
+    },
+    {
+      platform: 'Instagram',
+      views: igAcc?.views || formatMetricServer(igViews),
+      reach: formatMetricServer(igViews * 0.76),
+      engagement: formatMetricServer(igViews * 0.099),
+      growth: igAcc?.viewsGrowth || '+12.4%',
+      color: '#e1306c',
+      postsCount: 11,
+      connected: igAcc?.connected || false,
+    },
+    {
+      platform: 'YouTube',
+      views: ytAcc?.views || formatMetricServer(ytViews),
+      reach: formatMetricServer(ytViews * 0.78),
+      engagement: formatMetricServer(ytViews * 0.113),
+      growth: ytAcc?.viewsGrowth || '+9.3%',
+      color: '#ff0000',
+      postsCount: 8,
+      connected: ytAcc?.connected || false,
+    },
+    {
+      platform: 'Facebook',
+      views: fbAcc?.views || formatMetricServer(fbViews),
+      reach: formatMetricServer(fbViews * 0.78),
+      engagement: formatMetricServer(fbViews * 0.099),
+      growth: fbAcc?.viewsGrowth || '+6.8%',
+      color: '#1877f2',
+      postsCount: 5,
+      connected: fbAcc?.connected || false,
+    }
   ];
 
   const categoryBreakdown = [
-    { category: 'Free Tech Resources', percentage: 38, views: '112K', color: '#8b5cf6' },
-    { category: 'Breaking Into Tech', percentage: 26, views: '76K', color: '#06b6d4' },
-    { category: 'Tech Education', percentage: 18, views: '53K', color: '#ec4899' },
-    { category: 'Student & Academic Life', percentage: 12, views: '35K', color: '#10b981' },
-    { category: 'Microsoft Journey', percentage: 6, views: '18K', color: '#f59e0b' }
+    { category: 'Free Tech Resources', percentage: 38, views: formatMetricServer(totalViews * 0.38), color: '#8b5cf6' },
+    { category: 'Breaking Into Tech', percentage: 26, views: formatMetricServer(totalViews * 0.26), color: '#06b6d4' },
+    { category: 'Tech Education', percentage: 18, views: formatMetricServer(totalViews * 0.18), color: '#ec4899' },
+    { category: 'Student & Academic Life', percentage: 12, views: formatMetricServer(totalViews * 0.12), color: '#10b981' },
+    { category: 'Microsoft Journey', percentage: 6, views: formatMetricServer(totalViews * 0.06), color: '#f59e0b' }
   ];
 
   res.json({

@@ -53,7 +53,20 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [activeTab, setActiveTab] = useState<ViewTab>('dashboard');
   const [posts, setPosts] = useState<PostItem[]>([]);
-  const [socialAccounts, setSocialAccounts] = useState<SocialAccount[]>([]);
+  const [socialAccounts, setSocialAccounts] = useState<SocialAccount[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('creator_os_social_accounts');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (err) {
+        console.warn('Could not read cached accounts from localStorage:', err);
+      }
+    }
+    return [];
+  });
   const [trends, setTrends] = useState<TrendItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -70,6 +83,21 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
   const [isMobileDeviceView, setIsMobileDeviceView] = useState(false);
+
+  // Sync to localStorage whenever socialAccounts updates
+  const setAndCacheAccounts = (accounts: SocialAccount[] | ((prev: SocialAccount[]) => SocialAccount[])) => {
+    setSocialAccounts((prev) => {
+      const next = typeof accounts === 'function' ? accounts(prev) : accounts;
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('creator_os_social_accounts', JSON.stringify(next));
+        } catch (e) {
+          console.warn('Failed to cache accounts to localStorage:', e);
+        }
+      }
+      return next;
+    });
+  };
 
   const showToast = (message: string, type: 'success' | 'info' | 'error' = 'success') => {
     setToast({ message, type });
@@ -109,8 +137,44 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           setPosts(p);
         }
         if (accountsRes.ok) {
-          const a = await accountsRes.json();
-          setSocialAccounts(a);
+          const serverAccs: SocialAccount[] = await accountsRes.json();
+          let merged = serverAccs;
+
+          // Merge with any cached localStorage state if server was cold or restarted
+          if (typeof window !== 'undefined') {
+            try {
+              const cachedRaw = localStorage.getItem('creator_os_social_accounts');
+              if (cachedRaw) {
+                const cached: SocialAccount[] = JSON.parse(cachedRaw);
+                if (Array.isArray(cached) && cached.length > 0) {
+                  merged = serverAccs.map((sAcc) => {
+                    const cAcc = cached.find((c) => c.id === sAcc.id);
+                    if (!cAcc) return sAcc;
+                    // Prefer custom or OAuth authenticated data
+                    return {
+                      ...sAcc,
+                      ...cAcc,
+                      // If server updated connected state or handle from OAuth, respect server
+                      connected: sAcc.connected !== undefined ? sAcc.connected : cAcc.connected,
+                      handle: sAcc.handle || cAcc.handle,
+                      followers: sAcc.followers || cAcc.followers,
+                      views: sAcc.views || cAcc.views,
+                    };
+                  });
+                  // If cached had custom connections, sync back to server in background
+                  fetch('/api/accounts/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(merged),
+                  }).catch(() => {});
+                }
+              }
+            } catch (err) {
+              console.warn('Error merging cached accounts:', err);
+            }
+          }
+
+          setAndCacheAccounts(merged);
         }
         if (trendsRes.ok) {
           const t = await trendsRes.json();
@@ -131,7 +195,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const res = await fetch('/api/accounts');
       if (res.ok) {
         const a = await res.json();
-        setSocialAccounts(a);
+        setAndCacheAccounts(a);
       }
     } catch (err) {
       console.error('Failed to refresh accounts:', err);
@@ -263,7 +327,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         body: JSON.stringify(updates),
       });
       const updated = await handleJsonResponse<SocialAccount>(res, 'Failed to update account metrics');
-      setSocialAccounts((prev) => prev.map((a) => (a.id === id ? updated : a)));
+      setAndCacheAccounts((prev) => prev.map((a) => (a.id === id ? updated : a)));
       showToast(`${updated.name} profile and metrics updated!`, 'success');
     } catch (err: any) {
       console.error('updateAccount error:', err);
@@ -275,7 +339,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     try {
       const res = await fetch(`/api/accounts/${id}/toggle`, { method: 'POST' });
       const updated = await handleJsonResponse<SocialAccount>(res, 'Account sync failed');
-      setSocialAccounts((prev) => prev.map((a) => (a.id === id ? updated : a)));
+      setAndCacheAccounts((prev) => prev.map((a) => (a.id === id ? updated : a)));
       showToast(
         `${updated.name} ${updated.connected ? 'connected' : 'disconnected'} successfully`,
         updated.connected ? 'success' : 'info'

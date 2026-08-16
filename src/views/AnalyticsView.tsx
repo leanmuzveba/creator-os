@@ -28,19 +28,22 @@ import {
 import { useApp } from '../context/AppContext';
 import { PlatformIcon } from '../components/PlatformIcon';
 import { PlatformType } from '../types';
+import { formatMetric, calculateAggregatedOverview } from '../utils/metricUtils';
 
 export const AnalyticsView: React.FC = () => {
-  const { setPreviewPost, posts } = useApp();
+  const { setPreviewPost, posts, socialAccounts } = useApp();
   const [dateRange, setDateRange] = useState('7d');
   const [activePlatforms, setActivePlatforms] = useState<PlatformType[]>(['tiktok', 'instagram', 'youtube', 'facebook']);
   const [analyticsData, setAnalyticsData] = useState<any>(null);
+
+  const fallbackOverview = calculateAggregatedOverview(socialAccounts, posts);
 
   useEffect(() => {
     fetch(`/api/analytics?range=${dateRange}`)
       .then((res) => res.json())
       .then((data) => setAnalyticsData(data))
       .catch((err) => console.error(err));
-  }, [dateRange]);
+  }, [dateRange, socialAccounts]);
 
   const togglePlatform = (p: PlatformType) => {
     if (activePlatforms.includes(p)) {
@@ -52,6 +55,7 @@ export const AnalyticsView: React.FC = () => {
   };
 
   const topPost = posts[0] || null;
+  const overview = analyticsData?.overview || fallbackOverview;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300 pb-16 md:pb-6">
@@ -72,6 +76,7 @@ export const AnalyticsView: React.FC = () => {
             className="appearance-none px-4 py-2 pr-8 rounded-xl bg-[#131627] border border-white/10 text-xs font-semibold text-slate-200 focus:outline-none focus:border-pink-500 cursor-pointer shadow-sm"
           >
             <option value="7d">Last 7 days</option>
+            <option value="14d">Last 14 days</option>
             <option value="30d">Last 30 days</option>
             <option value="90d">Last 90 days</option>
             <option value="all">All Time</option>
@@ -91,12 +96,14 @@ export const AnalyticsView: React.FC = () => {
                 <Eye className="w-4 h-4" />
               </div>
               <span className="text-[9px] font-semibold font-mono text-emerald-400 bg-emerald-500/15 px-1.5 py-0.5 rounded-md border border-emerald-500/20">
-                ↑ 16.8%
+                ↑ {overview.views?.growth || '16.8%'}
               </span>
             </div>
             <div className="mt-3">
               <span className="text-xs text-slate-400 font-medium">Views</span>
-              <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-0.5">294.5K</h3>
+              <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-0.5">
+                {overview.views?.value || '0'}
+              </h3>
             </div>
           </div>
 
@@ -107,12 +114,14 @@ export const AnalyticsView: React.FC = () => {
                 <Users className="w-4 h-4" />
               </div>
               <span className="text-[9px] font-semibold font-mono text-emerald-400 bg-emerald-500/15 px-1.5 py-0.5 rounded-md border border-emerald-500/20">
-                ↑ 12.3%
+                ↑ {overview.reach?.growth || '12.3%'}
               </span>
             </div>
             <div className="mt-3">
               <span className="text-xs text-slate-400 font-medium">Reach</span>
-              <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-0.5">182.7K</h3>
+              <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-0.5">
+                {overview.reach?.value || '0'}
+              </h3>
             </div>
           </div>
 
@@ -123,12 +132,14 @@ export const AnalyticsView: React.FC = () => {
                 <Heart className="w-4 h-4" />
               </div>
               <span className="text-[9px] font-semibold font-mono text-emerald-400 bg-emerald-500/15 px-1.5 py-0.5 rounded-md border border-emerald-500/20">
-                ↑ 9.6%
+                ↑ {overview.engagement?.growth || '9.6%'}
               </span>
             </div>
             <div className="mt-3">
               <span className="text-xs text-slate-400 font-medium">Engagement</span>
-              <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-0.5">24.6K</h3>
+              <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-0.5">
+                {overview.engagement?.value || '0'}
+              </h3>
             </div>
           </div>
 
@@ -139,12 +150,14 @@ export const AnalyticsView: React.FC = () => {
                 <UserPlus className="w-4 h-4" />
               </div>
               <span className="text-[9px] font-semibold font-mono text-emerald-400 bg-emerald-500/15 px-1.5 py-0.5 rounded-md border border-emerald-500/20">
-                ↑ 10.1%
+                ↑ {overview.newFollowers?.growth || '10.1%'}
               </span>
             </div>
             <div className="mt-3">
               <span className="text-xs text-slate-400 font-medium">New Followers</span>
-              <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-0.5">3.2K</h3>
+              <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-0.5">
+                {overview.newFollowers?.value || '0'}
+              </h3>
             </div>
           </div>
         </div>
@@ -191,8 +204,8 @@ export const AnalyticsView: React.FC = () => {
                 fontSize={11}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(val) => (val >= 1000 ? `${val / 1000}K` : val)}
-                domain={[0, 140000]}
+                tickFormatter={(val) => formatMetric(Number(val))}
+                domain={[0, 'auto']}
               />
               <Tooltip
                 contentStyle={{
@@ -203,6 +216,7 @@ export const AnalyticsView: React.FC = () => {
                   fontSize: '12px',
                 }}
                 itemStyle={{ color: '#f8fafc' }}
+                formatter={(val: any) => [formatMetric(Number(val)), 'Views']}
               />
               {activePlatforms.includes('tiktok') && (
                 <Line type="monotone" dataKey="tiktok" name="TikTok" stroke="#a855f7" strokeWidth={3} dot={{ r: 3 }} />
@@ -261,7 +275,9 @@ export const AnalyticsView: React.FC = () => {
             </div>
 
             <div className="text-right flex-shrink-0">
-              <span className="text-base sm:text-lg font-black text-white block">128.4K</span>
+              <span className="text-base sm:text-lg font-black text-white block">
+                {topPost.views ? formatMetric(topPost.views) : '128.4K'}
+              </span>
               <span className="text-[11px] font-semibold text-emerald-400">↑ 24%</span>
             </div>
           </div>
@@ -294,3 +310,4 @@ export const AnalyticsView: React.FC = () => {
     </div>
   );
 };
+

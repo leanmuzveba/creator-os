@@ -22,16 +22,20 @@ import {
   Share2,
   Clock,
   CheckCircle,
+  Radio,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { PlatformIcon } from '../components/PlatformIcon';
 import { PostCard } from '../components/PostCard';
+import { formatMetric, calculateTotalViews, parseMetric } from '../utils/metricUtils';
 
 export const DashboardView: React.FC = () => {
   const { posts, socialAccounts, openScheduleModalWithData, setActiveTab, setPreviewPost } = useApp();
   const [dateRange, setDateRange] = useState('May 12 – May 18, 2025');
   const [chartRange, setChartRange] = useState('7d');
   const [chartData, setChartData] = useState<any[]>([]);
+
+  const totalViews = calculateTotalViews(socialAccounts);
 
   useEffect(() => {
     fetch(`/api/analytics?range=${chartRange}`)
@@ -42,7 +46,7 @@ export const DashboardView: React.FC = () => {
         }
       })
       .catch((err) => console.error(err));
-  }, [chartRange]);
+  }, [chartRange, socialAccounts]);
 
   const recentPosts = posts.slice(0, 4);
 
@@ -56,7 +60,7 @@ export const DashboardView: React.FC = () => {
             <span className="inline-block animate-bounce">👋</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
-            Here's what's happening across your platforms.
+            Here's what's happening across your connected platforms.
           </p>
         </div>
 
@@ -95,10 +99,18 @@ export const DashboardView: React.FC = () => {
             <div className="creator-card-interactive p-4 relative overflow-hidden flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-black border border-white/15 flex items-center justify-center text-white">
+                  <div className="w-8 h-8 rounded-xl bg-black border border-white/15 flex items-center justify-center text-white relative">
                     <PlatformIcon platform="tiktok" size={16} />
+                    {tiktok?.connected && (
+                      <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-[#0b0d17]" />
+                    )}
                   </div>
-                  <span className="text-xs font-bold text-slate-200">TikTok</span>
+                  <div>
+                    <span className="text-xs font-bold text-slate-200 block">TikTok</span>
+                    {tiktok?.connected && (
+                      <span className="text-[9px] text-emerald-400 font-mono">Live</span>
+                    )}
+                  </div>
                 </div>
                 <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center gap-0.5">
                   ↑ {tiktok?.viewsGrowth || '18.6%'}
@@ -123,10 +135,18 @@ export const DashboardView: React.FC = () => {
             <div className="creator-card-interactive p-4 relative overflow-hidden flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#f58529] via-[#dd2a7b] to-[#8134af] flex items-center justify-center text-white">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#f58529] via-[#dd2a7b] to-[#8134af] flex items-center justify-center text-white relative">
                     <PlatformIcon platform="instagram" size={16} />
+                    {ig?.connected && (
+                      <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-[#0b0d17]" />
+                    )}
                   </div>
-                  <span className="text-xs font-bold text-slate-200">Instagram</span>
+                  <div>
+                    <span className="text-xs font-bold text-slate-200 block">Instagram</span>
+                    {ig?.connected && (
+                      <span className="text-[9px] text-emerald-400 font-mono">Live</span>
+                    )}
+                  </div>
                 </div>
                 <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center gap-0.5">
                   ↑ {ig?.viewsGrowth || '12.4%'}
@@ -151,10 +171,18 @@ export const DashboardView: React.FC = () => {
             <div className="creator-card-interactive p-4 relative overflow-hidden flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-[#ff0000] flex items-center justify-center text-white">
+                  <div className="w-8 h-8 rounded-xl bg-[#ff0000] flex items-center justify-center text-white relative">
                     <PlatformIcon platform="youtube" size={16} />
+                    {yt?.connected && (
+                      <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-[#0b0d17]" />
+                    )}
                   </div>
-                  <span className="text-xs font-bold text-slate-200">YouTube</span>
+                  <div>
+                    <span className="text-xs font-bold text-slate-200 block">YouTube</span>
+                    {yt?.connected && (
+                      <span className="text-[9px] text-emerald-400 font-mono">Live</span>
+                    )}
+                  </div>
                 </div>
                 <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center gap-0.5">
                   ↑ {yt?.viewsGrowth || '9.3%'}
@@ -179,10 +207,18 @@ export const DashboardView: React.FC = () => {
             <div className="creator-card-interactive p-4 relative overflow-hidden flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-[#1877f2] flex items-center justify-center text-white">
+                  <div className="w-8 h-8 rounded-xl bg-[#1877f2] flex items-center justify-center text-white relative">
                     <PlatformIcon platform="facebook" size={16} />
+                    {fb?.connected && (
+                      <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-[#0b0d17]" />
+                    )}
                   </div>
-                  <span className="text-xs font-bold text-slate-200">Facebook</span>
+                  <div>
+                    <span className="text-xs font-bold text-slate-200 block">Facebook</span>
+                    {fb?.connected && (
+                      <span className="text-[9px] text-emerald-400 font-mono">Live</span>
+                    )}
+                  </div>
                 </div>
                 <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center gap-0.5">
                   ↑ {fb?.viewsGrowth || '6.8%'}
@@ -203,10 +239,18 @@ export const DashboardView: React.FC = () => {
 
       {/* Views Overview Chart (matching Screen 1) */}
       <div className="creator-card p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 mb-2 border-b border-white/[0.06]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-2 border-b border-white/[0.06]">
           <div>
-            <h3 className="text-sm sm:base font-bold text-white">Views Overview</h3>
-            <p className="text-[11px] text-slate-400">Aggregated multi-platform performance trend</p>
+            <div className="flex items-center gap-2.5">
+              <h3 className="text-sm sm:text-base font-bold text-white">Views Overview</h3>
+              <span className="px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-pink-500/20 text-pink-300 border border-pink-500/30">
+                {formatMetric(totalViews)} Total Views
+              </span>
+              <span className="hidden sm:inline-flex text-[10px] font-mono font-semibold text-emerald-400 bg-emerald-500/15 px-1.5 py-0.5 rounded border border-emerald-500/20">
+                ↑ 16.8%
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-0.5">Aggregated multi-platform performance trend synced in real time</p>
           </div>
 
           <div className="relative self-start sm:self-auto">
@@ -240,9 +284,8 @@ export const DashboardView: React.FC = () => {
                 fontSize={11}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(val) => (val >= 1000 ? `${val / 1000}K` : val)}
-                domain={[0, 140000]}
-                ticks={[0, 25000, 50000, 75000, 100000, 125000]}
+                tickFormatter={(val) => formatMetric(Number(val))}
+                domain={[0, 'auto']}
               />
               <Tooltip
                 contentStyle={{
@@ -253,6 +296,7 @@ export const DashboardView: React.FC = () => {
                   fontSize: '12px',
                 }}
                 itemStyle={{ color: '#f8fafc' }}
+                formatter={(val: any) => [formatMetric(Number(val)), 'Views']}
               />
               <Line
                 type="monotone"
