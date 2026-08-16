@@ -1,3 +1,41 @@
+CURRENT ISSUES - Updated 16 August
+
+After connecting my youtube and tiktok, It only updates the followers, or subscribers on the dashboard, but the views overview card still has inaccurate metrics.
+
+After refreshing the app, it logs me out of my accounts and keeps the demo metrics.
+
+Reduce the dashboard cards for Social analytics
+
+When I click the upload button, it allows me to select a file from my gallery, but then goes blank, it needs to then take me to the popup that allows me to put caption, select which platforms to upload to, dates etc... Just like how it does if I select something from the content library.
+
+The Analytics tab
+Overview cards do not synce live metrics. Each tile needs to sync total views from the platforms that are logged in, total reach, total followers, total engagement.
+
+The performance tile needs tp uodate all live stats from the connected accounts
+
+The calendar needs to allow me to set the date or sync my date with my timezone. When I toggle WEEK and MONTH, it needs to only show me what has been scheduled accordingly.
+
+When I click on my profile icon, the cards have information pverlapping, make them smaller. 
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Project Definition 
 
 Name - Creator OS
