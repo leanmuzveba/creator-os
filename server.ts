@@ -1315,21 +1315,23 @@ app.get('/api/analytics', (req, res) => {
   const ytAcc = socialAccounts.find((a) => a.id === 'youtube');
   const fbAcc = socialAccounts.find((a) => a.id === 'facebook');
 
-  const tiktokViews = parseMetricServer(tiktokAcc?.views);
-  const igViews = parseMetricServer(igAcc?.views);
-  const ytViews = parseMetricServer(ytAcc?.views);
-  const fbViews = parseMetricServer(fbAcc?.views);
+  const tiktokViews = tiktokAcc?.connected ? parseMetricServer(tiktokAcc?.views) : 0;
+  const igViews = igAcc?.connected ? parseMetricServer(igAcc?.views) : 0;
+  const ytViews = ytAcc?.connected ? parseMetricServer(ytAcc?.views) : 0;
+  const fbViews = fbAcc?.connected ? parseMetricServer(fbAcc?.views) : 0;
 
-  const tiktokFollowers = parseMetricServer(tiktokAcc?.followers);
-  const igFollowers = parseMetricServer(igAcc?.followers);
-  const ytFollowers = parseMetricServer(ytAcc?.followers);
-  const fbFollowers = parseMetricServer(fbAcc?.followers);
+  const tiktokFollowers = tiktokAcc?.connected ? parseMetricServer(tiktokAcc?.followers) : 0;
+  const igFollowers = igAcc?.connected ? parseMetricServer(igAcc?.followers) : 0;
+  const ytFollowers = ytAcc?.connected ? parseMetricServer(ytAcc?.followers) : 0;
+  const fbFollowers = fbAcc?.connected ? parseMetricServer(fbAcc?.followers) : 0;
 
   const totalViews = tiktokViews + igViews + ytViews + fbViews;
   const totalFollowers = tiktokFollowers + igFollowers + ytFollowers + fbFollowers;
-  const totalReach = Math.round(totalViews * 0.72);
-  const totalEngagement = Math.round(totalViews * 0.095);
-  const newFollowers = Math.round(totalFollowers * 0.024);
+  const totalReach = totalViews > 0 ? Math.round(totalViews * 0.74) : 0;
+  const totalEngagement = totalViews > 0 ? Math.round(totalViews * 0.098) : 0;
+  const newFollowers = totalFollowers > 0 ? Math.round(totalFollowers * (range === '30d' ? 0.078 : range === '90d' ? 0.18 : 0.026)) : 0;
+
+  const hasConnected = socialAccounts.some((a) => a.connected);
 
   // Generate dynamic time-series points ending at the current latest view counts
   let numDays = 7;
@@ -1368,10 +1370,11 @@ app.get('/api/analytics', (req, res) => {
   }
 
   const overview = {
-    views: { value: formatMetricServer(totalViews), numericValue: totalViews, growth: '+16.8%', trend: 'up' },
-    reach: { value: formatMetricServer(totalReach), numericValue: totalReach, growth: '+12.3%', trend: 'up' },
-    engagement: { value: formatMetricServer(totalEngagement), numericValue: totalEngagement, growth: '+9.6%', trend: 'up' },
-    newFollowers: { value: formatMetricServer(newFollowers), numericValue: newFollowers, growth: '+10.1%', trend: 'up' }
+    views: { value: formatMetricServer(totalViews), numericValue: totalViews, growth: hasConnected ? '+16.8%' : '0%', trend: 'up' },
+    reach: { value: formatMetricServer(totalReach), numericValue: totalReach, growth: hasConnected ? '+12.3%' : '0%', trend: 'up' },
+    followers: { value: formatMetricServer(totalFollowers), numericValue: totalFollowers, growth: hasConnected ? '+8.4%' : '0%', trend: 'up' },
+    engagement: { value: formatMetricServer(totalEngagement), numericValue: totalEngagement, growth: hasConnected ? '+9.6%' : '0%', trend: 'up' },
+    newFollowers: { value: formatMetricServer(newFollowers), numericValue: newFollowers, growth: hasConnected ? '+10.1%' : '0%', trend: 'up' }
   };
 
   const platformPerformance = [
