@@ -20,30 +20,48 @@ export const ContentLibraryView: React.FC = () => {
     if (!files || files.length === 0) return;
 
     setIsUploading(true);
-    showToast(`Uploading ${files.length} video${files.length > 1 ? 's' : ''} to library...`, 'info');
 
     try {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const processed = await processMediaFile(file);
+      const firstFile = files[0];
+      const processedFirst = await processMediaFile(firstFile);
 
-        await addPost({
-          title: processed.title,
-          category: 'Tech Education',
-          platforms: ['tiktok', 'instagram', 'youtube', 'facebook'],
-          status: 'draft',
-          caption: `${processed.title} — Draft video ready for scheduling and optimization. #tech #creatoros`,
-          hashtags: ['#tech', '#developer', '#student', '#coding', '#creatoros'],
-          thumbnailUrl: processed.thumbnailUrl,
-          videoUrl: processed.videoUrl,
-          duration: processed.duration,
-        });
+      if (files.length > 1) {
+        for (let i = 1; i < files.length; i++) {
+          const file = files[i];
+          const processed = await processMediaFile(file);
+
+          await addPost({
+            title: processed.title,
+            category: 'Tech Education',
+            platforms: ['tiktok', 'instagram', 'youtube', 'facebook'],
+            status: 'draft',
+            caption: `${processed.title} #tech #creatoros`,
+            hashtags: ['#tech', '#developer', '#student', '#coding', '#creatoros'],
+            thumbnailUrl: processed.thumbnailUrl,
+            videoUrl: processed.videoUrl,
+            duration: processed.duration,
+          });
+        }
       }
+
+      openScheduleModalWithData({
+        title: processedFirst.title,
+        category: 'Tech Education',
+        platforms: ['tiktok', 'instagram', 'youtube', 'facebook'],
+        status: 'draft',
+        caption: `${processedFirst.title} 🚀 Check out these insights! #tech #creatoros #coding`,
+        hashtags: ['#tech', '#developer', '#student', '#coding', '#creatoros'],
+        thumbnailUrl: processedFirst.thumbnailUrl,
+        videoUrl: processedFirst.videoUrl,
+        duration: processedFirst.duration,
+        scheduledDate: new Date().toISOString().split('T')[0],
+        scheduledTime: '10:00 AM',
+      });
 
       showToast(
         files.length === 1
-          ? `"${files[0].name}" added to Content Library!`
-          : `${files.length} videos added to Content Library!`,
+          ? `"${processedFirst.title}" loaded! Set caption, platforms & schedule.`
+          : `${files.length} videos uploaded! Configure your post.`,
         'success'
       );
     } catch (err) {

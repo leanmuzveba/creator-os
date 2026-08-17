@@ -110,9 +110,18 @@ function extractVideoMetadataAndThumbnail(videoUrl: string): Promise<{ duration:
       thumbnail: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80',
     };
 
+    let settled = false;
+    const safeResolve = (res: { duration: string; thumbnail: string }) => {
+      if (!settled) {
+        settled = true;
+        resolve(res);
+      }
+    };
+
+    // Ultra-fast 1.2s timeout fallback so UI never lags or hangs
     const timeout = setTimeout(() => {
-      resolve(defaultFallback);
-    }, 4000);
+      safeResolve(defaultFallback);
+    }, 1200);
 
     video.onloadedmetadata = () => {
       const totalSec = Math.floor(video.duration) || 30;
@@ -120,8 +129,8 @@ function extractVideoMetadataAndThumbnail(videoUrl: string): Promise<{ duration:
       const secs = totalSec % 60;
       const formattedDuration = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 
-      // Seek to 1s or middle to capture thumbnail
-      video.currentTime = Math.min(1.0, video.duration / 2);
+      // Seek to 0.5s to capture thumbnail
+      video.currentTime = Math.min(0.5, (video.duration || 1) / 2);
 
       video.onseeked = () => {
         try {
@@ -142,16 +151,16 @@ function extractVideoMetadataAndThumbnail(videoUrl: string): Promise<{ duration:
           const ctx = canvas.getContext('2d');
           if (ctx) {
             ctx.drawImage(video, 0, 0, w, h);
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
             clearTimeout(timeout);
-            resolve({ duration: formattedDuration, thumbnail: dataUrl });
+            safeResolve({ duration: formattedDuration, thumbnail: dataUrl });
             return;
           }
         } catch (e) {
           // Cross-origin or canvas security issue
         }
         clearTimeout(timeout);
-        resolve({
+        safeResolve({
           duration: formattedDuration,
           thumbnail: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80',
         });
@@ -160,7 +169,7 @@ function extractVideoMetadataAndThumbnail(videoUrl: string): Promise<{ duration:
 
     video.onerror = () => {
       clearTimeout(timeout);
-      resolve(defaultFallback);
+      safeResolve(defaultFallback);
     };
   });
 }

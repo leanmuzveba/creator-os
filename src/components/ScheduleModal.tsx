@@ -1,22 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { X, Calendar as CalendarIcon, Clock, Sparkles, Image as ImageIcon, Check, ArrowRight, Wand2, Hash, Layers } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, Calendar as CalendarIcon, Clock, Sparkles, Image as ImageIcon, Check, ArrowRight, Wand2, Hash, Layers, Upload, Film } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { PlatformType, ContentCategory, PostItem } from '../types';
 import { PlatformIcon } from './PlatformIcon';
+import { processMediaFile } from '../utils/videoUtils';
 
 export const ScheduleModal: React.FC = () => {
   const { isScheduleModalOpen, setIsScheduleModalOpen, scheduleModalInitialData, addPost, updatePost, showToast, socialAccounts } = useApp();
 
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<ContentCategory>('Free Tech Resources');
-  const [selectedPlatforms, setSelectedPlatforms] = useState<PlatformType[]>(['tiktok', 'instagram']);
-  const [scheduledDate, setScheduledDate] = useState('2025-05-20');
+  const [selectedPlatforms, setSelectedPlatforms] = useState<PlatformType[]>(['tiktok', 'instagram', 'youtube', 'facebook']);
+  const [scheduledDate, setScheduledDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [scheduledTime, setScheduledTime] = useState('10:00 AM');
   const [caption, setCaption] = useState('');
   const [thumbnailUrl, setThumbnailUrl] = useState('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80');
+  const [videoUrl, setVideoUrl] = useState<string | undefined>(undefined);
   const [duration, setDuration] = useState('00:45');
   const [isAiGenerating, setIsAiGenerating] = useState(false);
   const [publishImmediately, setPublishImmediately] = useState(false);
+  const [isReplacingMedia, setIsReplacingMedia] = useState(false);
+
+  const modalFileInputRef = useRef<HTMLInputElement>(null);
 
   const categories: ContentCategory[] = [
     'Tech Education',
@@ -31,15 +36,21 @@ export const ScheduleModal: React.FC = () => {
   ];
 
   useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
     if (scheduleModalInitialData) {
       setTitle(scheduleModalInitialData.title || '');
-      setCategory(scheduleModalInitialData.category || 'Free Tech Resources');
-      setSelectedPlatforms(scheduleModalInitialData.platforms || ['tiktok', 'instagram']);
-      setScheduledDate(scheduleModalInitialData.scheduledDate || '2025-05-20');
+      setCategory(scheduleModalInitialData.category || 'Tech Education');
+      setSelectedPlatforms(scheduleModalInitialData.platforms || ['tiktok', 'instagram', 'youtube', 'facebook']);
+      setScheduledDate(scheduleModalInitialData.scheduledDate || today);
       setScheduledTime(scheduleModalInitialData.scheduledTime || '10:00 AM');
       setCaption(scheduleModalInitialData.caption || '');
       if (scheduleModalInitialData.thumbnailUrl) {
         setThumbnailUrl(scheduleModalInitialData.thumbnailUrl);
+      }
+      if (scheduleModalInitialData.videoUrl) {
+        setVideoUrl(scheduleModalInitialData.videoUrl);
+      } else {
+        setVideoUrl(undefined);
       }
       if (scheduleModalInitialData.duration) {
         setDuration(scheduleModalInitialData.duration);
@@ -47,14 +58,39 @@ export const ScheduleModal: React.FC = () => {
     } else {
       setTitle('New Creator Post');
       setCategory('Free Tech Resources');
-      setSelectedPlatforms(['tiktok', 'instagram']);
-      setScheduledDate('2025-05-20');
+      setSelectedPlatforms(['tiktok', 'instagram', 'youtube', 'facebook']);
+      setScheduledDate(today);
       setScheduledTime('10:00 AM');
       setCaption('These AI tools changed the way I study! 🚀 Save this for later!\n\n#students #aitools #tech');
+      setVideoUrl(undefined);
     }
   }, [scheduleModalInitialData, isScheduleModalOpen]);
 
   if (!isScheduleModalOpen) return null;
+
+  const handleModalMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsReplacingMedia(true);
+    try {
+      const processed = await processMediaFile(file);
+      setTitle(processed.title);
+      setThumbnailUrl(processed.thumbnailUrl);
+      setDuration(processed.duration);
+      if (processed.videoUrl) {
+        setVideoUrl(processed.videoUrl);
+      }
+      showToast('Media loaded into post creator!', 'info');
+    } catch (err) {
+      console.error(err);
+      showToast('Could not load media file', 'error');
+    } finally {
+      setIsReplacingMedia(false);
+      if (modalFileInputRef.current) {
+        modalFileInputRef.current.value = '';
+      }
+    }
+  };
 
   const togglePlatform = (p: PlatformType) => {
     if (selectedPlatforms.includes(p)) {
@@ -117,16 +153,20 @@ export const ScheduleModal: React.FC = () => {
       status: publishImmediately ? ('published' as const) : ('scheduled' as const),
       scheduledDate: publishImmediately ? undefined : scheduledDate,
       scheduledTime: publishImmediately ? undefined : scheduledTime,
+      publishedDate: publishImmediately ? new Date().toISOString() : undefined,
       caption,
       hashtags: caption.match(/#[a-zA-Z0-9_]+/g) || ['#creatoros', '#tech'],
       thumbnailUrl,
+      videoUrl,
       duration,
     };
 
     if (scheduleModalInitialData?.id) {
       await updatePost(scheduleModalInitialData.id, postPayload);
+      showToast(publishImmediately ? 'Post published successfully! 🚀' : 'Post scheduled successfully! 📅', 'success');
     } else {
       await addPost(postPayload);
+      showToast(publishImmediately ? 'Post published to all platforms! 🚀' : 'Post scheduled successfully! 📅', 'success');
     }
 
     setIsScheduleModalOpen(false);
@@ -140,7 +180,7 @@ export const ScheduleModal: React.FC = () => {
           <div className="flex items-center gap-2">
             <CalendarIcon className="w-5 h-5 text-pink-400" />
             <h3 className="text-sm font-bold text-white">
-              {scheduleModalInitialData?.id ? 'Edit & Reschedule Post' : 'Multi-Platform Scheduling'}
+              {scheduleModalInitialData?.id ? 'Edit & Reschedule Post' : 'Multi-Platform Publishing'}
             </h3>
           </div>
           <button
@@ -158,12 +198,19 @@ export const ScheduleModal: React.FC = () => {
             <label className="text-xs font-bold text-slate-300">Content Media</label>
             <div className="p-3 rounded-2xl bg-[#131627] border border-white/[0.08] flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                <img
-                  src={thumbnailUrl}
-                  alt="Thumbnail"
-                  className="w-12 h-14 rounded-xl object-cover ring-1 ring-pink-500/40 flex-shrink-0"
-                />
-                <div className="min-w-0">
+                <div className="relative w-12 h-14 rounded-xl overflow-hidden ring-1 ring-pink-500/40 flex-shrink-0 bg-black">
+                  <img
+                    src={thumbnailUrl}
+                    alt="Thumbnail"
+                    className="w-full h-full object-cover"
+                  />
+                  {videoUrl && (
+                    <span className="absolute bottom-0.5 right-0.5 p-0.5 bg-pink-600 rounded text-white text-[8px] font-bold">
+                      <Film className="w-2.5 h-2.5" />
+                    </span>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
                   <input
                     type="text"
                     value={title}
@@ -177,23 +224,44 @@ export const ScheduleModal: React.FC = () => {
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={() => {
-                  const sampleImages = [
-                    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80',
-                    'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&auto=format&fit=crop&q=80',
-                    'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&auto=format&fit=crop&q=80',
-                    'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80',
-                    'https://images.unsplash.com/photo-1618401471353-b98aedd04e11?w=600&auto=format&fit=crop&q=80'
-                  ];
-                  const nextImg = sampleImages[(sampleImages.indexOf(thumbnailUrl) + 1) % sampleImages.length];
-                  setThumbnailUrl(nextImg);
-                }}
-                className="px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-xs font-semibold text-slate-200 transition-colors flex-shrink-0"
-              >
-                Change
-              </button>
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <input
+                  type="file"
+                  ref={modalFileInputRef}
+                  onChange={handleModalMediaUpload}
+                  accept="video/*,image/*"
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => modalFileInputRef.current?.click()}
+                  disabled={isReplacingMedia}
+                  className="px-2.5 py-1.5 rounded-xl bg-pink-600/20 hover:bg-pink-600/30 text-pink-300 border border-pink-500/30 text-xs font-semibold flex items-center gap-1 transition-colors"
+                  title="Upload from device or gallery"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>{isReplacingMedia ? 'Loading...' : 'Upload'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const sampleImages = [
+                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80',
+                      'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&auto=format&fit=crop&q=80',
+                      'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&auto=format&fit=crop&q=80',
+                      'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80',
+                      'https://images.unsplash.com/photo-1618401471353-b98aedd04e11?w=600&auto=format&fit=crop&q=80'
+                    ];
+                    const nextImg = sampleImages[(sampleImages.indexOf(thumbnailUrl) + 1) % sampleImages.length];
+                    setThumbnailUrl(nextImg);
+                  }}
+                  className="px-2.5 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-xs font-semibold text-slate-300 transition-colors"
+                  title="Cycle sample thumbnails"
+                >
+                  Cover
+                </button>
+              </div>
             </div>
           </div>
 

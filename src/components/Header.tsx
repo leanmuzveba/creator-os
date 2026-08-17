@@ -26,32 +26,50 @@ export const Header: React.FC = () => {
     if (!files || files.length === 0) return;
 
     setIsUploading(true);
-    showToast(`Processing ${files.length} media file${files.length > 1 ? 's' : ''}...`, 'info');
 
     try {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const processed = await processMediaFile(file);
+      // Process first file for immediate scheduling modal popup
+      const firstFile = files[0];
+      const processedFirst = await processMediaFile(firstFile);
 
-        await addPost({
-          title: processed.title,
-          category: 'Tech Education',
-          platforms: ['tiktok', 'instagram', 'youtube', 'facebook'],
-          status: 'draft',
-          caption: `${processed.title} — Recorded directly for student & developer community! 🚀 #tech #creatoros #coding`,
-          hashtags: ['#tech', '#developer', '#student', '#coding', '#creatoros'],
-          thumbnailUrl: processed.thumbnailUrl,
-          videoUrl: processed.videoUrl,
-          duration: processed.duration,
-        });
+      // If multiple files selected, save any subsequent ones to library
+      if (files.length > 1) {
+        for (let i = 1; i < files.length; i++) {
+          const file = files[i];
+          const processed = await processMediaFile(file);
+          await addPost({
+            title: processed.title,
+            category: 'Tech Education',
+            platforms: ['tiktok', 'instagram', 'youtube', 'facebook'],
+            status: 'draft',
+            caption: `${processed.title} #tech #coding #creatoros`,
+            hashtags: ['#tech', '#developer', '#student', '#coding', '#creatoros'],
+            thumbnailUrl: processed.thumbnailUrl,
+            videoUrl: processed.videoUrl,
+            duration: processed.duration,
+          });
+        }
       }
 
-      // Switch view directly to Content Library so creator immediately sees the uploaded videos
-      setActiveTab('content');
+      // Open the multi-platform publish / schedule modal with the uploaded file
+      openScheduleModalWithData({
+        title: processedFirst.title,
+        category: 'Tech Education',
+        platforms: ['tiktok', 'instagram', 'youtube', 'facebook'],
+        status: 'draft',
+        caption: `${processedFirst.title} 🚀 Check out these key insights! #tech #creatoros #coding`,
+        hashtags: ['#tech', '#developer', '#student', '#coding', '#creatoros'],
+        thumbnailUrl: processedFirst.thumbnailUrl,
+        videoUrl: processedFirst.videoUrl,
+        duration: processedFirst.duration,
+        scheduledDate: new Date().toISOString().split('T')[0],
+        scheduledTime: '10:00 AM',
+      });
+
       showToast(
         files.length === 1
-          ? `"${files[0].name}" uploaded to Content Library!`
-          : `${files.length} videos uploaded to Content Library!`,
+          ? `"${processedFirst.title}" loaded! Set caption, platforms & schedule.`
+          : `${files.length} videos uploaded! Configure your post.`,
         'success'
       );
     } catch (err) {
