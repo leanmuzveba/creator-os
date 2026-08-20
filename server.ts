@@ -58,6 +58,12 @@ export interface PostItem {
   };
 }
 
+const getRelativeDateStr = (offsetDays: number) => {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  return d.toISOString().split('T')[0];
+};
+
 const defaultPosts: PostItem[] = [
   {
     id: 'post-1',
@@ -65,7 +71,7 @@ const defaultPosts: PostItem[] = [
     category: 'Free Tech Resources',
     platforms: ['tiktok', 'instagram'],
     status: 'published',
-    publishedDate: '2025-05-15',
+    publishedDate: getRelativeDateStr(-3),
     caption: 'These AI tools changed the way I study! 🚀 Save this for later!\n\nStop wasting hours summarizing papers when you can automate your revision and project workflows.',
     hashtags: ['#students', '#aitools', '#tech', '#studytok', '#creatoros'],
     thumbnailUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80',
@@ -98,7 +104,7 @@ const defaultPosts: PostItem[] = [
     category: 'Breaking Into Tech',
     platforms: ['youtube', 'tiktok'],
     status: 'published',
-    publishedDate: '2025-05-13',
+    publishedDate: getRelativeDateStr(-1),
     caption: 'No CS degree? Here is the exact portfolio strategy I used to get interviews at top tech companies as a student.',
     hashtags: ['#techinternship', '#codingjourney', '#careers', '#techjobs'],
     thumbnailUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&auto=format&fit=crop&q=80',
@@ -115,8 +121,9 @@ const defaultPosts: PostItem[] = [
     title: 'Free Websites Every Developer Needs',
     category: 'Free Tech Resources',
     platforms: ['instagram', 'facebook'],
-    status: 'published',
-    publishedDate: '2025-05-12',
+    status: 'scheduled',
+    scheduledDate: getRelativeDateStr(0),
+    scheduledTime: '10:00 AM',
     caption: 'Bookmark these 5 insane developer resources before building your next fullstack project 💻',
     hashtags: ['#webdev', '#freecode', '#developer', '#codingtips'],
     thumbnailUrl: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&auto=format&fit=crop&q=80',
@@ -133,7 +140,9 @@ const defaultPosts: PostItem[] = [
     title: 'Python Tips for Beginners',
     category: 'Tech Education',
     platforms: ['tiktok'],
-    status: 'draft',
+    status: 'scheduled',
+    scheduledDate: getRelativeDateStr(2),
+    scheduledTime: '02:00 PM',
     caption: '3 Python one-liners that will make your code look senior level ✨',
     hashtags: ['#python', '#learntocode', '#programming', '#softwareengineer'],
     thumbnailUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80',
@@ -145,8 +154,8 @@ const defaultPosts: PostItem[] = [
     category: 'Breaking Into Tech',
     platforms: ['instagram', 'youtube'],
     status: 'scheduled',
-    scheduledDate: '2025-05-20',
-    scheduledTime: '10:00 AM',
+    scheduledDate: getRelativeDateStr(4),
+    scheduledTime: '11:30 AM',
     caption: 'How to structure your GitHub README so recruiters actually look at your code. Full step-by-step breakdown!',
     hashtags: ['#github', '#portfoliotips', '#techstudents', '#softwaredev'],
     thumbnailUrl: 'https://images.unsplash.com/photo-1618401471353-b98aedd04e11?w=600&auto=format&fit=crop&q=80',
