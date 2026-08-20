@@ -8,14 +8,20 @@ Lean currently manages her content across multiple social-media platforms, inclu
 
 This creates several problems:
 
-Content must be uploaded repeatedly to different platforms.
-Scheduling must be managed separately.
-Analytics are fragmented across different dashboards.
-It is difficult to compare performance across platforms.
-Content ideas are generated separately from performance data.
-Identifying relevant trends requires manually searching multiple platforms.
-There is no single workspace for managing ideas, scripts, videos, publishing, and analytics.
-Switching between 4–5 different applications increases the time and effort required to manage the creator workflow.
+<ul>
+  <li>Content must be uploaded repeatedly to different platforms.</li>
+  <li>Scheduling must be managed separately.</li>
+  <li>Analytics are fragmented across different dashboards.</li>
+  <li>It is difficult to compare performance across platforms.</li>
+  <li>Content ideas are generated separately from performance data.</li>
+  <li>Identifying relevant trends requires manually searching multiple platforms.</li>
+  <li>There is no single workspace for managing ideas, scripts, videos, publishing, and analytics.</li>
+  <li>Switching between 4–5 different applications increases the time and effort required to manage the creator workflow.</li>
+</ul>
+
+
+
+
 
 ##PRELIMINARY INVESTIGATION
 Existing System 
