@@ -1,5 +1,11 @@
+/**
+ * Client-side metric helpers used by the Dashboard and Analytics views to
+ * aggregate views, followers, reach, and engagement across connected accounts,
+ * and to convert between abbreviated metric strings and raw numbers.
+ */
 import { SocialAccount, PostItem } from '../types';
 
+/** Parse an abbreviated metric string/number (e.g. "1.2K", "3M", 4500) into a number. */
 export function parseMetric(val: string | number | undefined | null): number {
   if (val === undefined || val === null || val === '') return 0;
   if (typeof val === 'number') return isNaN(val) ? 0 : val;
@@ -16,6 +22,7 @@ export function parseMetric(val: string | number | undefined | null): number {
   return parseFloat(str) || 0;
 }
 
+/** Format a number as an abbreviated metric string (e.g. 1200 → "1.2K"). */
 export function formatMetric(num: number): string {
   if (isNaN(num) || num <= 0) return '0';
   if (num >= 1000000000) {

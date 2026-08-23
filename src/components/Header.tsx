@@ -1,8 +1,13 @@
+/**
+ * Top application bar: brand lockup, primary navigation tabs, media upload
+ * entry point, notifications dropdown, and the connected-accounts/profile menu.
+ */
 import React, { useState, useRef } from 'react';
 import { Bell, Sparkles, Upload, Smartphone, Monitor, CheckCircle2, ChevronDown, Radio, Loader2 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { PlatformIcon } from './PlatformIcon';
 import { processMediaFile } from '../utils/videoUtils';
+import { logger } from '../utils/logger';
 
 export const Header: React.FC = () => {
   const {
@@ -21,6 +26,25 @@ export const Header: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Persist every file after the first as a draft in the content library.
+  // Extracted from handleFileUpload to keep the upload flow shallow and readable.
+  const saveExtraFilesToLibrary = async (files: FileList) => {
+    for (let i = 1; i < files.length; i++) {
+      const processed = await processMediaFile(files[i]);
+      await addPost({
+        title: processed.title,
+        category: 'Tech Education',
+        platforms: ['tiktok', 'instagram', 'youtube', 'facebook'],
+        status: 'draft',
+        caption: `${processed.title} #tech #coding #creatoros`,
+        hashtags: ['#tech', '#developer', '#student', '#coding', '#creatoros'],
+        thumbnailUrl: processed.thumbnailUrl,
+        videoUrl: processed.videoUrl,
+        duration: processed.duration,
+      });
+    }
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -29,26 +53,11 @@ export const Header: React.FC = () => {
 
     try {
       // Process first file for immediate scheduling modal popup
-      const firstFile = files[0];
-      const processedFirst = await processMediaFile(firstFile);
+      const processedFirst = await processMediaFile(files[0]);
 
-      // If multiple files selected, save any subsequent ones to library
+      // If multiple files selected, save any subsequent ones to the library.
       if (files.length > 1) {
-        for (let i = 1; i < files.length; i++) {
-          const file = files[i];
-          const processed = await processMediaFile(file);
-          await addPost({
-            title: processed.title,
-            category: 'Tech Education',
-            platforms: ['tiktok', 'instagram', 'youtube', 'facebook'],
-            status: 'draft',
-            caption: `${processed.title} #tech #coding #creatoros`,
-            hashtags: ['#tech', '#developer', '#student', '#coding', '#creatoros'],
-            thumbnailUrl: processed.thumbnailUrl,
-            videoUrl: processed.videoUrl,
-            duration: processed.duration,
-          });
-        }
+        await saveExtraFilesToLibrary(files);
       }
 
       // Open the multi-platform publish / schedule modal with the uploaded file
@@ -73,7 +82,7 @@ export const Header: React.FC = () => {
         'success'
       );
     } catch (err) {
-      console.error('File upload error:', err);
+      logger.error('File upload error:', err);
       showToast('Error processing media file. Please try again.', 'error');
     } finally {
       setIsUploading(false);
@@ -120,7 +129,7 @@ export const Header: React.FC = () => {
           
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-100 to-pink-300 bg-clip-text text-transparent">
+              <span className="brand-text-gradient text-xl font-bold tracking-tight">
                 Creator<span className="text-pink-400">OS</span>
               </span>
             </div>

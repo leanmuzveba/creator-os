@@ -1,3 +1,7 @@
+/**
+ * TrendsView: discover relevant trends, filterable by platform and category.
+ * Selecting a trend opens the {@link TrendModal} for adaptation guidance.
+ */
 import React, { useState } from 'react';
 import {
   TrendingUp,

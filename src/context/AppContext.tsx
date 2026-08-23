@@ -1,5 +1,56 @@
+/**
+ * Global application state for CreatorOS.
+ *
+ * `AppProvider` owns the app-wide data (posts, connected social accounts,
+ * trends), the modal/navigation UI state, and the async actions that talk to
+ * the backend API. Components consume it through the {@link useApp} hook.
+ */
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { PostItem, SocialAccount, TrendItem, ViewTab, ContentCategory, PlatformType } from '../types';
+import { logger } from '../utils/logger';
+
+/** localStorage key used to persist connected social accounts between sessions. */
+const ACCOUNTS_STORAGE_KEY = 'creator_os_social_accounts';
+
+/**
+ * Read and validate the cached social accounts from localStorage.
+ * Returns `null` when running outside the browser or when nothing valid is stored.
+ */
+const readCachedAccounts = (): SocialAccount[] | null => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(ACCOUNTS_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed : null;
+  } catch (err) {
+    logger.warn('Could not read cached accounts from localStorage:', err);
+    return null;
+  }
+};
+
+/**
+ * Merge freshly-fetched server accounts with any cached OAuth/custom data.
+ * Server-provided fields win where present so a reconnect or restart never
+ * loses the authenticated handle/metrics the user already had locally.
+ */
+const mergeServerAndCachedAccounts = (
+  serverAccs: SocialAccount[],
+  cached: SocialAccount[]
+): SocialAccount[] =>
+  serverAccs.map((sAcc) => {
+    const cAcc = cached.find((c) => c.id === sAcc.id);
+    if (!cAcc) return sAcc;
+    return {
+      ...sAcc,
+      ...cAcc,
+      // If server updated connected state or handle from OAuth, respect server.
+      connected: sAcc.connected !== undefined ? sAcc.connected : cAcc.connected,
+      handle: sAcc.handle || cAcc.handle,
+      followers: sAcc.followers || cAcc.followers,
+      views: sAcc.views || cAcc.views,
+    };
+  });
 
 interface AppContextType {
   activeTab: ViewTab;
@@ -53,20 +104,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [activeTab, setActiveTab] = useState<ViewTab>('dashboard');
   const [posts, setPosts] = useState<PostItem[]>([]);
-  const [socialAccounts, setSocialAccounts] = useState<SocialAccount[]>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('creator_os_social_accounts');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-        }
-      } catch (err) {
-        console.warn('Could not read cached accounts from localStorage:', err);
-      }
-    }
-    return [];
-  });
+  const [socialAccounts, setSocialAccounts] = useState<SocialAccount[]>(() => readCachedAccounts() ?? []);
   const [trends, setTrends] = useState<TrendItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -90,9 +128,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const next = typeof accounts === 'function' ? accounts(prev) : accounts;
       if (typeof window !== 'undefined') {
         try {
-          localStorage.setItem('creator_os_social_accounts', JSON.stringify(next));
+          localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(next));
         } catch (e) {
-          console.warn('Failed to cache accounts to localStorage:', e);
+          logger.warn('Failed to cache accounts to localStorage:', e);
         }
       }
       return next;
@@ -138,40 +176,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         }
         if (accountsRes.ok) {
           const serverAccs: SocialAccount[] = await accountsRes.json();
-          let merged = serverAccs;
+          // Merge with any cached localStorage state if the server was cold or restarted.
+          const cached = readCachedAccounts();
+          const merged = cached ? mergeServerAndCachedAccounts(serverAccs, cached) : serverAccs;
 
-          // Merge with any cached localStorage state if server was cold or restarted
-          if (typeof window !== 'undefined') {
-            try {
-              const cachedRaw = localStorage.getItem('creator_os_social_accounts');
-              if (cachedRaw) {
-                const cached: SocialAccount[] = JSON.parse(cachedRaw);
-                if (Array.isArray(cached) && cached.length > 0) {
-                  merged = serverAccs.map((sAcc) => {
-                    const cAcc = cached.find((c) => c.id === sAcc.id);
-                    if (!cAcc) return sAcc;
-                    // Prefer custom or OAuth authenticated data
-                    return {
-                      ...sAcc,
-                      ...cAcc,
-                      // If server updated connected state or handle from OAuth, respect server
-                      connected: sAcc.connected !== undefined ? sAcc.connected : cAcc.connected,
-                      handle: sAcc.handle || cAcc.handle,
-                      followers: sAcc.followers || cAcc.followers,
-                      views: sAcc.views || cAcc.views,
-                    };
-                  });
-                  // If cached had custom connections, sync back to server in background
-                  fetch('/api/accounts/sync', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(merged),
-                  }).catch(() => {});
-                }
-              }
-            } catch (err) {
-              console.warn('Error merging cached accounts:', err);
-            }
+          // If cached had custom connections, sync them back to the server in the background.
+          if (cached) {
+            fetch('/api/accounts/sync', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(merged),
+            }).catch(() => {});
           }
 
           setAndCacheAccounts(merged);
@@ -181,7 +196,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           setTrends(t);
         }
       } catch (err) {
-        console.error('Failed to load initial data:', err);
+        logger.error('Failed to load initial data:', err);
       } finally {
         setIsLoading(false);
       }
@@ -198,7 +213,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setAndCacheAccounts(a);
       }
     } catch (err) {
-      console.error('Failed to refresh accounts:', err);
+      logger.error('Failed to refresh accounts:', err);
     }
   };
 
@@ -253,7 +268,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       showToast(`Post "${newPost.title}" created successfully!`, 'success');
       return newPost;
     } catch (err: any) {
-      console.error('addPost error:', err);
+      logger.error('addPost error:', err);
       showToast(err.message || 'Failed to create post', 'error');
       throw err;
     }
@@ -274,7 +289,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       showToast('Post updated successfully', 'success');
       return updated;
     } catch (err: any) {
-      console.error('updatePost error:', err);
+      logger.error('updatePost error:', err);
       showToast(err.message || 'Failed to update post', 'error');
       throw err;
     }
@@ -290,7 +305,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
       showToast('Post deleted', 'info');
     } catch (err: any) {
-      console.error('deletePost error:', err);
+      logger.error('deletePost error:', err);
       showToast(err.message || 'Failed to delete post', 'error');
       throw err;
     }
@@ -314,7 +329,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
       showToast(`Published to ${target.platforms.map((p) => p.toUpperCase()).join(', ')}! 🚀`, 'success');
     } catch (err: any) {
-      console.error(err);
+      logger.error(err);
       showToast('Failed to publish post', 'error');
     }
   };
@@ -330,7 +345,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setAndCacheAccounts((prev) => prev.map((a) => (a.id === id ? updated : a)));
       showToast(`${updated.name} profile and metrics updated!`, 'success');
     } catch (err: any) {
-      console.error('updateAccount error:', err);
+      logger.error('updateAccount error:', err);
       showToast(err.message || 'Failed to update account metrics', 'error');
     }
   };
@@ -345,7 +360,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         updated.connected ? 'success' : 'info'
       );
     } catch (err: any) {
-      console.error('toggleAccountConnection error:', err);
+      logger.error('toggleAccountConnection error:', err);
       showToast(err.message || 'Account sync failed', 'error');
     }
   };

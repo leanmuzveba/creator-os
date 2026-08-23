@@ -1,11 +1,25 @@
 @import "tailwindcss";
 
+/*
+ * CreatorOS brand palette — derived from the app logo (public/logo.svg):
+ * a deep navy camera body / wordmark paired with a vivid pink → magenta lens accent.
+ * Reusable primitives below (buttons, cards) consume these tokens so the whole
+ * UI stays in sync with the brand rather than hard-coding hex values per component.
+ */
+:root {
+  --brand-navy: #1e1b7e;        /* logo wordmark / camera body navy */
+  --brand-navy-deep: #12103f;   /* darkest navy, used for elevated surfaces */
+  --brand-ink: #0b0d17;         /* page background (near-black navy) */
+  --brand-pink: #ec4899;        /* primary accent (logo pink) */
+  --brand-magenta: #f43fd8;     /* brighter logo magenta for gradients/glow */
+}
+
 @layer base {
   * {
     border-color: rgba(255, 255, 255, 0.1);
   }
   body {
-    background-color: #0b0d17;
+    background-color: var(--brand-ink);
     color: #f8fafc;
     overflow-x: hidden;
   }
@@ -47,12 +61,20 @@
 }
 
 .purple-glow-btn, .pink-glow-btn {
-  background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+  background: linear-gradient(135deg, var(--brand-magenta) 0%, var(--brand-pink) 100%);
   box-shadow: 0 4px 18px rgba(236, 72, 153, 0.4);
 }
 .purple-glow-btn:hover, .pink-glow-btn:hover {
-  background: linear-gradient(135deg, #f43f5e 0%, #be185d 100%);
-  box-shadow: 0 6px 24px rgba(236, 72, 153, 0.6);
+  background: linear-gradient(135deg, #f65fe4 0%, #db2777 100%);
+  box-shadow: 0 6px 24px rgba(244, 63, 216, 0.55);
+}
+
+/* Brand lockup gradient (navy → magenta), used for the logo wordmark. */
+.brand-text-gradient {
+  background: linear-gradient(90deg, #ffffff 0%, #f8b6ef 60%, var(--brand-magenta) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 /* Custom pulse animations for live status */

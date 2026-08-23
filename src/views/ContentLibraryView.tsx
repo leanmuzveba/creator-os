@@ -1,9 +1,15 @@
+/**
+ * Content Library view: the central repository of ideas, drafts, scheduled
+ * posts, and published content. Provides search, status/category/platform
+ * filtering, grid/list layouts, and a multi-file media upload entry point.
+ */
 import React, { useState, useRef } from 'react';
 import { Search, Filter, Plus, LayoutGrid, List, SlidersHorizontal, Sparkles, Upload, Loader2 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { PostCard } from '../components/PostCard';
 import { PostStatus, ContentCategory, PlatformType } from '../types';
 import { processMediaFile } from '../utils/videoUtils';
+import { logger } from '../utils/logger';
 
 export const ContentLibraryView: React.FC = () => {
   const { posts, openScheduleModalWithData, setActiveTab, addPost, showToast } = useApp();
@@ -15,6 +21,25 @@ export const ContentLibraryView: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const libraryFileInputRef = useRef<HTMLInputElement>(null);
 
+  // Persist every file after the first as a draft. Extracted from
+  // handleLibraryUpload to keep the upload flow shallow and readable.
+  const saveExtraFilesToLibrary = async (files: FileList) => {
+    for (let i = 1; i < files.length; i++) {
+      const processed = await processMediaFile(files[i]);
+      await addPost({
+        title: processed.title,
+        category: 'Tech Education',
+        platforms: ['tiktok', 'instagram', 'youtube', 'facebook'],
+        status: 'draft',
+        caption: `${processed.title} #tech #creatoros`,
+        hashtags: ['#tech', '#developer', '#student', '#coding', '#creatoros'],
+        thumbnailUrl: processed.thumbnailUrl,
+        videoUrl: processed.videoUrl,
+        duration: processed.duration,
+      });
+    }
+  };
+
   const handleLibraryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -22,26 +47,10 @@ export const ContentLibraryView: React.FC = () => {
     setIsUploading(true);
 
     try {
-      const firstFile = files[0];
-      const processedFirst = await processMediaFile(firstFile);
+      const processedFirst = await processMediaFile(files[0]);
 
       if (files.length > 1) {
-        for (let i = 1; i < files.length; i++) {
-          const file = files[i];
-          const processed = await processMediaFile(file);
-
-          await addPost({
-            title: processed.title,
-            category: 'Tech Education',
-            platforms: ['tiktok', 'instagram', 'youtube', 'facebook'],
-            status: 'draft',
-            caption: `${processed.title} #tech #creatoros`,
-            hashtags: ['#tech', '#developer', '#student', '#coding', '#creatoros'],
-            thumbnailUrl: processed.thumbnailUrl,
-            videoUrl: processed.videoUrl,
-            duration: processed.duration,
-          });
-        }
+        await saveExtraFilesToLibrary(files);
       }
 
       openScheduleModalWithData({
@@ -65,7 +74,7 @@ export const ContentLibraryView: React.FC = () => {
         'success'
       );
     } catch (err) {
-      console.error('Upload error in library:', err);
+      logger.error('Upload error in library:', err);
       showToast('Error uploading video', 'error');
     } finally {
       setIsUploading(false);

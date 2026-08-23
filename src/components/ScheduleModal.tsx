@@ -1,9 +1,15 @@
+/**
+ * ScheduleModal: compose/schedule flow for a post — set title, caption,
+ * hashtags, category, target platforms, thumbnail/media, and a scheduled or
+ * publish date/time. Pre-populates from any data passed when opened.
+ */
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Calendar as CalendarIcon, Clock, Sparkles, Image as ImageIcon, Check, ArrowRight, Wand2, Hash, Layers, Upload, Film } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { PlatformType, ContentCategory, PostItem } from '../types';
 import { PlatformIcon } from './PlatformIcon';
 import { processMediaFile } from '../utils/videoUtils';
+import { logger } from '../utils/logger';
 
 export const ScheduleModal: React.FC = () => {
   const { isScheduleModalOpen, setIsScheduleModalOpen, scheduleModalInitialData, addPost, updatePost, showToast, socialAccounts } = useApp();
@@ -82,7 +88,7 @@ export const ScheduleModal: React.FC = () => {
       }
       showToast('Media loaded into post creator!', 'info');
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       showToast('Could not load media file', 'error');
     } finally {
       setIsReplacingMedia(false);
@@ -132,7 +138,7 @@ export const ScheduleModal: React.FC = () => {
         showToast('AI enhanced caption generated! ✨', 'success');
       }
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       showToast('AI enhancement failed', 'error');
     } finally {
       setIsAiGenerating(false);

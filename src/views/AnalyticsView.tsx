@@ -1,3 +1,8 @@
+/**
+ * AnalyticsView: multi-platform performance dashboard. Fetches aggregated
+ * analytics from the backend for a selectable date range and charts views over
+ * time, per-platform performance, and category breakdown.
+ */
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   ResponsiveContainer,
@@ -19,6 +24,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { logger } from '../utils/logger';
 import { PlatformIcon } from '../components/PlatformIcon';
 import { PlatformType } from '../types';
 import { formatMetric, calculateAggregatedOverview, parseMetric, calculateTotalViews, calculateTotalFollowers } from '../utils/metricUtils';
@@ -38,7 +44,7 @@ export const AnalyticsView: React.FC = () => {
     fetch(`/api/analytics?range=${dateRange}`)
       .then((res) => res.json())
       .then((data) => setAnalyticsData(data))
-      .catch((err) => console.error(err));
+      .catch((err) => logger.error(err));
   }, [dateRange, socialAccounts]);
 
   const togglePlatform = (p: PlatformType) => {

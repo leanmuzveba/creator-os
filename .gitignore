@@ -1,0 +1,16 @@
+node_modules
+dist
+dist-ssr
+*.local
+bun.lock
+bun.lockb
+.DS_Store
+
+# Runtime-generated persistent store
+creator_storage.json
+
+# Test coverage output
+coverage
+
+# Local audit reports
+.claude-audit

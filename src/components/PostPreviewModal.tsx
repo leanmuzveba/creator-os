@@ -1,3 +1,7 @@
+/**
+ * PostPreviewModal: full-screen preview of the currently selected post, styled
+ * like a native social feed, with actions to edit, schedule, or publish.
+ */
 import React, { useState } from 'react';
 import { X, Heart, MessageSquare, Bookmark, Share2, Music, Check, ArrowLeft, Send, Sparkles, MoreVertical, Edit, Calendar, ExternalLink } from 'lucide-react';
 import { useApp } from '../context/AppContext';

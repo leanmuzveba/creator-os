@@ -1,3 +1,8 @@
+/**
+ * TrendModal: detail view for a selected trend — why it works, the hook
+ * formula, and Lean's adaptation — with an action to send it to the AI
+ * assistant for content generation.
+ */
 import React from 'react';
 import { X, Sparkles, TrendingUp, ArrowRight, Lightbulb, Zap, HelpCircle, CheckCircle, Video } from 'lucide-react';
 import { useApp } from '../context/AppContext';

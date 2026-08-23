@@ -1,3 +1,8 @@
+/**
+ * PostCard: a single content item rendered in the library, in either grid or
+ * list layout. Shows thumbnail, status, metrics, and quick actions (preview,
+ * schedule, delete).
+ */
 import React from 'react';
 import { Eye, Clock, Play, MoreVertical, Edit, Trash2, CalendarCheck, Share2 } from 'lucide-react';
 import { PostItem } from '../types';

@@ -1,14 +1,23 @@
+/**
+ * Shared domain types for the CreatorOS frontend: the supported platforms,
+ * post/account/trend shapes, and the AI-generated content result shapes.
+ */
+
+/** A social platform CreatorOS can connect to and publish on. */
 export type PlatformType = 'tiktok' | 'instagram' | 'youtube' | 'facebook';
 
+/** Lifecycle state of a content post. */
 export type PostStatus = 'draft' | 'scheduled' | 'published';
 
-export type ContentCategory = 
+/** One of Lean's five brand content pillars. */
+export type ContentCategory =
   | 'Tech Education'
   | 'Breaking Into Tech'
   | 'Free Tech Resources'
   | 'Student & Academic Life'
   | 'Microsoft Journey';
 
+/** A single shot in a video shot list (visual + audio + timing window). */
 export interface ShotItem {
   shot: number;
   visual: string;
@@ -16,6 +25,7 @@ export interface ShotItem {
   timing: string;
 }
 
+/** A content item tracked from idea through to publication. */
 export interface PostItem {
   id: string;
   title: string;
@@ -44,6 +54,7 @@ export interface PostItem {
   };
 }
 
+/** A connected social platform account and its cached profile/metrics. */
 export interface SocialAccount {
   id: PlatformType;
   name: string;
@@ -58,6 +69,7 @@ export interface SocialAccount {
   status: string;
 }
 
+/** A discoverable trend with adaptation guidance for the creator. */
 export interface TrendItem {
   id: string;
   topic: string;
@@ -72,8 +84,10 @@ export interface TrendItem {
   leanAdaptation: string;
 }
 
+/** The selectable top-level navigation tabs / views. */
 export type ViewTab = 'dashboard' | 'content' | 'ai' | 'analytics' | 'trends' | 'calendar' | 'accounts';
 
+/** AI-generated content idea result. */
 export interface GeneratedIdea {
   title: string;
   potential: string;
@@ -83,6 +97,7 @@ export interface GeneratedIdea {
   bestPlatform: string;
 }
 
+/** AI-generated viral hook result (spoken/visual/on-screen). */
 export interface GeneratedHook {
   spokenHook: string;
   visualHook: string;
@@ -91,6 +106,7 @@ export interface GeneratedHook {
   potentialScore: string;
 }
 
+/** AI-generated full video script result. */
 export interface GeneratedScript {
   title: string;
   hook: string;
@@ -101,6 +117,7 @@ export interface GeneratedScript {
   shotList: ShotItem[];
 }
 
+/** AI-generated production shot list and editing guide result. */
 export interface GeneratedShotList {
   totalDuration: string;
   recommendedMusic: string;

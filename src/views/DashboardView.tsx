@@ -1,3 +1,8 @@
+/**
+ * DashboardView: the home overview. Summarizes headline metrics across
+ * connected accounts, recent/upcoming posts, and quick entry points into the
+ * content, AI, and calendar workflows.
+ */
 import React, { useState, useEffect } from 'react';
 import {
   ResponsiveContainer,
@@ -25,6 +30,7 @@ import {
   Radio,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { logger } from '../utils/logger';
 import { PlatformIcon } from '../components/PlatformIcon';
 import { PostCard } from '../components/PostCard';
 import { formatMetric, calculateTotalViews, parseMetric } from '../utils/metricUtils';
@@ -45,7 +51,7 @@ export const DashboardView: React.FC = () => {
           setChartData(data.viewSeries);
         }
       })
-      .catch((err) => console.error(err));
+      .catch((err) => logger.error(err));
   }, [chartRange, socialAccounts]);
 
   const recentPosts = posts.slice(0, 4);

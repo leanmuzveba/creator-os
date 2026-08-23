@@ -1,3 +1,11 @@
+/**
+ * Root of the CreatorOS single-page app.
+ *
+ * `App` wraps everything in the {@link AppProvider} global store, while
+ * `MainAppContent` reads the active tab and renders the matching view, hosts
+ * the shared modals, and shows the global toast. It also provides the optional
+ * phone-frame "mobile device" preview mode.
+ */
 import React from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { Header } from './components/Header';
@@ -14,9 +22,11 @@ import { TrendModal } from './components/TrendModal';
 import { ConnectedAccountsModal } from './components/ConnectedAccountsModal';
 import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 
+/** App shell: header, active view, bottom nav, global modals, and toast. */
 const MainAppContent: React.FC = () => {
   const { activeTab, isMobileDeviceView, toast } = useApp();
 
+  /** Map the active tab to its view component. */
   const renderActiveView = () => {
     switch (activeTab) {
       case 'dashboard':
@@ -92,6 +102,7 @@ const MainAppContent: React.FC = () => {
   );
 };
 
+/** Application root: provides the global store to the app shell. */
 export function App() {
   return (
     <AppProvider>
