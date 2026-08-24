@@ -208,6 +208,53 @@ class _ConnectedAccountsSheetState extends State<ConnectedAccountsSheet> {
   }
 
   Widget _accountsList(BuildContext context, AppState state, ScrollController scrollController) {
+    if (state.isLoading && state.socialAccounts.isEmpty) {
+      return ListView(
+        controller: scrollController,
+        children: const [
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 48),
+            child: Center(child: CircularProgressIndicator(color: AppColors.pink)),
+          ),
+        ],
+      );
+    }
+
+    if (state.socialAccounts.isEmpty) {
+      return ListView(
+        controller: scrollController,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 8),
+            child: Column(
+              children: [
+                const Icon(Icons.cloud_off, size: 32, color: AppColors.textSecondary),
+                const SizedBox(height: 10),
+                const Text(
+                  "Couldn't load your connected accounts.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Check that the backend is reachable, then try again.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                ),
+                const SizedBox(height: 14),
+                FilledButton.icon(
+                  style: FilledButton.styleFrom(backgroundColor: AppColors.pink),
+                  onPressed: () => state.loadInitialData(),
+                  icon: const Icon(Icons.refresh, size: 16),
+                  label: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
     return ListView(
       controller: scrollController,
       children: [

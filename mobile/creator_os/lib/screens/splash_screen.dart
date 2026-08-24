@@ -7,7 +7,6 @@
 // and a "POWERED BY CREATOR OS" footer.
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({
@@ -167,9 +166,10 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text(
+                const Text(
                   'INITIALIZING',
-                  style: GoogleFonts.fredoka(
+                  style: TextStyle(
+                    fontFamily: 'Fredoka',
                     color: _pink,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -187,7 +187,8 @@ class _SplashScreenState extends State<SplashScreen>
             child: Center(
               child: Text(
                 'POWERED BY CREATOR OS',
-                style: GoogleFonts.fredoka(
+                style: TextStyle(
+                  fontFamily: 'Fredoka',
                   color: Colors.white.withValues(alpha: 0.20),
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -347,7 +348,8 @@ class _Wordmark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final baseStyle = GoogleFonts.fredoka(
+    final baseStyle = const TextStyle(
+      fontFamily: 'Fredoka',
       fontSize: 44,
       fontWeight: FontWeight.w700,
       fontStyle: FontStyle.italic,
