@@ -116,8 +116,42 @@ creator-os/
 │   ├── components/          # UI components (Header, modals, accounts/*)
 │   ├── views/               # Dashboard, Content Library, AI, Analytics, Trends, Calendar
 │   └── utils/               # logger, metricUtils, calendarUtils, videoUtils
-└── docs/                    # Requirements, feasibility, and use-case analysis
+├── docs/                     # Requirements, feasibility, and use-case analysis
+└── mobile/creator_os/        # Flutter frontend (web + Android) — see below
 ```
+
+## Mobile app (Flutter)
+
+`mobile/creator_os/` is a Flutter frontend for the same backend, buildable for both **web** and **Android** from one codebase — a monorepo alongside the existing React/Vite/Express web app. It talks to the same Express API (`server/routes/*`), so no backend changes are required.
+
+```bash
+cd mobile/creator_os
+flutter pub get
+
+# Run on Chrome (backend must be running on http://localhost:3000)
+flutter run -d chrome
+
+# Run on an Android emulator (10.0.2.2 = host loopback from the emulator)
+flutter run -d emulator --dart-define=API_BASE_URL=http://10.0.2.2:3000
+
+# Run on a physical Android device on the same network
+flutter run --dart-define=API_BASE_URL=http://<your-machine-lan-ip>:3000
+```
+
+Structure mirrors the web app's views:
+
+```
+mobile/creator_os/lib/
+├── main.dart                 # App shell: tabs, bottom nav, toast (mirrors src/App.tsx)
+├── models/models.dart        # PostItem, SocialAccount, TrendItem, ... (mirrors src/types.ts)
+├── services/api_client.dart  # HTTP client for /api/* (mirrors AppContext's fetch calls)
+├── state/app_state.dart      # Provider ChangeNotifier (mirrors src/context/AppContext.tsx)
+├── screens/                  # Dashboard, Content Library, AI, Analytics, Trends, Calendar
+├── widgets/                  # BottomNav, PostCard, PlatformIcon, CreatePostSheet
+└── theme/app_theme.dart      # Dark theme matching the web app's palette
+```
+
+**Not yet ported from the web app:** in-app video upload/processing (`videoUtils.ts`), OAuth connect flows for the social platforms, and month-grid calendar view (the mobile Calendar tab is a simpler agenda list for now). Android builds also need `flutter doctor --android-licenses` accepted and Android `cmdline-tools` installed before `flutter run`/`flutter build apk` will work — `flutter run -d chrome` works out of the box.
 
 ## API
 
