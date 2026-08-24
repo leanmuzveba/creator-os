@@ -16,7 +16,6 @@ class AppBottomNav extends StatelessWidget {
     (ViewTab.analytics, Icons.bar_chart_outlined, Icons.bar_chart, 'Analytics'),
     (ViewTab.content, Icons.video_library_outlined, Icons.video_library, 'Content'),
     (ViewTab.calendar, Icons.calendar_today_outlined, Icons.calendar_today, 'Calendar'),
-    (ViewTab.trends, Icons.trending_up_outlined, Icons.trending_up, 'Trends'),
   ];
 
   @override

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import 'models/models.dart';
@@ -7,6 +8,7 @@ import 'screens/analytics_screen.dart';
 import 'screens/calendar_screen.dart';
 import 'screens/content_library_screen.dart';
 import 'screens/dashboard_screen.dart';
+import 'screens/splash_screen.dart';
 import 'screens/trends_screen.dart';
 import 'state/app_state.dart';
 import 'theme/app_theme.dart';
@@ -32,8 +34,29 @@ class CreatorOsApp extends StatelessWidget {
       title: 'Creator OS',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
-      home: const AppShell(),
+      home: const _RootSwitcher(),
     );
+  }
+}
+
+/// Shows the animated intro [SplashScreen] first, then swaps to [AppShell]
+/// once it finishes — no named routes/Navigator needed for the handoff.
+class _RootSwitcher extends StatefulWidget {
+  const _RootSwitcher();
+
+  @override
+  State<_RootSwitcher> createState() => _RootSwitcherState();
+}
+
+class _RootSwitcherState extends State<_RootSwitcher> {
+  bool _showSplash = true;
+
+  @override
+  Widget build(BuildContext context) {
+    if (_showSplash) {
+      return SplashScreen(onFinished: () => setState(() => _showSplash = false));
+    }
+    return const AppShell();
   }
 }
 
@@ -42,27 +65,64 @@ class CreatorOsApp extends StatelessWidget {
 class AppShell extends StatelessWidget {
   const AppShell({super.key});
 
-  static const _titles = {
-    ViewTab.dashboard: 'Creator OS',
-    ViewTab.content: 'Content Library',
-    ViewTab.ai: 'AI Assistant',
-    ViewTab.analytics: 'Analytics',
-    ViewTab.trends: 'Trends',
-    ViewTab.calendar: 'Calendar',
-  };
-
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_titles[state.activeTab] ?? 'Creator OS'),
+        titleSpacing: 16,
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SvgPicture.asset('assets/branding/logo.svg', width: 28, height: 28),
+            const SizedBox(width: 8),
+            const Text.rich(
+              TextSpan(
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, letterSpacing: -0.3),
+                children: [
+                  TextSpan(text: 'Creator', style: TextStyle(color: AppColors.textPrimary)),
+                  TextSpan(text: 'OS', style: TextStyle(color: AppColors.pink)),
+                ],
+              ),
+            ),
+          ],
+        ),
         actions: [
           IconButton(
             tooltip: 'Connected accounts',
             icon: const Icon(Icons.verified_user_outlined),
             onPressed: () => ConnectedAccountsSheet.show(context),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: GestureDetector(
+              onTap: () => ConnectedAccountsSheet.show(context),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  const CircleAvatar(
+                    radius: 15,
+                    backgroundImage: NetworkImage(
+                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
+                    ),
+                  ),
+                  Positioned(
+                    right: -1,
+                    bottom: -1,
+                    child: Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: AppColors.emerald,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.background, width: 1.5),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
