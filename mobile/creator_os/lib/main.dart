@@ -10,6 +10,7 @@ import 'screens/dashboard_screen.dart';
 import 'screens/trends_screen.dart';
 import 'state/app_state.dart';
 import 'theme/app_theme.dart';
+import 'widgets/accounts/connected_accounts_sheet.dart';
 import 'widgets/bottom_nav.dart';
 import 'widgets/create_post_sheet.dart';
 
@@ -55,7 +56,16 @@ class AppShell extends StatelessWidget {
     final state = context.watch<AppState>();
 
     return Scaffold(
-      appBar: AppBar(title: Text(_titles[state.activeTab] ?? 'Creator OS')),
+      appBar: AppBar(
+        title: Text(_titles[state.activeTab] ?? 'Creator OS'),
+        actions: [
+          IconButton(
+            tooltip: 'Connected accounts',
+            icon: const Icon(Icons.verified_user_outlined),
+            onPressed: () => ConnectedAccountsSheet.show(context),
+          ),
+        ],
+      ),
       body: Stack(
         children: [
           IndexedStack(

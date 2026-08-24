@@ -116,6 +116,15 @@ class ApiClient {
     return SocialAccount.fromJson(_decode(res));
   }
 
+  /// Fetch the OAuth authorization URL for [platform] (tiktok | instagram | facebook | youtube).
+  /// Returns `{configured: bool, url?: string, ...}` — mirrors the `/api/auth/<platform>/url`
+  /// endpoints used by the web app's `ConnectedAccountsModal`.
+  Future<Map<String, dynamic>> getOAuthUrl(String platform) async {
+    final res = await _http.get(_uri('/api/auth/$platform/url'));
+    _checkOk(res, 'Failed to start $platform connection');
+    return Map<String, dynamic>.from(_decode(res));
+  }
+
   // ---- Trends ----
 
   Future<List<TrendItem>> getTrends({String? platform}) async {

@@ -1,36 +1,29 @@
 /**
- * AI content-generation route backed by Google Gemini.
+ * AI content-generation route backed by Anthropic's Claude API.
  *
  * Builds a pillar-aware prompt for the requested output type (ideas, hooks,
  * scripts, shot list, trend analysis) and returns structured JSON. When no
- * `GEMINI_API_KEY` is configured, or a generation call fails, it returns a
+ * `ANTHROPIC_API_KEY` is configured, or a generation call fails, it returns a
  * high-quality curated fallback so the UI always has content to render.
  */
 import { Router } from 'express';
-import { GoogleGenAI } from '@google/genai';
+import Anthropic from '@anthropic-ai/sdk';
 import { logger } from '../logger.ts';
 
 export const aiRouter = Router();
 
-// Lazily initialize the GoogleGenAI client if an API key is present.
-let genAiClient: GoogleGenAI | null = null;
-function getGenAI(): GoogleGenAI | null {
-  if (!genAiClient && process.env.GEMINI_API_KEY) {
-    genAiClient = new GoogleGenAI({
-      apiKey: process.env.GEMINI_API_KEY,
-      httpOptions: {
-        headers: {
-          'User-Agent': 'aistudio-build',
-        },
-      },
-    });
+// Lazily initialize the Anthropic client if an API key is present.
+let anthropicClient: Anthropic | null = null;
+function getAnthropic(): Anthropic | null {
+  if (!anthropicClient && process.env.ANTHROPIC_API_KEY) {
+    anthropicClient = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   }
-  return genAiClient;
+  return anthropicClient;
 }
 
 aiRouter.post('/api/ai/generate', async (req, res) => {
   const { type, prompt, category, platform } = req.body;
-  const ai = getGenAI();
+  const ai = getAnthropic();
 
   const selectedCategory = category || 'Free Tech Resources';
   const targetPlatform = platform || 'All Platforms';
@@ -51,25 +44,25 @@ Her 5 Core Content Pillars are:
 4. Student & Academic Life (Study systems, GPA tips, balancing work and uni, tech college hacks)
 5. Microsoft Journey (Azure credits, Microsoft Learn certifications, student programs)
 
-Always format outputs in clean, structured JSON with engaging hooks, viral formulas, retention techniques, and specific calls to action.`;
+Always format outputs in clean, structured JSON with engaging hooks, viral formulas, retention techniques, and specific calls to action.
+Respond with ONLY the raw JSON — no markdown code fences, no commentary before or after.`;
 
     const userPrompt = buildUserPrompt(type, prompt, selectedCategory, targetPlatform);
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.7-flash',
-      contents: userPrompt,
-      config: {
-        systemInstruction,
-        responseMimeType: 'application/json',
-        temperature: 0.8,
-      },
+    const response = await ai.messages.create({
+      model: 'claude-opus-5',
+      max_tokens: 4096,
+      system: systemInstruction,
+      messages: [{ role: 'user', content: userPrompt }],
     });
 
-    const text = response.text || '{}';
-    const parsed = JSON.parse(text);
+    const textBlock = response.content.find((b): b is Anthropic.TextBlock => b.type === 'text');
+    const text = textBlock?.text?.trim() || '{}';
+    const jsonText = text.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '');
+    const parsed = JSON.parse(jsonText);
     res.json({ result: parsed, isMock: false });
   } catch (err: any) {
-    logger.error('Gemini generation error, falling back:', err);
+    logger.error('Claude generation error, falling back:', err);
     const fallback = generateFallbackAI({ type, prompt, category: selectedCategory, platform: targetPlatform });
     res.json({ result: fallback, isMock: true, error: err.message });
   }

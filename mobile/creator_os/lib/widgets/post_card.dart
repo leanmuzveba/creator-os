@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 import 'platform_icon.dart';
+import 'thumb_image.dart';
 
 /// Compact card summarizing one content post: thumbnail, title, status,
 /// category, and platform badges. Mirrors `src/components/PostCard.tsx`.
@@ -34,13 +35,10 @@ class PostCard extends StatelessWidget {
                 children: [
                   Container(
                     color: AppColors.background,
-                    child: post.thumbnailUrl.isNotEmpty
-                        ? Image.network(
-                            post.thumbnailUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, _, _) => const Icon(Icons.image_not_supported, color: AppColors.textSecondary),
-                          )
-                        : const Icon(Icons.image, color: AppColors.textSecondary),
+                    child: ThumbImage(
+                      url: post.thumbnailUrl,
+                      placeholderBuilder: (_) => const Icon(Icons.image, color: AppColors.textSecondary),
+                    ),
                   ),
                   Positioned(
                     top: 6,
