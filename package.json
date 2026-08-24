@@ -11,7 +11,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.68.0",
+    "@google/genai": "^2.18.0",
     "clsx": "^2.1.1",
     "cors": "^2.8.5",
     "docx": "^9.7.1",

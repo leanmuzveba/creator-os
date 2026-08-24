@@ -36,7 +36,7 @@ The initial system is designed around the workflow of **Lean Muzveba**, a studen
 - 📈 **Cross-platform comparison** — performance by platform and by content category, side by side.
 - 🗂️ **Central content library** — one home for ideas, drafts, scheduled, and published posts, with search and filters.
 - 🏷️ **Content pillars** — categorise content against defined brand pillars.
-- 🤖 **AI content assistant** — generate ideas, visual hooks, written hooks, voiceover scripts, recommended shots, and editing suggestions (Anthropic Claude, with a curated offline fallback).
+- 🤖 **AI content assistant** — generate ideas, visual hooks, written hooks, voiceover scripts, recommended shots, and editing suggestions (Google Gemini, with a curated offline fallback).
 - 🔥 **Trend explorer** — discover relevant trends, filter by platform and category, with adaptation guidance.
 - 🗓️ **Content calendar** — month and week views with timezone-aware scheduling.
 - 🚀 **Multi-platform publishing** — prepare one piece of content and publish to the supported platforms where permitted.
@@ -54,7 +54,7 @@ The AI assistant is tuned to five content pillars:
 |-------|------------|
 | Frontend | React 19, TypeScript, Vite 6, Tailwind CSS 4, Recharts, lucide-react |
 | Backend | Node.js + Express 4 (run directly via Node's TypeScript type-stripping) |
-| AI | Anthropic Claude (`@anthropic-ai/sdk`) |
+| AI | Google Gemini (`@google/genai`) |
 | Testing | Vitest |
 | Persistence | In-memory store with JSON file persistence (`creator_storage.json`) |
 
@@ -82,7 +82,7 @@ All keys are optional — features degrade gracefully when a key is absent (the 
 
 | Variable | Purpose |
 |----------|---------|
-| `ANTHROPIC_API_KEY` | Anthropic Claude API key for the AI assistant |
+| `GEMINI_API_KEY` | Google Gemini API key for the AI assistant (from [Google AI Studio](https://aistudio.google.com/apikey), starts with `AIzaSy`) |
 | `TIKTOK_CLIENT_KEY` / `TIKTOK_CLIENT_SECRET` | TikTok OAuth |
 | `META_APP_ID` / `META_APP_SECRET` | Instagram & Facebook (Meta) OAuth |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | YouTube (Google) OAuth |
