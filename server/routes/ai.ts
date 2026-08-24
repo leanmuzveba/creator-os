@@ -50,7 +50,7 @@ Respond with ONLY the raw JSON — no markdown code fences, no commentary before
     const userPrompt = buildUserPrompt(type, prompt, selectedCategory, targetPlatform);
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3.6-flash',
       contents: userPrompt,
       config: {
         systemInstruction,
