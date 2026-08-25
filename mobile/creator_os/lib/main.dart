@@ -8,6 +8,7 @@ import 'screens/analytics_screen.dart';
 import 'screens/calendar_screen.dart';
 import 'screens/content_library_screen.dart';
 import 'screens/dashboard_screen.dart';
+import 'screens/profile_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/trends_screen.dart';
 import 'state/app_state.dart';
@@ -97,7 +98,9 @@ class AppShell extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 12),
             child: GestureDetector(
-              onTap: () => ConnectedAccountsSheet.show(context),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ProfileScreen()),
+              ),
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
