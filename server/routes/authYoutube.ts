@@ -7,6 +7,7 @@ import { Router } from 'express';
 import type { Request } from 'express';
 import { store, saveStorage } from '../store.ts';
 import { logger } from '../logger.ts';
+import { computeGrowth } from '../metrics.ts';
 
 export const authYoutubeRouter = Router();
 
@@ -81,6 +82,7 @@ authYoutubeRouter.get('/api/auth/youtube/callback', async (req, res) => {
     const redirectUri = getYouTubeRedirectUri(req);
 
     const existingYtAcc = store.socialAccounts.find((a) => a.id === 'youtube');
+    const oldViews = existingYtAcc?.views;
     let channelTitle = existingYtAcc?.handle || 'YouTube Creator';
     let channelAvatar =
       existingYtAcc?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
@@ -151,6 +153,7 @@ authYoutubeRouter.get('/api/auth/youtube/callback', async (req, res) => {
       existingYtAcc.handle = channelTitle;
       existingYtAcc.avatar = channelAvatar;
       existingYtAcc.status = 'active';
+      existingYtAcc.viewsGrowth = computeGrowth(oldViews, existingYtAcc.views);
       saveStorage();
     }
 

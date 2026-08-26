@@ -97,7 +97,7 @@ class _ContentLibraryScreenState extends State<ContentLibraryScreen> {
                           crossAxisCount: 2,
                           crossAxisSpacing: 12,
                           mainAxisSpacing: 12,
-                          childAspectRatio: 0.72,
+                          childAspectRatio: 0.62,
                         ),
                         itemBuilder: (context, i) => PostCard(
                           post: posts[i],

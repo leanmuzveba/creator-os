@@ -22,3 +22,16 @@ export function formatMetricServer(num: number): string {
   if (num >= 1000) return `${(num / 1000).toFixed(1).replace(/\.0$/, '')}K`;
   return Math.round(num).toLocaleString();
 }
+
+/**
+ * Compute a formatted percent-change string (e.g. "+12.4%") between a
+ * previously-stored metric value and a freshly-synced one. Used to turn a
+ * static seed-data growth badge into a real one after an OAuth reconnect.
+ */
+export function computeGrowth(oldVal: string | number | undefined | null, newVal: string | number | undefined | null): string {
+  const oldNum = parseMetricServer(oldVal);
+  const newNum = parseMetricServer(newVal);
+  if (oldNum <= 0) return newNum > 0 ? '+100.0%' : '0.0%';
+  const pct = ((newNum - oldNum) / oldNum) * 100;
+  return `${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%`;
+}

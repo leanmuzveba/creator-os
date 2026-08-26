@@ -7,6 +7,7 @@ import { Router } from 'express';
 import type { Request } from 'express';
 import { store, saveStorage } from '../store.ts';
 import { logger } from '../logger.ts';
+import { computeGrowth } from '../metrics.ts';
 
 export const authMetaRouter = Router();
 
@@ -21,8 +22,10 @@ authMetaRouter.get('/api/auth/instagram/url', (req, res) => {
   const appId = process.env.META_APP_ID;
   const redirectUri = getMetaRedirectUri(req, 'instagram');
   const state = 'creator_os_ig_' + Math.random().toString(36).substring(2, 15);
-  // Default to standard public_profile only so no unrequested permissions are sent.
-  const scope = (req.query.scope as string) || 'public_profile';
+  // pages_show_list is needed to discover the linked Instagram business account at
+  // all; without it /me/accounts always comes back empty and only the /me fallback
+  // (name only, no follower count) ever runs.
+  const scope = (req.query.scope as string) || 'public_profile,pages_show_list,instagram_basic';
 
   if (!appId) {
     return res.json({
@@ -140,6 +143,7 @@ authMetaRouter.get(['/api/auth/instagram/callback', '/api/auth/instagram/callbac
       expiresAt: Date.now() + (tokenData.expires_in || 5184000) * 1000,
     };
 
+    const oldIgFollowers = store.socialAccounts.find((a) => a.id === 'instagram')?.followers;
     let profileDisplayName = 'Instagram User';
     let profileAvatar = '';
     let followersCount = '1';
@@ -194,6 +198,7 @@ authMetaRouter.get(['/api/auth/instagram/callback', '/api/auth/instagram/callbac
       existingIgAcc.status = 'active';
       if (followersCount !== '1') {
         existingIgAcc.followers = followersCount;
+        existingIgAcc.viewsGrowth = computeGrowth(oldIgFollowers, followersCount);
       }
       saveStorage();
     }
@@ -244,8 +249,11 @@ authMetaRouter.get('/api/auth/facebook/url', (req, res) => {
   const appId = process.env.META_APP_ID;
   const redirectUri = getMetaRedirectUri(req, 'facebook');
   const state = 'creator_os_fb_' + Math.random().toString(36).substring(2, 15);
-  // Default to public_profile only (no email required).
-  const scope = (req.query.scope as string) || 'public_profile';
+  // pages_show_list + pages_read_engagement are needed for /me/accounts to return
+  // any pages (and their fan/follower counts) at all; public_profile alone only
+  // gets the user's own name via /me, which is why follower sync was silently
+  // failing before this was added.
+  const scope = (req.query.scope as string) || 'public_profile,pages_show_list,pages_read_engagement';
 
   if (!appId) {
     return res.json({
@@ -363,6 +371,7 @@ authMetaRouter.get(['/api/auth/facebook/callback', '/api/auth/facebook/callback/
       expiresAt: Date.now() + (tokenData.expires_in || 5184000) * 1000,
     };
 
+    const oldFbFollowers = store.socialAccounts.find((a) => a.id === 'facebook')?.followers;
     let profileDisplayName = 'Facebook User';
     let profileAvatar = '';
     let followersCount = '1';
@@ -388,7 +397,7 @@ authMetaRouter.get(['/api/auth/facebook/callback', '/api/auth/facebook/callback/
     // 2. Fetch Facebook Managed Pages (/me/accounts) if available.
     try {
       const pagesRes = await fetch(
-        `https://graph.facebook.com/v19.0/me/accounts?fields=name,id,fan_count,picture{url}&access_token=${tokenData.access_token}`
+        `https://graph.facebook.com/v19.0/me/accounts?fields=name,id,fan_count,followers_count,picture{url}&access_token=${tokenData.access_token}`
       );
       const pagesData = await pagesRes.json();
       logger.debug('Meta Facebook pages response:', pagesData);
@@ -397,8 +406,11 @@ authMetaRouter.get(['/api/auth/facebook/callback', '/api/auth/facebook/callback/
         const page = pagesData.data[0];
         if (page.name) profileDisplayName = page.name;
         if (page.picture?.data?.url) profileAvatar = page.picture.data.url;
-        if (page.fan_count !== undefined) {
-          const count = Number(page.fan_count);
+        // followers_count is the current field; fan_count is kept as a fallback
+        // for older API behavior.
+        const rawCount = page.followers_count ?? page.fan_count;
+        if (rawCount !== undefined) {
+          const count = Number(rawCount);
           followersCount = count >= 1000 ? `${(count / 1000).toFixed(1)}K` : `${count}`;
         }
       }
@@ -416,6 +428,7 @@ authMetaRouter.get(['/api/auth/facebook/callback', '/api/auth/facebook/callback/
       existingFbAcc.status = 'active';
       if (followersCount !== '1') {
         existingFbAcc.followers = followersCount;
+        existingFbAcc.viewsGrowth = computeGrowth(oldFbFollowers, followersCount);
       }
       saveStorage();
     }

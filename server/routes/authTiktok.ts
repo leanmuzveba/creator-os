@@ -6,6 +6,7 @@ import { Router } from 'express';
 import type { Request } from 'express';
 import { store, saveStorage } from '../store.ts';
 import { logger } from '../logger.ts';
+import { computeGrowth } from '../metrics.ts';
 
 export const authTiktokRouter = Router();
 
@@ -127,6 +128,7 @@ authTiktokRouter.get(['/api/auth/tiktok/callback', '/api/auth/tiktok/callback/']
     const redirectUri = getTikTokRedirectUri(req);
 
     const existingTiktokAcc = store.socialAccounts.find((a) => a.id === 'tiktok');
+    const oldViews = existingTiktokAcc?.views;
     let profileDisplayName = existingTiktokAcc?.handle || '@my_tiktok';
     let profileAvatar =
       existingTiktokAcc?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
@@ -231,6 +233,7 @@ authTiktokRouter.get(['/api/auth/tiktok/callback', '/api/auth/tiktok/callback/']
       tiktokAcc.handle = profileDisplayName;
       tiktokAcc.avatar = profileAvatar;
       tiktokAcc.status = 'active';
+      tiktokAcc.viewsGrowth = computeGrowth(oldViews, tiktokAcc.views);
       saveStorage();
     }
 
