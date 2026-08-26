@@ -30,9 +30,9 @@ class _TrendsScreenState extends State<TrendsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Trend Intelligence', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+              Text('Trend Intelligence', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
               const SizedBox(height: 2),
-              const Text('Real-time viral formats to adapt for your pillars', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+              Text('Real-time viral formats to adapt for your pillars', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
               const SizedBox(height: 10),
               SizedBox(
                 height: 32,
@@ -59,9 +59,9 @@ class _TrendsScreenState extends State<TrendsScreen> {
         ),
         Expanded(
           child: state.isLoading
-              ? const Center(child: CircularProgressIndicator(color: AppColors.pink))
+              ? Center(child: CircularProgressIndicator(color: AppColors.pink))
               : trends.isEmpty
-                  ? const Center(child: Text('No trends found', style: TextStyle(color: AppColors.textSecondary)))
+                  ? Center(child: Text('No trends found', style: TextStyle(color: AppColors.textSecondary)))
                   : RefreshIndicator(
                       onRefresh: () => state.loadInitialData(),
                       child: ListView.separated(
@@ -91,7 +91,7 @@ class _TrendsScreenState extends State<TrendsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(t.topic, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                    Text(t.topic, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
                     Text(t.hashtag, style: const TextStyle(fontSize: 11, color: AppColors.cyan, fontFamily: 'monospace')),
                   ],
                 ),
@@ -104,7 +104,7 @@ class _TrendsScreenState extends State<TrendsScreen> {
             ],
           ),
           const SizedBox(height: 10),
-          Text(t.summary, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary), maxLines: 3, overflow: TextOverflow.ellipsis),
+          Text(t.summary, style: TextStyle(fontSize: 12, color: AppColors.textSecondary), maxLines: 3, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 10),
           Row(
             children: [
@@ -144,7 +144,7 @@ class _TrendsScreenState extends State<TrendsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(t.topic, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                Text(t.topic, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
                 const SizedBox(height: 12),
                 _detailRow('Why it works', t.whyItWorks),
                 _detailRow('Hook formula', t.hookFormula),
@@ -167,7 +167,7 @@ class _TrendsScreenState extends State<TrendsScreen> {
         children: [
           Text(label.toUpperCase(), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.cyan, letterSpacing: 0.5)),
           const SizedBox(height: 4),
-          Text(value, style: const TextStyle(fontSize: 13, color: AppColors.textPrimary)),
+          Text(value, style: TextStyle(fontSize: 13, color: AppColors.textPrimary)),
         ],
       ),
     );

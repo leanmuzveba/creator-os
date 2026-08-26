@@ -180,7 +180,7 @@ class _ConnectedAccountsSheetState extends State<ConnectedAccountsSheet> {
   Widget _header(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 16, 12, 16),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.surface,
         border: Border(bottom: BorderSide(color: AppColors.border)),
       ),
@@ -189,10 +189,10 @@ class _ConnectedAccountsSheetState extends State<ConnectedAccountsSheet> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(color: AppColors.pink.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
-            child: const Icon(Icons.verified_user, color: AppColors.pink, size: 20),
+            child: Icon(Icons.verified_user, color: AppColors.pink, size: 20),
           ),
           const SizedBox(width: 10),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -201,7 +201,7 @@ class _ConnectedAccountsSheetState extends State<ConnectedAccountsSheet> {
               ],
             ),
           ),
-          IconButton(onPressed: () => Navigator.of(context).pop(), icon: const Icon(Icons.close, color: AppColors.textSecondary)),
+          IconButton(onPressed: () => Navigator.of(context).pop(), icon: Icon(Icons.close, color: AppColors.textSecondary)),
         ],
       ),
     );
@@ -211,9 +211,9 @@ class _ConnectedAccountsSheetState extends State<ConnectedAccountsSheet> {
     if (state.isLoading && state.socialAccounts.isEmpty) {
       return ListView(
         controller: scrollController,
-        children: const [
+        children: [
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 48),
+            padding: const EdgeInsets.symmetric(vertical: 48),
             child: Center(child: CircularProgressIndicator(color: AppColors.pink)),
           ),
         ],
@@ -228,15 +228,15 @@ class _ConnectedAccountsSheetState extends State<ConnectedAccountsSheet> {
             padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 8),
             child: Column(
               children: [
-                const Icon(Icons.cloud_off, size: 32, color: AppColors.textSecondary),
+                Icon(Icons.cloud_off, size: 32, color: AppColors.textSecondary),
                 const SizedBox(height: 10),
-                const Text(
+                Text(
                   "Couldn't load your connected accounts.",
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                 ),
                 const SizedBox(height: 4),
-                const Text(
+                Text(
                   'Check that the backend is reachable, then try again.',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
@@ -270,13 +270,13 @@ class _ConnectedAccountsSheetState extends State<ConnectedAccountsSheet> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(children: const [
+              Row(children: [
                 Icon(Icons.shield_outlined, size: 14, color: AppColors.pink),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Text('Official API Integration Status', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.pink)),
               ]),
               const SizedBox(height: 4),
-              const Text(
+              Text(
                 'Official Content Posting APIs and OAuth scopes active for TikTok Content API, Meta Graph API (Instagram & Facebook), and YouTube Data API v3.',
                 style: TextStyle(fontSize: 10, color: AppColors.textSecondary, height: 1.4),
               ),
@@ -328,7 +328,7 @@ class _ConnectedAccountsSheetState extends State<ConnectedAccountsSheet> {
                   children: [
                     Row(
                       children: [
-                        Text(a.name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                        Text(a.name, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
                         const SizedBox(width: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
@@ -343,12 +343,12 @@ class _ConnectedAccountsSheetState extends State<ConnectedAccountsSheet> {
                     ),
                     if (!isEditing) ...[
                       const SizedBox(height: 2),
-                      Text(a.handle, style: const TextStyle(fontSize: 11, color: AppColors.pink, fontFamily: 'monospace')),
+                      Text(a.handle, style: TextStyle(fontSize: 11, color: AppColors.pink, fontFamily: 'monospace')),
                       if (a.connected)
                         Padding(
                           padding: const EdgeInsets.only(top: 2),
                           child: Text('${a.followers} fans  •  ${a.viewsGrowth}',
-                              style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+                              style: TextStyle(fontSize: 10, color: AppColors.textSecondary)),
                         ),
                     ],
                   ],
@@ -358,14 +358,14 @@ class _ConnectedAccountsSheetState extends State<ConnectedAccountsSheet> {
                 if (a.connected)
                   IconButton(
                     onPressed: () => _startEditing(a),
-                    icon: const Icon(Icons.edit, size: 16, color: AppColors.textSecondary),
+                    icon: Icon(Icons.edit, size: 16, color: AppColors.textSecondary),
                     tooltip: 'Edit handle & metrics',
                     visualDensity: VisualDensity.compact,
                   ),
                 if (a.id == 'tiktok' || isMeta || a.id == 'youtube')
                   IconButton(
                     onPressed: () => _showGuideFor(a.id),
-                    icon: const Icon(Icons.vpn_key, size: 16, color: AppColors.textSecondary),
+                    icon: Icon(Icons.vpn_key, size: 16, color: AppColors.textSecondary),
                     tooltip: 'Developer setup guide',
                     visualDensity: VisualDensity.compact,
                   ),
@@ -402,7 +402,7 @@ class _ConnectedAccountsSheetState extends State<ConnectedAccountsSheet> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Update Real Handle & Live Stats', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.pink)),
+            Text('Update Real Handle & Live Stats', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.pink)),
             const SizedBox(height: 8),
             Row(children: [
               Expanded(child: _miniField('Handle', _handleCtrl, '@yourhandle')),
@@ -451,7 +451,7 @@ class _ConnectedAccountsSheetState extends State<ConnectedAccountsSheet> {
   Widget _footer(BuildContext context, AppState state) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: const BoxDecoration(color: AppColors.surface, border: Border(top: BorderSide(color: AppColors.border))),
+      decoration: BoxDecoration(color: AppColors.surface, border: Border(top: BorderSide(color: AppColors.border))),
       child: Row(
         children: [
           TextButton.icon(
@@ -459,8 +459,8 @@ class _ConnectedAccountsSheetState extends State<ConnectedAccountsSheet> {
               state.refreshAccounts();
               state.showToast('Tokens refreshed and synced with platform servers!');
             },
-            icon: const Icon(Icons.sync, size: 16, color: AppColors.pink),
-            label: const Text('Sync Live Metrics', style: TextStyle(color: AppColors.pink, fontSize: 12, fontWeight: FontWeight.w600)),
+            icon: Icon(Icons.sync, size: 16, color: AppColors.pink),
+            label: Text('Sync Live Metrics', style: TextStyle(color: AppColors.pink, fontSize: 12, fontWeight: FontWeight.w600)),
           ),
           const Spacer(),
           FilledButton(

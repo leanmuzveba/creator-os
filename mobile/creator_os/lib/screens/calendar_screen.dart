@@ -76,9 +76,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
         children: [
-          const Text('Calendar', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+          Text('Calendar', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Schedule and view your content pipeline.',
             style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
           ),
@@ -89,26 +89,26 @@ class _CalendarScreenState extends State<CalendarScreen> {
             children: [
               IconButton(
                 onPressed: () => _changeMonth(-1),
-                icon: const Icon(Icons.chevron_left, color: AppColors.textPrimary),
+                icon: Icon(Icons.chevron_left, color: AppColors.textPrimary),
               ),
               Expanded(
                 child: Text(
                   monthLabel,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                 ),
               ),
               IconButton(
                 onPressed: () => _changeMonth(1),
-                icon: const Icon(Icons.chevron_right, color: AppColors.textPrimary),
+                icon: Icon(Icons.chevron_right, color: AppColors.textPrimary),
               ),
             ],
           ),
           Center(
             child: TextButton.icon(
               onPressed: _goToToday,
-              icon: const Icon(Icons.replay, size: 14, color: AppColors.pink),
-              label: const Text('Today', style: TextStyle(color: AppColors.pink, fontWeight: FontWeight.w600, fontSize: 12)),
+              icon: Icon(Icons.replay, size: 14, color: AppColors.pink),
+              label: Text('Today', style: TextStyle(color: AppColors.pink, fontWeight: FontWeight.w600, fontSize: 12)),
             ),
           ),
           const SizedBox(height: 8),
@@ -118,7 +118,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             children: kDaysOfWeek
                 .map((d) => Expanded(
                       child: Center(
-                        child: Text(d, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+                        child: Text(d, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
                       ),
                     ))
                 .toList(),
@@ -150,11 +150,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
               Expanded(
                 child: Text(
                   formattedSelectedDate,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                 ),
               ),
               Text('${selectedDayPosts.length} post${selectedDayPosts.length == 1 ? '' : 's'}',
-                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                  style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
             ],
           ),
           const SizedBox(height: 8),
@@ -163,7 +163,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppColors.border)),
-              child: const Center(child: Text('Nothing scheduled this day', style: TextStyle(color: AppColors.textSecondary, fontSize: 12))),
+              child: Center(child: Text('Nothing scheduled this day', style: TextStyle(color: AppColors.textSecondary, fontSize: 12))),
             )
           else
             ...selectedDayPosts.map((p) => _agendaItem(context, p)),
@@ -185,8 +185,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(p.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-                Text(p.scheduledTime ?? p.status, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                Text(p.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                Text(p.scheduledTime ?? p.status, style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
               ],
             ),
           ),

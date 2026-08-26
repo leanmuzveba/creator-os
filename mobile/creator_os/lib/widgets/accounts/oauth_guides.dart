@@ -10,9 +10,9 @@ import '../../utils/oauth_config.dart';
 class CopyField extends StatelessWidget {
   final String? label;
   final String value;
-  final Color valueColor;
+  final Color? valueColor;
 
-  const CopyField({super.key, this.label, required this.value, this.valueColor = AppColors.pink});
+  const CopyField({super.key, this.label, required this.value, this.valueColor});
 
   Future<void> _copy(BuildContext context) async {
     await Clipboard.setData(ClipboardData(text: value));
@@ -27,7 +27,7 @@ class CopyField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (label != null) ...[
-          Text(label!, style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+          Text(label!, style: TextStyle(fontSize: 10, color: AppColors.textSecondary)),
           const SizedBox(height: 3),
         ],
         Container(
@@ -36,13 +36,13 @@ class CopyField extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                child: Text(value, style: TextStyle(fontFamily: 'monospace', fontSize: 11, color: valueColor)),
+                child: Text(value, style: TextStyle(fontFamily: 'monospace', fontSize: 11, color: valueColor ?? AppColors.pink)),
               ),
               InkWell(
                 onTap: () => _copy(context),
                 borderRadius: BorderRadius.circular(6),
-                child: const Padding(
-                  padding: EdgeInsets.all(4),
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
                   child: Icon(Icons.copy, size: 14, color: AppColors.textSecondary),
                 ),
               ),
@@ -58,8 +58,8 @@ class CopyField extends StatelessWidget {
 class StepHeading extends StatelessWidget {
   final int n;
   final String text;
-  final Color badgeColor;
-  const StepHeading({super.key, required this.n, required this.text, this.badgeColor = AppColors.pink});
+  final Color? badgeColor;
+  const StepHeading({super.key, required this.n, required this.text, this.badgeColor});
 
   @override
   Widget build(BuildContext context) {
@@ -70,10 +70,10 @@ class StepHeading extends StatelessWidget {
           width: 16,
           height: 16,
           margin: const EdgeInsets.only(top: 1, right: 6),
-          decoration: BoxDecoration(color: badgeColor, shape: BoxShape.circle),
+          decoration: BoxDecoration(color: badgeColor ?? AppColors.pink, shape: BoxShape.circle),
           child: Center(child: Text('$n', style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.white))),
         ),
-        Expanded(child: Text(text, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary))),
+        Expanded(child: Text(text, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary))),
       ],
     );
   }
@@ -147,7 +147,7 @@ class GuideHeader extends StatelessWidget {
         Icon(Icons.vpn_key, size: 16, color: color),
         const SizedBox(width: 6),
         Expanded(child: Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: color))),
-        TextButton(onPressed: onBack, child: const Text('Back', style: TextStyle(fontSize: 12, color: AppColors.textSecondary))),
+        TextButton(onPressed: onBack, child: Text('Back', style: TextStyle(fontSize: 12, color: AppColors.textSecondary))),
       ],
     );
   }
@@ -167,7 +167,7 @@ class TikTokGuide extends StatelessWidget {
         children: [
           GuideHeader(title: 'TikTok for Developers — OAuth Setup', color: AppColors.pink, onBack: onBack),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Connect your TikTok Developer App by adding these exact redirect URLs and scopes to your TikTok Developer Console:',
             style: TextStyle(fontSize: 12, color: AppColors.textSecondary, height: 1.4),
           ),
@@ -184,11 +184,11 @@ class TikTokGuide extends StatelessWidget {
             SizedBox(height: 8),
             CopyField(value: kTiktokScopes),
           ]),
-          GuideCard(children: const [
-            StepHeading(n: 3, text: 'Set Keys on the Backend'),
-            SizedBox(height: 6),
+          GuideCard(children: [
+            const StepHeading(n: 3, text: 'Set Keys on the Backend'),
+            const SizedBox(height: 6),
             Text('Add these to the server\'s environment variables:', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             Text('TIKTOK_CLIENT_KEY=your_client_key\nTIKTOK_CLIENT_SECRET=your_client_secret',
                 style: TextStyle(fontFamily: 'monospace', fontSize: 11, color: AppColors.pink)),
           ]),
@@ -231,7 +231,7 @@ class MetaGuide extends StatelessWidget {
         children: [
           GuideHeader(title: 'Meta for Developers — Instagram & Facebook Setup', color: AppColors.pink, onBack: onBack),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Connect your Meta Developer App to link real Instagram Creator/Business accounts and Facebook Pages:',
             style: TextStyle(fontSize: 12, color: AppColors.textSecondary, height: 1.4),
           ),
@@ -254,9 +254,9 @@ class MetaGuide extends StatelessWidget {
             SizedBox(height: 8),
             CopyField(label: 'Facebook Callback URI', value: kMetaFbDevCallbackUrl, valueColor: AppColors.blue),
           ]),
-          GuideCard(children: const [
-            StepHeading(n: 3, text: 'Set Keys on the Backend'),
-            SizedBox(height: 6),
+          GuideCard(children: [
+            const StepHeading(n: 3, text: 'Set Keys on the Backend'),
+            const SizedBox(height: 6),
             Text('META_APP_ID=your_app_id\nMETA_APP_SECRET=your_app_secret',
                 style: TextStyle(fontFamily: 'monospace', fontSize: 11, color: AppColors.pink)),
           ]),
@@ -292,7 +292,7 @@ class YouTubeGuide extends StatelessWidget {
         children: [
           GuideHeader(title: 'Google Cloud Console — YouTube API Setup', color: AppColors.red, onBack: onBack),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Connect a YouTube channel using Google OAuth 2.0 and YouTube Data API v3:',
             style: TextStyle(fontSize: 12, color: AppColors.textSecondary, height: 1.4),
           ),
@@ -306,9 +306,9 @@ class YouTubeGuide extends StatelessWidget {
             SizedBox(height: 8),
             CopyField(label: 'Authorized Redirect URI (Shared / Preview)', value: kYtSharedCallbackUrl, valueColor: AppColors.red),
           ]),
-          GuideCard(children: const [
-            StepHeading(n: 2, text: 'Enable YouTube Data API v3', badgeColor: AppColors.red),
-            SizedBox(height: 6),
+          GuideCard(children: [
+            const StepHeading(n: 2, text: 'Enable YouTube Data API v3', badgeColor: AppColors.red),
+            const SizedBox(height: 6),
             Text('In Google Cloud Console: APIs & Services → Library → search "YouTube Data API v3" → Enable.',
                 style: TextStyle(fontSize: 11, color: AppColors.textSecondary, height: 1.4)),
           ]),

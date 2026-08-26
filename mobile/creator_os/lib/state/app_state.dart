@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/models.dart';
 import '../services/api_client.dart';
+import '../services/notification_service.dart';
+import '../theme/app_theme.dart';
 
 class ToastMessage {
   final String message;
@@ -17,6 +19,12 @@ class ToastMessage {
 /// Mirrors `src/context/AppContext.tsx`.
 class AppState extends ChangeNotifier {
   static const _accountsStorageKey = 'creator_os_social_accounts';
+  static const _avatarPathKey = 'creator_os_avatar_path';
+  static const _profileNameKey = 'creator_os_profile_name';
+  static const _profileAgeKey = 'creator_os_profile_age';
+  static const _profileBirthdayKey = 'creator_os_profile_birthday';
+  static const _lightThemeKey = 'creator_os_light_theme';
+  static const _notificationsKey = 'creator_os_notifications_enabled';
 
   final ApiClient api;
   AppState({ApiClient? api}) : api = api ?? ApiClient();
@@ -26,6 +34,12 @@ class AppState extends ChangeNotifier {
   List<SocialAccount> socialAccounts = [];
   List<TrendItem> trends = [];
   bool isLoading = true;
+
+  String displayName = 'Lean';
+  String avatarPath = '';
+  int? age;
+  DateTime? birthday;
+  bool notificationsEnabled = false;
 
   ToastMessage? toast;
 
@@ -88,10 +102,95 @@ class AppState extends ChangeNotifier {
     }).toList();
   }
 
+  Future<void> _loadPreferences() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      displayName = prefs.getString(_profileNameKey) ?? displayName;
+      avatarPath = prefs.getString(_avatarPathKey) ?? '';
+      age = prefs.getInt(_profileAgeKey);
+      final birthdayRaw = prefs.getString(_profileBirthdayKey);
+      birthday = birthdayRaw != null ? DateTime.tryParse(birthdayRaw) : null;
+      notificationsEnabled = prefs.getBool(_notificationsKey) ?? false;
+      AppColors.applyTheme(prefs.getBool(_lightThemeKey) ?? false);
+    } catch (e) {
+      debugPrint('Failed to load preferences: $e');
+    }
+  }
+
+  Future<void> setAvatarPath(String path) async {
+    avatarPath = path;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_avatarPathKey, path);
+    } catch (e) {
+      debugPrint('Failed to save avatar: $e');
+    }
+  }
+
+  Future<void> updateProfile({required String name, int? age, DateTime? birthday}) async {
+    displayName = name;
+    this.age = age;
+    this.birthday = birthday;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_profileNameKey, name);
+      if (age != null) {
+        await prefs.setInt(_profileAgeKey, age);
+      } else {
+        await prefs.remove(_profileAgeKey);
+      }
+      if (birthday != null) {
+        await prefs.setString(_profileBirthdayKey, birthday.toIso8601String());
+      } else {
+        await prefs.remove(_profileBirthdayKey);
+      }
+    } catch (e) {
+      debugPrint('Failed to save profile: $e');
+    }
+    showToast('Profile updated');
+  }
+
+  Future<void> setLightTheme(bool light) async {
+    AppColors.applyTheme(light);
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_lightThemeKey, light);
+    } catch (e) {
+      debugPrint('Failed to save theme: $e');
+    }
+  }
+
+  Future<void> setNotificationsEnabled(bool enabled) async {
+    if (enabled) {
+      final granted = await NotificationService.instance.requestPermission();
+      if (!granted) {
+        showToast('Enable notifications for Creator OS in your device settings', 'error');
+        return;
+      }
+      notificationsEnabled = true;
+      notifyListeners();
+      await NotificationService.instance.showConfirmation();
+    } else {
+      notificationsEnabled = false;
+      notifyListeners();
+      await NotificationService.instance.cancelAll();
+    }
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_notificationsKey, notificationsEnabled);
+    } catch (e) {
+      debugPrint('Failed to save notification setting: $e');
+    }
+  }
+
   Future<void> loadInitialData() async {
     isLoading = true;
     notifyListeners();
     try {
+      await _loadPreferences();
       final results = await Future.wait([
         api.getPosts(),
         api.getAccounts(),

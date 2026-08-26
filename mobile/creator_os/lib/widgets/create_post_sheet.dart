@@ -69,7 +69,7 @@ class _CreatePostSheetState extends State<CreatePostSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.video_library, color: AppColors.pink),
+              leading: Icon(Icons.video_library, color: AppColors.pink),
               title: const Text('Choose video'),
               onTap: () async {
                 final nav = Navigator.of(ctx);
@@ -78,7 +78,7 @@ class _CreatePostSheetState extends State<CreatePostSheet> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.image, color: AppColors.pink),
+              leading: Icon(Icons.image, color: AppColors.pink),
               title: const Text('Choose photo'),
               onTap: () async {
                 final nav = Navigator.of(ctx);
@@ -203,9 +203,9 @@ class _CreatePostSheetState extends State<CreatePostSheet> {
           children: [
             Row(
               children: [
-                const Icon(Icons.calendar_month, color: AppColors.pink, size: 18),
+                Icon(Icons.calendar_month, color: AppColors.pink, size: 18),
                 const SizedBox(width: 8),
-                const Text('Multi-Platform Publishing', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                Text('Multi-Platform Publishing', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
                 const Spacer(),
                 IconButton(onPressed: () => Navigator.of(context).pop(), icon: const Icon(Icons.close, size: 18)),
               ],
@@ -213,7 +213,7 @@ class _CreatePostSheetState extends State<CreatePostSheet> {
             const SizedBox(height: 12),
 
             // Media card
-            const Text('Content Media', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+            Text('Content Media', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
             const SizedBox(height: 6),
             Container(
               padding: const EdgeInsets.all(10),
@@ -233,7 +233,7 @@ class _CreatePostSheetState extends State<CreatePostSheet> {
                             child: ThumbImage(url: _thumbnailUrl, placeholderBuilder: (_) => const Icon(Icons.image, size: 18, color: Colors.white38)),
                           ),
                           if (_videoUrl != null)
-                            const Positioned(bottom: 2, right: 2, child: Icon(Icons.videocam, size: 12, color: AppColors.pink)),
+                            Positioned(bottom: 2, right: 2, child: Icon(Icons.videocam, size: 12, color: AppColors.pink)),
                         ],
                       ),
                     ),
@@ -245,10 +245,10 @@ class _CreatePostSheetState extends State<CreatePostSheet> {
                       children: [
                         TextField(
                           controller: _titleCtrl,
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                           decoration: const InputDecoration(isDense: true, border: InputBorder.none, hintText: 'Enter video title...'),
                         ),
-                        Text('$_duration • $_category', style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+                        Text('$_duration • $_category', style: TextStyle(fontSize: 10, color: AppColors.textSecondary)),
                       ],
                     ),
                   ),
@@ -262,7 +262,7 @@ class _CreatePostSheetState extends State<CreatePostSheet> {
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       foregroundColor: AppColors.pink,
-                      side: const BorderSide(color: AppColors.pink),
+                      side: BorderSide(color: AppColors.pink),
                     ),
                   ),
                 ],
@@ -270,7 +270,7 @@ class _CreatePostSheetState extends State<CreatePostSheet> {
             ),
             const SizedBox(height: 14),
 
-            const Text("Content Pillar", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+            Text("Content Pillar", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
             const SizedBox(height: 6),
             DropdownButtonFormField<String>(
               initialValue: _category,
@@ -281,7 +281,7 @@ class _CreatePostSheetState extends State<CreatePostSheet> {
             ),
             const SizedBox(height: 14),
 
-            const Text('Target Platforms', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+            Text('Target Platforms', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
             const SizedBox(height: 6),
             GridView.count(
               crossAxisCount: 4,
@@ -327,7 +327,7 @@ class _CreatePostSheetState extends State<CreatePostSheet> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Date', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+                      Text('Date', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
                       const SizedBox(height: 6),
                       TextField(
                         controller: _dateCtrl,
@@ -344,7 +344,7 @@ class _CreatePostSheetState extends State<CreatePostSheet> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Time', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+                      Text('Time', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
                       const SizedBox(height: 6),
                       TextField(
                         controller: _timeCtrl,
@@ -362,13 +362,13 @@ class _CreatePostSheetState extends State<CreatePostSheet> {
 
             Row(
               children: [
-                const Expanded(child: Text('Caption & Metadata', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondary))),
+                Expanded(child: Text('Caption & Metadata', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondary))),
                 TextButton.icon(
                   onPressed: _aiGenerating ? null : _aiEnhanceCaption,
                   icon: _aiGenerating
-                      ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.pink))
-                      : const Icon(Icons.auto_fix_high, size: 14, color: AppColors.pink),
-                  label: Text(_aiGenerating ? 'AI Generating...' : 'AI Enhance', style: const TextStyle(fontSize: 11, color: AppColors.pink)),
+                      ? SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.pink))
+                      : Icon(Icons.auto_fix_high, size: 14, color: AppColors.pink),
+                  label: Text(_aiGenerating ? 'AI Generating...' : 'AI Enhance', style: TextStyle(fontSize: 11, color: AppColors.pink)),
                 ),
               ],
             ),
@@ -387,7 +387,7 @@ class _CreatePostSheetState extends State<CreatePostSheet> {
                         label: Text(t, style: const TextStyle(fontSize: 10)),
                         onPressed: () => _addHashtag(t),
                         backgroundColor: AppColors.background,
-                        side: const BorderSide(color: AppColors.border),
+                        side: BorderSide(color: AppColors.border),
                       ))
                   .toList(),
             ),

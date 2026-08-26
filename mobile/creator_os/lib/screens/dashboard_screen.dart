@@ -57,9 +57,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
         children: [
-          const Text('Welcome back, Lean! 👋', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.textPrimary)),
+          Text('Welcome back, Lean! 👋', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.textPrimary)),
           const SizedBox(height: 4),
-          const Text("Here's what's happening across your connected platforms.", style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+          Text("Here's what's happening across your connected platforms.", style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
           const SizedBox(height: 16),
           _platformGrid(state.socialAccounts),
           const SizedBox(height: 20),
@@ -70,16 +70,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Recent Content', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+              Text('Recent Content', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
               TextButton(
                 onPressed: () => state.setActiveTab(ViewTab.content),
-                child: Text('View All (${state.posts.length})', style: const TextStyle(color: AppColors.pink, fontSize: 12, fontWeight: FontWeight.w600)),
+                child: Text('View All (${state.posts.length})', style: TextStyle(color: AppColors.pink, fontSize: 12, fontWeight: FontWeight.w600)),
               ),
             ],
           ),
           if (recentPosts.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
               child: Center(child: Text('No content yet — create your first post!', style: TextStyle(color: AppColors.textSecondary))),
             )
           else
@@ -147,7 +147,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                          Text(name, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
                           if (connected)
                             const Text('Live', style: TextStyle(fontSize: 9, color: AppColors.emerald, fontFamily: 'monospace')),
                         ],
@@ -165,11 +165,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(acc?.views.isNotEmpty == true ? acc!.views : defViews,
-                      style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(label, style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+                      Text(label, style: TextStyle(fontSize: 10, color: AppColors.textSecondary)),
                       Text('${acc?.followers.isNotEmpty == true ? acc!.followers : defFollowers} fans',
                           style: const TextStyle(fontSize: 10, color: Color(0xFFF9A8D4), fontFamily: 'monospace')),
                     ],
@@ -205,11 +205,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   spacing: 8,
                   children: [
-                    const Text('Views Overview', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                    Text('Views Overview', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(color: AppColors.pink.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(20)),
-                      child: Text('${formatMetric(totalViews)} Total Views', style: const TextStyle(fontSize: 10, color: AppColors.pink, fontFamily: 'monospace')),
+                      child: Text('${formatMetric(totalViews)} Total Views', style: TextStyle(fontSize: 10, color: AppColors.pink, fontFamily: 'monospace')),
                     ),
                   ],
                 ),
@@ -218,7 +218,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 value: _chartRange,
                 dropdownColor: AppColors.surface,
                 underline: const SizedBox(),
-                style: const TextStyle(fontSize: 11, color: AppColors.textPrimary),
+                style: TextStyle(fontSize: 11, color: AppColors.textPrimary),
                 items: const [
                   DropdownMenuItem(value: '7d', child: Text('Last 7 days')),
                   DropdownMenuItem(value: '14d', child: Text('Last 14 days')),
@@ -236,9 +236,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           SizedBox(
             height: 200,
             child: _chartLoading
-                ? const Center(child: CircularProgressIndicator(color: AppColors.pink))
+                ? Center(child: CircularProgressIndicator(color: AppColors.pink))
                 : _chartData.isEmpty
-                    ? const Center(child: Text('No data yet', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)))
+                    ? Center(child: Text('No data yet', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)))
                     : LineChart(
                         LineChartData(
                           gridData: FlGridData(show: true, drawVerticalLine: false, horizontalInterval: null, getDrawingHorizontalLine: (v) => const FlLine(color: Color(0xFF232742), strokeWidth: 1)),
@@ -256,7 +256,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   if (i < 0 || i >= _chartData.length) return const SizedBox();
                                   return Padding(
                                     padding: const EdgeInsets.only(top: 6),
-                                    child: Text(_chartData[i]['date']?.toString() ?? '', style: const TextStyle(fontSize: 9, color: AppColors.textSecondary)),
+                                    child: Text(_chartData[i]['date']?.toString() ?? '', style: TextStyle(fontSize: 9, color: AppColors.textSecondary)),
                                   );
                                 },
                               ),
@@ -293,7 +293,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               return Row(mainAxisSize: MainAxisSize.min, children: [
                 Container(width: 8, height: 8, decoration: BoxDecoration(color: e.value, shape: BoxShape.circle)),
                 const SizedBox(width: 5),
-                Text(e.key[0].toUpperCase() + e.key.substring(1), style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                Text(e.key[0].toUpperCase() + e.key.substring(1), style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
               ]);
             }).toList(),
           ),
@@ -358,9 +358,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                  Text(title, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
                   const SizedBox(height: 2),
-                  Text(subtitle, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                  Text(subtitle, style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
                 ],
               ),
             ),

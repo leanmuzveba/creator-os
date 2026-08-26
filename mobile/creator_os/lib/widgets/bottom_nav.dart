@@ -23,7 +23,7 @@ class AppBottomNav extends StatelessWidget {
     final state = context.watch<AppState>();
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.surfaceAlt,
         border: Border(top: BorderSide(color: AppColors.border)),
       ),

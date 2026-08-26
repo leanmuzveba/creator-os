@@ -51,12 +51,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Analytics', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+              Text('Analytics', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
               DropdownButton<String>(
                 value: _range,
                 dropdownColor: AppColors.surface,
                 underline: const SizedBox(),
-                style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
+                style: TextStyle(fontSize: 12, color: AppColors.textPrimary),
                 items: _ranges.map((r) => DropdownMenuItem(value: r, child: Text(r == 'all' ? 'All time' : 'Last $r'))).toList(),
                 onChanged: (v) {
                   if (v == null) return;
@@ -68,7 +68,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           ),
           const SizedBox(height: 12),
           if (_loading)
-            const Padding(padding: EdgeInsets.symmetric(vertical: 40), child: Center(child: CircularProgressIndicator(color: AppColors.pink)))
+            Padding(padding: const EdgeInsets.symmetric(vertical: 40), child: Center(child: CircularProgressIndicator(color: AppColors.pink)))
           else ...[
             GridView.count(
               shrinkWrap: true,
@@ -85,7 +85,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               ],
             ),
             const SizedBox(height: 20),
-            const Text('Platform performance', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+            Text('Platform performance', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
             const SizedBox(height: 10),
             ...platforms.map((p) => _platformRow(p)),
           ],
@@ -104,11 +104,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+          Text(label, style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+              Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
               const SizedBox(width: 6),
               if (growth.isNotEmpty)
                 Padding(
@@ -140,8 +140,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(p['platform']?.toString() ?? '', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-                Text('${p['views']} views · ${p['engagement']} engagement', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                Text(p['platform']?.toString() ?? '', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                Text('${p['views']} views · ${p['engagement']} engagement', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
               ],
             ),
           ),

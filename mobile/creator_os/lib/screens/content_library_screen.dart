@@ -42,11 +42,11 @@ class _ContentLibraryScreenState extends State<ContentLibraryScreen> {
                 children: [
                   Expanded(
                     child: TextField(
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'Search content...',
                         prefixIcon: Icon(Icons.search, size: 18, color: AppColors.textSecondary),
                         isDense: true,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                       ),
                       onChanged: (v) => setState(() => _query = v),
                     ),
@@ -85,9 +85,9 @@ class _ContentLibraryScreenState extends State<ContentLibraryScreen> {
         ),
         Expanded(
           child: state.isLoading
-              ? const Center(child: CircularProgressIndicator(color: AppColors.pink))
+              ? Center(child: CircularProgressIndicator(color: AppColors.pink))
               : posts.isEmpty
-                  ? const Center(child: Text('No content found', style: TextStyle(color: AppColors.textSecondary)))
+                  ? Center(child: Text('No content found', style: TextStyle(color: AppColors.textSecondary)))
                   : RefreshIndicator(
                       onRefresh: () => state.loadInitialData(),
                       child: GridView.builder(
@@ -121,13 +121,13 @@ class _ContentLibraryScreenState extends State<ContentLibraryScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              title: Text(post.title, style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
-              subtitle: Text('${post.category} • ${post.status}', style: const TextStyle(color: AppColors.textSecondary)),
+              title: Text(post.title, style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
+              subtitle: Text('${post.category} • ${post.status}', style: TextStyle(color: AppColors.textSecondary)),
             ),
             if (post.status != 'published')
               ListTile(
                 leading: const Icon(Icons.publish, color: AppColors.emerald),
-                title: const Text('Publish now', style: TextStyle(color: AppColors.textPrimary)),
+                title: Text('Publish now', style: TextStyle(color: AppColors.textPrimary)),
                 onTap: () {
                   Navigator.pop(sheetContext);
                   state.publishPostNow(post.id);
@@ -135,7 +135,7 @@ class _ContentLibraryScreenState extends State<ContentLibraryScreen> {
               ),
             ListTile(
               leading: const Icon(Icons.delete_outline, color: AppColors.red),
-              title: const Text('Delete', style: TextStyle(color: AppColors.textPrimary)),
+              title: Text('Delete', style: TextStyle(color: AppColors.textPrimary)),
               onTap: () {
                 Navigator.pop(sheetContext);
                 state.deletePost(post.id);

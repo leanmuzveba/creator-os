@@ -11,13 +11,20 @@ import 'screens/dashboard_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/trends_screen.dart';
+import 'services/notification_service.dart';
 import 'state/app_state.dart';
 import 'theme/app_theme.dart';
 import 'widgets/accounts/connected_accounts_sheet.dart';
 import 'widgets/bottom_nav.dart';
 import 'widgets/create_post_sheet.dart';
+import 'widgets/thumb_image.dart';
 
-void main() {
+const kDefaultAvatarUrl =
+    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService.instance.init();
   runApp(
     ChangeNotifierProvider(
       create: (_) => AppState()..loadInitialData(),
@@ -31,6 +38,9 @@ class CreatorOsApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Watched purely to rebuild (and regenerate buildAppTheme()) when the
+    // user switches App Theme in Profile Settings.
+    context.watch<AppState>();
     return MaterialApp(
       title: 'Creator OS',
       debugShowCheckedModeBanner: false,
@@ -78,7 +88,7 @@ class AppShell extends StatelessWidget {
           children: [
             SvgPicture.asset('assets/branding/logo.svg', width: 28, height: 28),
             const SizedBox(width: 8),
-            const Text.rich(
+            Text.rich(
               TextSpan(
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, letterSpacing: -0.3),
                 children: [
@@ -104,10 +114,14 @@ class AppShell extends StatelessWidget {
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  const CircleAvatar(
-                    radius: 15,
-                    backgroundImage: NetworkImage(
-                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
+                  ClipOval(
+                    child: SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: ThumbImage(
+                        url: state.avatarPath.isNotEmpty ? state.avatarPath : kDefaultAvatarUrl,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                   Positioned(
@@ -199,7 +213,7 @@ class _ToastBanner extends StatelessWidget {
             children: [
               Icon(_icon, color: _color, size: 18),
               const SizedBox(width: 10),
-              Expanded(child: Text(toast.message, style: const TextStyle(color: AppColors.textPrimary, fontSize: 13))),
+              Expanded(child: Text(toast.message, style: TextStyle(color: AppColors.textPrimary, fontSize: 13))),
             ],
           ),
         ),

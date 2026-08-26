@@ -70,10 +70,10 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(color: AppColors.pink.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(12)),
-              child: const Icon(Icons.auto_awesome, color: AppColors.pink),
+              child: Icon(Icons.auto_awesome, color: AppColors.pink),
             ),
             const SizedBox(width: 10),
-            const Expanded(
+            Expanded(
               child: Text('AI Content Assistant', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
             ),
           ],
@@ -178,9 +178,9 @@ class _ResultView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(_titleCase(key), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.pink, letterSpacing: 0.4)),
+                  Text(_titleCase(key), style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.pink, letterSpacing: 0.4)),
                   const SizedBox(height: 2),
-                  Text(_stringify(value), style: const TextStyle(fontSize: 12.5, color: AppColors.textPrimary)),
+                  Text(_stringify(value), style: TextStyle(fontSize: 12.5, color: AppColors.textPrimary)),
                 ],
               ),
             );
@@ -188,7 +188,7 @@ class _ResultView extends StatelessWidget {
         ),
       );
     }
-    return Text(item.toString(), style: const TextStyle(color: AppColors.textPrimary));
+    return Text(item.toString(), style: TextStyle(color: AppColors.textPrimary));
   }
 
   String _stringify(dynamic value) {

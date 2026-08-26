@@ -37,7 +37,7 @@ class PostCard extends StatelessWidget {
                     color: AppColors.background,
                     child: ThumbImage(
                       url: post.thumbnailUrl,
-                      placeholderBuilder: (_) => const Icon(Icons.image, color: AppColors.textSecondary),
+                      placeholderBuilder: (_) => Icon(Icons.image, color: AppColors.textSecondary),
                     ),
                   ),
                   Positioned(
@@ -80,14 +80,14 @@ class PostCard extends StatelessWidget {
                     post.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     post.category,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                    style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
                   ),
                 ],
               ),
