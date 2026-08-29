@@ -8,7 +8,7 @@ import '../../theme/app_theme.dart';
 import '../platform_icon.dart';
 import 'oauth_guides.dart';
 
-enum _GuideView { list, tiktok, meta, youtube }
+enum _GuideView { list, tiktok, facebook, instagram, youtube }
 
 /// Connected Accounts sheet: connect/disconnect social platforms via OAuth
 /// (opening the system browser for the real authorization flow), fall back to
@@ -109,8 +109,10 @@ class _ConnectedAccountsSheetState extends State<ConnectedAccountsSheet> {
     setState(() {
       if (id == 'tiktok') {
         _view = _GuideView.tiktok;
-      } else if (id == 'instagram' || id == 'facebook') {
-        _view = _GuideView.meta;
+      } else if (id == 'instagram') {
+        _view = _GuideView.instagram;
+      } else if (id == 'facebook') {
+        _view = _GuideView.facebook;
       } else if (id == 'youtube') {
         _view = _GuideView.youtube;
       }
@@ -155,12 +157,19 @@ class _ConnectedAccountsSheetState extends State<ConnectedAccountsSheet> {
             setState(() => _view = _GuideView.list);
           },
         );
-      case _GuideView.meta:
-        return MetaGuide(
+      case _GuideView.facebook:
+        return FacebookGuide(
+          onBack: () => setState(() => _view = _GuideView.list),
+          onEnable: () {
+            context.read<AppState>().toggleAccountConnection('facebook');
+            setState(() => _view = _GuideView.list);
+          },
+        );
+      case _GuideView.instagram:
+        return InstagramGuide(
           onBack: () => setState(() => _view = _GuideView.list),
           onEnable: () {
             context.read<AppState>().toggleAccountConnection('instagram');
-            context.read<AppState>().toggleAccountConnection('facebook');
             setState(() => _view = _GuideView.list);
           },
         );

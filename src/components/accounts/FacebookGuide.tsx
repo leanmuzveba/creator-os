@@ -1,22 +1,14 @@
 /**
- * Setup guide for connecting Instagram and Facebook via Meta for Developers
- * (app domains, OAuth redirect URIs, credentials, and Graph API scopes).
- * Shown inside the connected accounts modal when Meta OAuth is not configured.
+ * Setup guide for connecting Facebook via Meta for Developers (app domains,
+ * OAuth redirect URIs, credentials, and Graph API scopes). Shown inside the
+ * connected accounts modal when Facebook OAuth is not configured.
  */
 import React from 'react';
 import { KeyRound, ExternalLink, Sparkles } from 'lucide-react';
 import { CopyField } from './CopyField';
-import {
-  APP_DOMAIN,
-  SITE_URL,
-  PRIVACY_POLICY_URL,
-  TERMS_URL,
-  META_IG_DEV_CALLBACK_URL,
-  META_FB_DEV_CALLBACK_URL,
-  META_SCOPES,
-} from './oauthConfig';
+import { APP_DOMAIN, SITE_URL, PRIVACY_POLICY_URL, TERMS_URL, META_FB_DEV_CALLBACK_URL, META_SCOPES } from './oauthConfig';
 
-interface MetaGuideProps {
+interface FacebookGuideProps {
   copiedKey: string | null;
   onCopy: (text: string, key: string) => void;
   onBack: () => void;
@@ -30,12 +22,12 @@ const StepHeading: React.FC<{ n: number; children: React.ReactNode }> = ({ n, ch
   </p>
 );
 
-export const MetaGuide: React.FC<MetaGuideProps> = ({ copiedKey, onCopy, onBack, onEnable }) => (
+export const FacebookGuide: React.FC<FacebookGuideProps> = ({ copiedKey, onCopy, onBack, onEnable }) => (
   <div className="space-y-4 animate-in fade-in duration-200">
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2 text-xs font-bold text-pink-400">
         <KeyRound className="w-4 h-4" />
-        <span>Meta for Developers — Instagram &amp; Facebook Setup</span>
+        <span>Meta for Developers — Facebook Setup</span>
       </div>
       <button onClick={onBack} className="text-xs text-slate-400 hover:text-white underline">
         Back to accounts
@@ -43,7 +35,7 @@ export const MetaGuide: React.FC<MetaGuideProps> = ({ copiedKey, onCopy, onBack,
     </div>
 
     <p className="text-xs text-slate-300 leading-relaxed">
-      Connect your Meta Developer App to link your real Instagram Creator/Business accounts and Facebook Pages:
+      Connect your Meta Developer App to link a Facebook Page you manage:
     </p>
 
     {/* Step 1: App Domains & Website Platform */}
@@ -60,14 +52,13 @@ export const MetaGuide: React.FC<MetaGuideProps> = ({ copiedKey, onCopy, onBack,
       </div>
     </div>
 
-    {/* Step 2: Redirect URIs */}
+    {/* Step 2: Redirect URI */}
     <div className="space-y-2 p-3.5 rounded-2xl bg-[#131627] border border-white/10 text-xs">
-      <StepHeading n={2}>Add Valid OAuth Redirect URIs in Facebook Login Settings</StepHeading>
+      <StepHeading n={2}>Add Valid OAuth Redirect URI in Facebook Login Settings</StepHeading>
       <p className="text-[11px] text-slate-400">
         Go to <strong>Facebook Login ➔ Settings ➔ Valid OAuth Redirect URIs</strong>:
       </p>
       <div className="space-y-2 pt-1">
-        <CopyField label="Instagram Callback URI" value={META_IG_DEV_CALLBACK_URL} copyKey="metaIgUrl" copiedKey={copiedKey} onCopy={onCopy} valueClass="text-pink-300" title="Copy URL" />
         <CopyField label="Facebook Callback URI" value={META_FB_DEV_CALLBACK_URL} copyKey="metaFbUrl" copiedKey={copiedKey} onCopy={onCopy} valueClass="text-blue-300" title="Copy URL" />
       </div>
     </div>
@@ -88,6 +79,18 @@ export const MetaGuide: React.FC<MetaGuideProps> = ({ copiedKey, onCopy, onBack,
       <CopyField value={META_SCOPES} copyKey="metaScopes" copiedKey={copiedKey} onCopy={onCopy} title="Copy Scopes" />
     </div>
 
+    {/* Step 5: Page requirement note */}
+    <div className="space-y-2 p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs">
+      <p className="font-bold text-amber-300 flex items-center gap-1.5">
+        <span className="w-4 h-4 rounded-full bg-amber-500 text-black font-black flex items-center justify-center text-[10px]">5</span>
+        <span>Facebook only exposes follower counts for Pages:</span>
+      </p>
+      <p className="text-[11px] text-amber-200/80 leading-relaxed">
+        A personal Facebook profile never returns a follower/fan count via the Graph API. Create or claim a Facebook
+        Page for your creator brand and make sure you're an admin on it before connecting.
+      </p>
+    </div>
+
     {/* Action Buttons */}
     <div className="pt-2 flex flex-col sm:flex-row gap-2">
       <a
@@ -105,7 +108,7 @@ export const MetaGuide: React.FC<MetaGuideProps> = ({ copiedKey, onCopy, onBack,
         className="flex-1 pink-glow-btn py-2.5 px-3 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-1.5 transition-all"
       >
         <Sparkles className="w-3.5 h-3.5" />
-        <span>Toggle Meta Accounts Online</span>
+        <span>Toggle Facebook Account Online</span>
       </button>
     </div>
   </div>

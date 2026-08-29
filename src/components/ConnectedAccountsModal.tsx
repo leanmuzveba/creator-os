@@ -14,7 +14,8 @@ import { PlatformType, SocialAccount } from '../types';
 import { logger } from '../utils/logger';
 import { AccountRow, AccountEditForm } from './accounts/AccountRow';
 import { TikTokGuide } from './accounts/TikTokGuide';
-import { MetaGuide } from './accounts/MetaGuide';
+import { FacebookGuide } from './accounts/FacebookGuide';
+import { InstagramGuide } from './accounts/InstagramGuide';
 import { YouTubeGuide } from './accounts/YouTubeGuide';
 
 /** Endpoint + messaging for launching an OAuth popup for a given platform. */
@@ -38,7 +39,8 @@ export const ConnectedAccountsModal: React.FC = () => {
   } = useApp();
 
   const [showTikTokGuide, setShowTikTokGuide] = useState(false);
-  const [showMetaGuide, setShowMetaGuide] = useState(false);
+  const [showFacebookGuide, setShowFacebookGuide] = useState(false);
+  const [showInstagramGuide, setShowInstagramGuide] = useState(false);
   const [showYouTubeGuide, setShowYouTubeGuide] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [isConnectingPlatform, setIsConnectingPlatform] = useState<string | null>(null);
@@ -112,16 +114,16 @@ export const ConnectedAccountsModal: React.FC = () => {
     instagram: {
       endpoint: '/api/auth/instagram/url',
       popupName: 'instagram_oauth_popup',
-      openingMessage: 'Opening Meta Instagram Login authorization...',
+      openingMessage: 'Opening Instagram Login authorization...',
       popupBlockedMessage: 'Please allow popups to connect with Instagram',
-      showGuide: () => setShowMetaGuide(true),
+      showGuide: () => setShowInstagramGuide(true),
     },
     facebook: {
       endpoint: '/api/auth/facebook/url',
       popupName: 'facebook_oauth_popup',
       openingMessage: 'Opening Meta Facebook Login authorization...',
       popupBlockedMessage: 'Please allow popups to connect with Facebook',
-      showGuide: () => setShowMetaGuide(true),
+      showGuide: () => setShowFacebookGuide(true),
     },
     youtube: {
       endpoint: '/api/auth/youtube/url',
@@ -144,14 +146,16 @@ export const ConnectedAccountsModal: React.FC = () => {
 
   const handleShowGuide = (id: PlatformType) => {
     if (id === 'tiktok') setShowTikTokGuide(true);
-    else if (id === 'instagram' || id === 'facebook') setShowMetaGuide(true);
+    else if (id === 'instagram') setShowInstagramGuide(true);
+    else if (id === 'facebook') setShowFacebookGuide(true);
     else if (id === 'youtube') setShowYouTubeGuide(true);
   };
 
   const closeModal = () => {
     setIsAccountsModalOpen(false);
     setShowTikTokGuide(false);
-    setShowMetaGuide(false);
+    setShowFacebookGuide(false);
+    setShowInstagramGuide(false);
     setShowYouTubeGuide(false);
   };
 
@@ -170,16 +174,28 @@ export const ConnectedAccountsModal: React.FC = () => {
         />
       );
     }
-    if (showMetaGuide) {
+    if (showFacebookGuide) {
       return (
-        <MetaGuide
+        <FacebookGuide
           copiedKey={copiedKey}
           onCopy={copyToClipboard}
-          onBack={() => setShowMetaGuide(false)}
+          onBack={() => setShowFacebookGuide(false)}
+          onEnable={() => {
+            toggleAccountConnection('facebook');
+            setShowFacebookGuide(false);
+          }}
+        />
+      );
+    }
+    if (showInstagramGuide) {
+      return (
+        <InstagramGuide
+          copiedKey={copiedKey}
+          onCopy={copyToClipboard}
+          onBack={() => setShowInstagramGuide(false)}
           onEnable={() => {
             toggleAccountConnection('instagram');
-            toggleAccountConnection('facebook');
-            setShowMetaGuide(false);
+            setShowInstagramGuide(false);
           }}
         />
       );

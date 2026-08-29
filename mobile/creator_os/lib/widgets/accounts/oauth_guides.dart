@@ -217,11 +217,11 @@ class TikTokGuide extends StatelessWidget {
   }
 }
 
-/// Setup guide for Instagram + Facebook via Meta for Developers. Mirrors `accounts/MetaGuide.tsx`.
-class MetaGuide extends StatelessWidget {
+/// Setup guide for Facebook via Meta for Developers. Mirrors `accounts/FacebookGuide.tsx`.
+class FacebookGuide extends StatelessWidget {
   final VoidCallback onBack;
   final VoidCallback onEnable;
-  const MetaGuide({super.key, required this.onBack, required this.onEnable});
+  const FacebookGuide({super.key, required this.onBack, required this.onEnable});
 
   @override
   Widget build(BuildContext context) {
@@ -229,10 +229,10 @@ class MetaGuide extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          GuideHeader(title: 'Meta for Developers — Instagram & Facebook Setup', color: AppColors.pink, onBack: onBack),
+          GuideHeader(title: 'Meta for Developers — Facebook Setup', color: AppColors.pink, onBack: onBack),
           const SizedBox(height: 12),
           Text(
-            'Connect your Meta Developer App to link real Instagram Creator/Business accounts and Facebook Pages:',
+            'Connect your Meta Developer App to link a Facebook Page you manage:',
             style: TextStyle(fontSize: 12, color: AppColors.textSecondary, height: 1.4),
           ),
           const SizedBox(height: 12),
@@ -248,9 +248,7 @@ class MetaGuide extends StatelessWidget {
             CopyField(label: 'Terms of Service URL (optional)', value: kTermsUrl, valueColor: AppColors.cyan),
           ]),
           GuideCard(children: const [
-            StepHeading(n: 2, text: 'Add Valid OAuth Redirect URIs in Facebook Login Settings'),
-            SizedBox(height: 8),
-            CopyField(label: 'Instagram Callback URI', value: kMetaIgDevCallbackUrl),
+            StepHeading(n: 2, text: 'Add Valid OAuth Redirect URI in Facebook Login Settings'),
             SizedBox(height: 8),
             CopyField(label: 'Facebook Callback URI', value: kMetaFbDevCallbackUrl, valueColor: AppColors.blue),
           ]),
@@ -265,12 +263,104 @@ class MetaGuide extends StatelessWidget {
             SizedBox(height: 8),
             CopyField(value: kMetaScopes),
           ]),
+          GuideCard(
+            bg: const Color(0x1AF59E0B),
+            borderColor: const Color(0x33F59E0B),
+            children: const [
+              StepHeading(n: 5, text: 'Facebook only exposes follower counts for Pages', badgeColor: Color(0xFFF59E0B)),
+              SizedBox(height: 6),
+              Text(
+                "A personal Facebook profile never returns a follower/fan count via the Graph API. Create or claim a Facebook Page for your creator brand and make sure you're an admin on it before connecting.",
+                style: TextStyle(fontSize: 11, color: Color(0xFFFCD34D), height: 1.4),
+              ),
+            ],
+          ),
           const SizedBox(height: 4),
           GuideActions(
             portalUrl: 'https://developers.facebook.com/apps/',
             portalLabel: 'Open Meta Developer Portal',
             onEnable: onEnable,
-            enableLabel: 'Toggle Meta Accounts Online',
+            enableLabel: 'Toggle Facebook Account Online',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Setup guide for Instagram via Meta's "Instagram API with Instagram Login"
+/// product. Mirrors `accounts/InstagramGuide.tsx`.
+class InstagramGuide extends StatelessWidget {
+  final VoidCallback onBack;
+  final VoidCallback onEnable;
+  const InstagramGuide({super.key, required this.onBack, required this.onEnable});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GuideHeader(title: 'Meta for Developers — Instagram Login Setup', color: AppColors.pink, onBack: onBack),
+          const SizedBox(height: 12),
+          Text(
+            'Connect the Instagram API with Instagram Login product in your Meta Developer App so you log into '
+            'Instagram directly and pick the exact account you want — no linked Facebook Page required.',
+            style: TextStyle(fontSize: 12, color: AppColors.textSecondary, height: 1.4),
+          ),
+          const SizedBox(height: 12),
+          GuideCard(children: [
+            const StepHeading(n: 1, text: 'Add the "Instagram API setup with Instagram Login" product'),
+            const SizedBox(height: 6),
+            Text(
+              'In your Meta app, go to Add Product → Instagram → Instagram API setup with Instagram Login. This '
+              'gives you a separate Instagram App ID and Secret from your Facebook Login app.',
+              style: TextStyle(fontSize: 11, color: AppColors.textSecondary, height: 1.4),
+            ),
+          ]),
+          GuideCard(children: const [
+            StepHeading(n: 2, text: 'Add OAuth Redirect URIs under Business Login settings'),
+            SizedBox(height: 8),
+            CopyField(label: 'Development Redirect URI', value: kInstagramDevCallbackUrl),
+            SizedBox(height: 8),
+            CopyField(label: 'Shared / Deployed Redirect URI', value: kInstagramSharedCallbackUrl),
+          ]),
+          GuideCard(children: [
+            const StepHeading(n: 3, text: 'Set Keys on the Backend'),
+            const SizedBox(height: 6),
+            Text('INSTAGRAM_APP_ID=your_instagram_app_id\nINSTAGRAM_APP_SECRET=your_instagram_app_secret',
+                style: TextStyle(fontFamily: 'monospace', fontSize: 11, color: AppColors.pink)),
+          ]),
+          GuideCard(children: const [
+            StepHeading(n: 4, text: 'Instagram API Scopes'),
+            SizedBox(height: 8),
+            CopyField(value: kInstagramScopes),
+          ]),
+          GuideCard(
+            bg: const Color(0x1AF59E0B),
+            borderColor: const Color(0x33F59E0B),
+            children: const [
+              StepHeading(n: 5, text: 'Your Instagram account must be Professional', badgeColor: Color(0xFFF59E0B)),
+              SizedBox(height: 6),
+              Text(
+                'Personal accounts can still log in, but Instagram won\'t share follower or insights data for them. '
+                'In the Instagram app, go to Settings → Account type and switch to Business or Creator.',
+                style: TextStyle(fontSize: 11, color: Color(0xFFFCD34D), height: 1.4),
+              ),
+              SizedBox(height: 6),
+              Text(
+                "While your app is in Development mode, also add your Instagram account as a tester under this "
+                "product's settings and accept the invite from the Instagram app.",
+                style: TextStyle(fontSize: 11, color: Color(0xFFFCD34D), height: 1.4),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          GuideActions(
+            portalUrl: 'https://developers.facebook.com/apps/',
+            portalLabel: 'Open Meta Developer Portal',
+            onEnable: onEnable,
+            enableLabel: 'Toggle Instagram Account Online',
           ),
         ],
       ),

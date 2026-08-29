@@ -10,15 +10,19 @@ const String kTiktokSharedCallbackUrl =
     'https://ais-pre-trgypbutyowyfjrxvbpubj-294594473820.europe-west1.run.app/api/auth/tiktok/callback';
 const String kTiktokScopes = 'user.info.basic';
 
-const String kMetaIgDevCallbackUrl =
-    'https://ais-dev-trgypbutyowyfjrxvbpubj-294594473820.europe-west1.run.app/api/auth/instagram/callback';
 const String kMetaFbDevCallbackUrl =
     'https://ais-dev-trgypbutyowyfjrxvbpubj-294594473820.europe-west1.run.app/api/auth/facebook/callback';
 const String kAppDomain = 'ais-dev-trgypbutyowyfjrxvbpubj-294594473820.europe-west1.run.app';
 const String kSiteUrl = 'https://ais-dev-trgypbutyowyfjrxvbpubj-294594473820.europe-west1.run.app';
 const String kPrivacyPolicyUrl = 'https://ais-dev-trgypbutyowyfjrxvbpubj-294594473820.europe-west1.run.app/privacy';
 const String kTermsUrl = 'https://ais-dev-trgypbutyowyfjrxvbpubj-294594473820.europe-west1.run.app/terms';
-const String kMetaScopes = 'public_profile';
+const String kMetaScopes = 'public_profile,pages_show_list,pages_read_engagement';
+
+const String kInstagramDevCallbackUrl =
+    'https://ais-dev-trgypbutyowyfjrxvbpubj-294594473820.europe-west1.run.app/api/auth/instagram/callback';
+const String kInstagramSharedCallbackUrl =
+    'https://ais-pre-trgypbutyowyfjrxvbpubj-294594473820.europe-west1.run.app/api/auth/instagram/callback';
+const String kInstagramScopes = 'instagram_business_basic,instagram_business_manage_insights';
 
 const String kYtDevCallbackUrl =
     'https://ais-dev-trgypbutyowyfjrxvbpubj-294594473820.europe-west1.run.app/api/auth/youtube/callback';
