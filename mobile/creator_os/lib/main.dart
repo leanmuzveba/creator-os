@@ -147,7 +147,11 @@ class AppShell extends StatelessWidget {
         children: [
           IndexedStack(
             index: ViewTab.values.indexOf(state.activeTab),
-            children: const [
+            // Not const: these screens read theme-dependent AppColors fields at
+            // build time, so they must actually rebuild on every AppState change
+            // (including an App Theme toggle) rather than being skipped as
+            // identical const widgets.
+            children: [
               DashboardScreen(),
               ContentLibraryScreen(),
               AiAssistantScreen(),

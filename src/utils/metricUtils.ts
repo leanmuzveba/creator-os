@@ -98,6 +98,22 @@ export function calculateTotalEngagement(accounts: SocialAccount[], posts: PostI
 }
 
 /**
+ * Per-platform display metrics for the Dashboard overview cards. Returns real
+ * synced values for a connected account, or all-zero placeholders when the
+ * account isn't connected/synced (no demo/fallback numbers).
+ */
+export function getAccountDisplayMetrics(account: SocialAccount | undefined) {
+  if (!account?.connected) {
+    return { views: '0', followers: '0', growth: '0%' };
+  }
+  return {
+    views: account.views || '0',
+    followers: account.followers || '0',
+    growth: account.viewsGrowth || '0%',
+  };
+}
+
+/**
  * Generates aggregated live metrics for Analytics and Dashboard overview cards
  */
 export function calculateAggregatedOverview(accounts: SocialAccount[], posts: PostItem[] = [], range: string = '7d') {

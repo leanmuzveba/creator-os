@@ -226,10 +226,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
       if (event.data?.type === 'OAUTH_AUTH_SUCCESS') {
         refreshAccounts();
-        showToast(
-          `Successfully connected ${event.data.platform?.toUpperCase() || 'Account'} (${event.data.handle || 'Verified'})! 🎉`,
-          'success'
-        );
+        if (event.data.metricsSynced === false) {
+          showToast(
+            `${event.data.platform?.toUpperCase() || 'Account'} linked (${event.data.handle || 'Verified'}), but no follower data was found - see the connection window for what's needed to sync real metrics.`,
+            'info'
+          );
+        } else {
+          showToast(
+            `Successfully connected ${event.data.platform?.toUpperCase() || 'Account'} (${event.data.handle || 'Verified'})! 🎉`,
+            'success'
+          );
+        }
       } else if (event.data?.type === 'OAUTH_AUTH_ERROR') {
         showToast(`OAuth Error: ${event.data.error || 'Authorization failed'}`, 'error');
       }

@@ -9,7 +9,7 @@
 Plan, create, schedule, and publish content across TikTok, Instagram, YouTube, and Facebook — with unified analytics and an AI content assistant, all in one workspace.
 
 <br/>
-
+   
 ![React](https://img.shields.io/badge/React-19-149ECA)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6)
 ![Express](https://img.shields.io/badge/Express-4-000000)

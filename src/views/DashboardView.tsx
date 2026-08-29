@@ -33,7 +33,7 @@ import { useApp } from '../context/AppContext';
 import { logger } from '../utils/logger';
 import { PlatformIcon } from '../components/PlatformIcon';
 import { PostCard } from '../components/PostCard';
-import { formatMetric, calculateTotalViews, parseMetric } from '../utils/metricUtils';
+import { formatMetric, calculateTotalViews, parseMetric, getAccountDisplayMetrics } from '../utils/metricUtils';
 
 export const DashboardView: React.FC = () => {
   const { posts, socialAccounts, openScheduleModalWithData, setActiveTab, setPreviewPost } = useApp();
@@ -101,6 +101,7 @@ export const DashboardView: React.FC = () => {
         {/* TikTok Card */}
         {(() => {
           const tiktok = socialAccounts.find((a) => a.id === 'tiktok');
+          const tiktokMetrics = getAccountDisplayMetrics(tiktok);
           return (
             <div className="creator-card-interactive p-3 sm:p-3.5 relative overflow-hidden flex flex-col justify-between">
               <div className="flex items-center justify-between">
@@ -119,15 +120,15 @@ export const DashboardView: React.FC = () => {
                   </div>
                 </div>
                 <span className="px-1.5 py-0.5 rounded text-[8.5px] sm:text-[9px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center gap-0.5">
-                  ↑ {tiktok?.viewsGrowth || '18.6%'}
+                  {tiktokMetrics.growth.startsWith('-') ? '↓' : '↑'} {tiktokMetrics.growth}
                 </span>
               </div>
 
               <div className="mt-2.5 sm:mt-3">
-                <h3 className="text-base sm:text-lg font-extrabold text-white tracking-tight leading-tight">{tiktok?.views || '124.8K'}</h3>
+                <h3 className="text-base sm:text-lg font-extrabold text-white tracking-tight leading-tight">{tiktokMetrics.views}</h3>
                 <div className="flex items-center justify-between mt-0.5 text-[10px]">
                   <p className="text-slate-400 font-medium">Views</p>
-                  <p className="text-pink-300/90 font-mono">{tiktok?.followers || '128.4K'} fans</p>
+                  <p className="text-pink-300/90 font-mono">{tiktokMetrics.followers} fans</p>
                 </div>
               </div>
             </div>
@@ -137,6 +138,7 @@ export const DashboardView: React.FC = () => {
         {/* Instagram Card */}
         {(() => {
           const ig = socialAccounts.find((a) => a.id === 'instagram');
+          const igMetrics = getAccountDisplayMetrics(ig);
           return (
             <div className="creator-card-interactive p-3 sm:p-3.5 relative overflow-hidden flex flex-col justify-between">
               <div className="flex items-center justify-between">
@@ -155,15 +157,15 @@ export const DashboardView: React.FC = () => {
                   </div>
                 </div>
                 <span className="px-1.5 py-0.5 rounded text-[8.5px] sm:text-[9px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center gap-0.5">
-                  ↑ {ig?.viewsGrowth || '12.4%'}
+                  {igMetrics.growth.startsWith('-') ? '↓' : '↑'} {igMetrics.growth}
                 </span>
               </div>
 
               <div className="mt-2.5 sm:mt-3">
-                <h3 className="text-base sm:text-lg font-extrabold text-white tracking-tight leading-tight">{ig?.views || '89.4K'}</h3>
+                <h3 className="text-base sm:text-lg font-extrabold text-white tracking-tight leading-tight">{igMetrics.views}</h3>
                 <div className="flex items-center justify-between mt-0.5 text-[10px]">
                   <p className="text-slate-400 font-medium">Reach</p>
-                  <p className="text-pink-300/90 font-mono">{ig?.followers || '89.4K'} fans</p>
+                  <p className="text-pink-300/90 font-mono">{igMetrics.followers} fans</p>
                 </div>
               </div>
             </div>
@@ -173,6 +175,7 @@ export const DashboardView: React.FC = () => {
         {/* YouTube Card */}
         {(() => {
           const yt = socialAccounts.find((a) => a.id === 'youtube');
+          const ytMetrics = getAccountDisplayMetrics(yt);
           return (
             <div className="creator-card-interactive p-3 sm:p-3.5 relative overflow-hidden flex flex-col justify-between">
               <div className="flex items-center justify-between">
@@ -191,15 +194,15 @@ export const DashboardView: React.FC = () => {
                   </div>
                 </div>
                 <span className="px-1.5 py-0.5 rounded text-[8.5px] sm:text-[9px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center gap-0.5">
-                  ↑ {yt?.viewsGrowth || '9.3%'}
+                  {ytMetrics.growth.startsWith('-') ? '↓' : '↑'} {ytMetrics.growth}
                 </span>
               </div>
 
               <div className="mt-2.5 sm:mt-3">
-                <h3 className="text-base sm:text-lg font-extrabold text-white tracking-tight leading-tight">{yt?.views || '56.7K'}</h3>
+                <h3 className="text-base sm:text-lg font-extrabold text-white tracking-tight leading-tight">{ytMetrics.views}</h3>
                 <div className="flex items-center justify-between mt-0.5 text-[10px]">
                   <p className="text-slate-400 font-medium">Views</p>
-                  <p className="text-pink-300/90 font-mono">{yt?.followers || '56.7K'} subs</p>
+                  <p className="text-pink-300/90 font-mono">{ytMetrics.followers} subs</p>
                 </div>
               </div>
             </div>
@@ -209,6 +212,7 @@ export const DashboardView: React.FC = () => {
         {/* Facebook Card */}
         {(() => {
           const fb = socialAccounts.find((a) => a.id === 'facebook');
+          const fbMetrics = getAccountDisplayMetrics(fb);
           return (
             <div className="creator-card-interactive p-3 sm:p-3.5 relative overflow-hidden flex flex-col justify-between">
               <div className="flex items-center justify-between">
@@ -227,15 +231,15 @@ export const DashboardView: React.FC = () => {
                   </div>
                 </div>
                 <span className="px-1.5 py-0.5 rounded text-[8.5px] sm:text-[9px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 flex items-center gap-0.5">
-                  ↑ {fb?.viewsGrowth || '6.8%'}
+                  {fbMetrics.growth.startsWith('-') ? '↓' : '↑'} {fbMetrics.growth}
                 </span>
               </div>
 
               <div className="mt-2.5 sm:mt-3">
-                <h3 className="text-base sm:text-lg font-extrabold text-white tracking-tight leading-tight">{fb?.views || '23.1K'}</h3>
+                <h3 className="text-base sm:text-lg font-extrabold text-white tracking-tight leading-tight">{fbMetrics.views}</h3>
                 <div className="flex items-center justify-between mt-0.5 text-[10px]">
                   <p className="text-slate-400 font-medium">Reach</p>
-                  <p className="text-pink-300/90 font-mono">{fb?.followers || '23.1K'} fans</p>
+                  <p className="text-pink-300/90 font-mono">{fbMetrics.followers} fans</p>
                 </div>
               </div>
             </div>

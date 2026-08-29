@@ -188,6 +188,11 @@ authMetaRouter.get(['/api/auth/instagram/callback', '/api/auth/instagram/callbac
       }
     }
 
+    // True only when a real linked Instagram Business/Creator account was found
+    // via /me/accounts - the /me fallback just gets the generic Meta identity,
+    // not the actual Instagram account, so it never counts as "synced".
+    const metricsSynced = followersCount !== '1';
+
     const existingIgAcc = store.socialAccounts.find((a) => a.id === 'instagram');
     if (existingIgAcc) {
       existingIgAcc.connected = true;
@@ -196,27 +201,41 @@ authMetaRouter.get(['/api/auth/instagram/callback', '/api/auth/instagram/callbac
         existingIgAcc.avatar = profileAvatar;
       }
       existingIgAcc.status = 'active';
-      if (followersCount !== '1') {
+      if (metricsSynced) {
         existingIgAcc.followers = followersCount;
         existingIgAcc.viewsGrowth = computeGrowth(oldIgFollowers, followersCount);
+      } else {
+        // Real follower count unavailable (no linked business account/permissions) -
+        // don't leave the account showing stale demo-seed numbers as if synced.
+        existingIgAcc.followers = '0';
+        existingIgAcc.viewsGrowth = '0%';
       }
+      // Reach isn't fetched from the Graph API here (requires Insights permissions
+      // beyond instagram_basic), so it's never real - keep it at 0 rather than the
+      // demo-seed placeholder.
+      existingIgAcc.views = '0';
       saveStorage();
     }
+
+    const statusHeading = metricsSynced ? 'Instagram Connected!' : 'Instagram Partially Connected';
+    const statusMessage = metricsSynced
+      ? `Account ${profileDisplayName} has been linked to Creator OS.`
+      : `We linked your Meta login (${profileDisplayName}), but couldn't find an Instagram Business/Creator account linked to a Facebook Page you manage - so follower data can't sync. In Instagram, switch to a Professional account and link it to a Page you administer, then reconnect.`;
 
     return res.send(`
       <!DOCTYPE html>
       <html>
-        <head><title>Instagram Connected</title></head>
+        <head><title>${statusHeading}</title></head>
         <body style="font-family: system-ui, sans-serif; background: #0b0d17; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
-          <div style="text-align: center; max-width: 400px; padding: 32px; border: 1px solid rgba(236,72,153,0.3); border-radius: 20px; background: #131627; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-            <div style="width: 52px; height: 52px; border-radius: 50%; background: rgba(236,72,153,0.2); border: 2px solid #ec4899; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 24px;">✓</div>
-            <h2 style="color: #fff; margin: 0 0 8px 0; font-size: 18px;">Instagram Connected!</h2>
-            <p style="color: #94a3b8; font-size: 13px; margin: 0 0 16px 0;">Account ${profileDisplayName} has been linked to Creator OS.</p>
+          <div style="text-align: center; max-width: 420px; padding: 32px; border: 1px solid rgba(236,72,153,0.3); border-radius: 20px; background: #131627; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <div style="width: 52px; height: 52px; border-radius: 50%; background: rgba(236,72,153,0.2); border: 2px solid #ec4899; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 24px;">${metricsSynced ? '✓' : '⚠️'}</div>
+            <h2 style="color: #fff; margin: 0 0 8px 0; font-size: 18px;">${statusHeading}</h2>
+            <p style="color: #94a3b8; font-size: 13px; margin: 0 0 16px 0; line-height: 1.5;">${statusMessage}</p>
             <p style="color: #64748b; font-size: 11px;">This window should close automatically...</p>
             <script>
               if (window.opener) {
-                window.opener.postMessage({ type: 'OAUTH_AUTH_SUCCESS', platform: 'instagram', handle: '${profileDisplayName}' }, '*');
-                setTimeout(() => window.close(), 1200);
+                window.opener.postMessage({ type: 'OAUTH_AUTH_SUCCESS', platform: 'instagram', handle: '${profileDisplayName}', metricsSynced: ${metricsSynced} }, '*');
+                setTimeout(() => window.close(), ${metricsSynced ? '1200' : '4000'});
               } else {
                 setTimeout(() => { window.location.href = '/'; }, 1500);
               }
@@ -418,6 +437,11 @@ authMetaRouter.get(['/api/auth/facebook/callback', '/api/auth/facebook/callback/
       logger.warn('Could not fetch Facebook pages:', fbErr);
     }
 
+    // True only when a real accessible Facebook Page was found via /me/accounts -
+    // the /me profile name alone (a personal profile) never exposes a follower
+    // count via the Graph API, so it never counts as "synced".
+    const metricsSynced = followersCount !== '1';
+
     const existingFbAcc = store.socialAccounts.find((a) => a.id === 'facebook');
     if (existingFbAcc) {
       existingFbAcc.connected = true;
@@ -426,27 +450,41 @@ authMetaRouter.get(['/api/auth/facebook/callback', '/api/auth/facebook/callback/
         existingFbAcc.avatar = profileAvatar;
       }
       existingFbAcc.status = 'active';
-      if (followersCount !== '1') {
+      if (metricsSynced) {
         existingFbAcc.followers = followersCount;
         existingFbAcc.viewsGrowth = computeGrowth(oldFbFollowers, followersCount);
+      } else {
+        // Real follower/fan count unavailable (no accessible Page) - don't leave
+        // the account showing stale demo-seed numbers as if synced.
+        existingFbAcc.followers = '0';
+        existingFbAcc.viewsGrowth = '0%';
       }
+      // Reach isn't fetched from the Graph API here (requires Page Insights
+      // permissions), so it's never real - keep it at 0 rather than the
+      // demo-seed placeholder.
+      existingFbAcc.views = '0';
       saveStorage();
     }
+
+    const statusHeading = metricsSynced ? 'Facebook Account Connected!' : 'Facebook Partially Connected';
+    const statusMessage = metricsSynced
+      ? `<strong>${profileDisplayName}</strong> has been linked to Creator OS.`
+      : `We linked your personal profile (<strong>${profileDisplayName}</strong>), but Facebook only exposes follower/fan counts for Pages you manage - not personal profiles. Create or claim a Facebook Page for your creator brand, make sure you're an admin on it, then reconnect.`;
 
     return res.send(`
       <!DOCTYPE html>
       <html>
-        <head><title>Facebook Connected</title></head>
+        <head><title>${statusHeading}</title></head>
         <body style="font-family: system-ui, sans-serif; background: #0b0d17; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
           <div style="text-align: center; max-width: 420px; padding: 32px; border: 1px solid rgba(59,130,246,0.3); border-radius: 20px; background: #131627; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-            <div style="width: 52px; height: 52px; border-radius: 50%; background: rgba(59,130,246,0.2); border: 2px solid #3b82f6; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 24px;">✓</div>
-            <h2 style="color: #fff; margin: 0 0 8px 0; font-size: 18px;">Facebook Account Connected!</h2>
-            <p style="color: #94a3b8; font-size: 13px; margin: 0 0 16px 0;"><strong>${profileDisplayName}</strong> has been linked to Creator OS.</p>
+            <div style="width: 52px; height: 52px; border-radius: 50%; background: rgba(59,130,246,0.2); border: 2px solid #3b82f6; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 24px;">${metricsSynced ? '✓' : '⚠️'}</div>
+            <h2 style="color: #fff; margin: 0 0 8px 0; font-size: 18px;">${statusHeading}</h2>
+            <p style="color: #94a3b8; font-size: 13px; margin: 0 0 16px 0; line-height: 1.5;">${statusMessage}</p>
             <p style="color: #64748b; font-size: 11px;">This window should close automatically...</p>
             <script>
               if (window.opener) {
-                window.opener.postMessage({ type: 'OAUTH_AUTH_SUCCESS', platform: 'facebook', handle: '${profileDisplayName}', avatar: '${profileAvatar}' }, '*');
-                setTimeout(() => window.close(), 1200);
+                window.opener.postMessage({ type: 'OAUTH_AUTH_SUCCESS', platform: 'facebook', handle: '${profileDisplayName}', avatar: '${profileAvatar}', metricsSynced: ${metricsSynced} }, '*');
+                setTimeout(() => window.close(), ${metricsSynced ? '1200' : '4000'});
               } else {
                 setTimeout(() => { window.location.href = '/'; }, 1500);
               }

@@ -156,8 +156,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                    decoration: BoxDecoration(color: AppColors.emerald.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(4)),
-                    child: Text('↑ ${acc?.viewsGrowth ?? defGrowth}', style: const TextStyle(fontSize: 9, color: AppColors.emerald, fontFamily: 'monospace')),
+                    decoration: BoxDecoration(color: AppColors.positiveAccent.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(4)),
+                    child: Text('↑ ${acc?.viewsGrowth ?? defGrowth}', style: TextStyle(fontSize: 9, color: AppColors.positiveAccent, fontFamily: 'monospace')),
                   ),
                 ],
               ),
@@ -171,7 +171,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     children: [
                       Text(label, style: TextStyle(fontSize: 10, color: AppColors.textSecondary)),
                       Text('${acc?.followers.isNotEmpty == true ? acc!.followers : defFollowers} fans',
-                          style: const TextStyle(fontSize: 10, color: Color(0xFFF9A8D4), fontFamily: 'monospace')),
+                          style: TextStyle(fontSize: 10, color: AppColors.fansAccent, fontFamily: 'monospace')),
                     ],
                   ),
                 ],

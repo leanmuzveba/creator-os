@@ -19,6 +19,14 @@ class AppColors {
   static const red = Color(0xFFEF4444);
   static const blue = Color(0xFF3B82F6);
 
+  /// Dashboard "fans" label accent. The dark-mode pale pink has too little
+  /// contrast on the light theme's near-white card background.
+  static Color fansAccent = const Color(0xFFF9A8D4);
+
+  /// Dashboard growth-badge accent. The dark-mode mint emerald has too little
+  /// contrast on the light theme's near-white card background.
+  static Color positiveAccent = const Color(0xFF34D399);
+
   static bool isLight = false;
 
   /// Swaps the mutable palette between the default dark theme and a white
@@ -34,6 +42,8 @@ class AppColors {
       textPrimary = const Color(0xFF1D4ED8);
       textSecondary = const Color(0xFF5B7FBE);
       pink = const Color(0xFF2563EB);
+      fansAccent = const Color(0xFFDC2626); // red-600: visible on the light card background
+      positiveAccent = const Color(0xFF15803D); // green-700: visible on the light card background
     } else {
       background = const Color(0xFF0B0D17);
       surface = const Color(0xFF131627);
@@ -42,6 +52,8 @@ class AppColors {
       textPrimary = const Color(0xFFF1F5F9);
       textSecondary = const Color(0xFF94A3B8);
       pink = const Color(0xFFEC4899);
+      fansAccent = const Color(0xFFF9A8D4);
+      positiveAccent = const Color(0xFF34D399);
     }
   }
 
