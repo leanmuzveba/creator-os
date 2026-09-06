@@ -25,7 +25,7 @@ const DayIndicatorDots: React.FC<{ posts: PostItem[]; isSelected: boolean }> = (
       <span key={pIdx} title={`${p.title} (${p.status})`} className={`w-2 h-2 rounded-full ${dotColorClass(p, isSelected)}`} />
     ))}
     {posts.length > 3 && (
-      <span className={`text-[9px] font-mono font-bold leading-none ${isSelected ? 'text-white' : 'text-slate-400'}`}>
+      <span className={`text-[9px] font-mono font-bold leading-none ${isSelected ? 'text-white' : 'text-[var(--text-secondary)]'}`}>
         +{posts.length - 3}
       </span>
     )}
