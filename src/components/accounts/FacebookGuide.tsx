@@ -16,8 +16,8 @@ interface FacebookGuideProps {
 }
 
 const StepHeading: React.FC<{ n: number; children: React.ReactNode }> = ({ n, children }) => (
-  <p className="font-bold text-white flex items-center gap-1.5">
-    <span className="w-4 h-4 rounded-full bg-pink-600 text-white flex items-center justify-center text-[10px]">{n}</span>
+  <p className="font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+    <span className="w-4 h-4 rounded-full bg-[var(--accent)] text-white flex items-center justify-center text-[10px]">{n}</span>
     <span>{children}</span>
   </p>
 );
@@ -25,23 +25,23 @@ const StepHeading: React.FC<{ n: number; children: React.ReactNode }> = ({ n, ch
 export const FacebookGuide: React.FC<FacebookGuideProps> = ({ copiedKey, onCopy, onBack, onEnable }) => (
   <div className="space-y-4 animate-in fade-in duration-200">
     <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2 text-xs font-bold text-pink-400">
+      <div className="flex items-center gap-2 text-xs font-bold text-[var(--accent)]">
         <KeyRound className="w-4 h-4" />
         <span>Meta for Developers — Facebook Setup</span>
       </div>
-      <button onClick={onBack} className="text-xs text-slate-400 hover:text-white underline">
+      <button onClick={onBack} className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline">
         Back to accounts
       </button>
     </div>
 
-    <p className="text-xs text-slate-300 leading-relaxed">
+    <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
       Connect your Meta Developer App to link a Facebook Page you manage:
     </p>
 
     {/* Step 1: App Domains & Website Platform */}
-    <div className="space-y-2 p-3.5 rounded-2xl bg-[#131627] border border-white/10 text-xs">
+    <div className="space-y-2 p-3.5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs">
       <StepHeading n={1}>Set App Domains &amp; Website in Meta Basic Settings</StepHeading>
-      <p className="text-[11px] text-slate-400">
+      <p className="text-[11px] text-[var(--text-secondary)]">
         Go to <strong>App settings ➔ Basic</strong> in Meta Developer Portal:
       </p>
       <div className="space-y-2 pt-1">
@@ -53,9 +53,9 @@ export const FacebookGuide: React.FC<FacebookGuideProps> = ({ copiedKey, onCopy,
     </div>
 
     {/* Step 2: Redirect URI */}
-    <div className="space-y-2 p-3.5 rounded-2xl bg-[#131627] border border-white/10 text-xs">
+    <div className="space-y-2 p-3.5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs">
       <StepHeading n={2}>Add Valid OAuth Redirect URI in Facebook Login Settings</StepHeading>
-      <p className="text-[11px] text-slate-400">
+      <p className="text-[11px] text-[var(--text-secondary)]">
         Go to <strong>Facebook Login ➔ Settings ➔ Valid OAuth Redirect URIs</strong>:
       </p>
       <div className="space-y-2 pt-1">
@@ -64,17 +64,17 @@ export const FacebookGuide: React.FC<FacebookGuideProps> = ({ copiedKey, onCopy,
     </div>
 
     {/* Step 3: Meta App Credentials */}
-    <div className="space-y-2 p-3.5 rounded-2xl bg-[#131627] border border-white/10 text-xs">
+    <div className="space-y-2 p-3.5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs">
       <StepHeading n={3}>Add Meta Credentials in AI Studio Settings</StepHeading>
-      <p className="text-[11px] text-slate-400 leading-relaxed">Add these under Environment Variables in AI Studio Settings:</p>
-      <div className="bg-[#0b0d17] p-2.5 rounded-xl border border-white/10 font-mono text-[11px] text-pink-300 space-y-1">
+      <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">Add these under Environment Variables in AI Studio Settings:</p>
+      <div className="bg-[var(--bg-page)] p-2.5 rounded-xl border border-[var(--border-color)] font-mono text-[11px] text-[var(--accent)] space-y-1">
         <div>META_APP_ID=your_app_id</div>
         <div>META_APP_SECRET=your_app_secret</div>
       </div>
     </div>
 
     {/* Step 4: Meta Scopes */}
-    <div className="space-y-2 p-3.5 rounded-2xl bg-[#131627] border border-white/10 text-xs">
+    <div className="space-y-2 p-3.5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs">
       <StepHeading n={4}>Meta Graph API Scopes</StepHeading>
       <CopyField value={META_SCOPES} copyKey="metaScopes" copiedKey={copiedKey} onCopy={onCopy} title="Copy Scopes" />
     </div>
@@ -97,7 +97,7 @@ export const FacebookGuide: React.FC<FacebookGuideProps> = ({ copiedKey, onCopy,
         href="https://developers.facebook.com/apps/"
         target="_blank"
         rel="noreferrer"
-        className="flex-1 py-2.5 px-3 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-white/10"
+        className="flex-1 py-2.5 px-3 rounded-xl bg-[var(--overlay-hover)] hover:opacity-80 text-[var(--text-primary)] text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-[var(--border-color)]"
       >
         <span>Open Meta Developer Portal</span>
         <ExternalLink className="w-3.5 h-3.5" />

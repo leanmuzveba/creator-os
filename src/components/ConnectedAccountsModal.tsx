@@ -233,12 +233,12 @@ export const ConnectedAccountsModal: React.FC = () => {
         ))}
 
         {/* Scope and API Security Note */}
-        <div className="p-3 rounded-xl bg-pink-950/20 border border-pink-500/20 text-xs space-y-0.5 text-slate-300">
-          <div className="flex items-center gap-1.5 font-bold text-pink-300 text-[11px]">
-            <ShieldCheck className="w-3.5 h-3.5 text-pink-400" />
+        <div className="p-3 rounded-xl bg-[var(--accent-15)] border border-[var(--accent-20)] text-xs space-y-0.5 text-[var(--text-secondary)]">
+          <div className="flex items-center gap-1.5 font-bold text-[var(--accent)] text-[11px]">
+            <ShieldCheck className="w-3.5 h-3.5 text-[var(--accent)]" />
             <span>Official API Integration Status</span>
           </div>
-          <p className="text-[10px] text-slate-400 leading-relaxed">
+          <p className="text-[10px] text-[var(--text-secondary)] leading-relaxed">
             Official Content Posting APIs and OAuth scopes active for TikTok Content API, Meta Graph API (Instagram &amp;
             Facebook), and YouTube Data API v3.
           </p>
@@ -249,22 +249,22 @@ export const ConnectedAccountsModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg bg-[#0b0d17] border border-white/15 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+      <div className="relative w-full max-w-lg bg-[var(--bg-page)] border border-[var(--border-color-strong)] rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="px-5 py-4 bg-[#131627] border-b border-white/[0.08] flex items-center justify-between">
+        <div className="px-5 py-4 bg-[var(--bg-surface)] border-b border-[var(--border-color)] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-pink-600/20 text-pink-400 border border-pink-500/30">
+            <div className="p-2 rounded-xl bg-[var(--accent-20)] text-[var(--accent)] border border-[var(--accent-30)]">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white">Social Account Connections</h3>
-              <p className="text-[11px] text-slate-400">Official OAuth credentials, API sync & publishing</p>
+              <h3 className="text-sm font-bold text-[var(--text-primary)]">Social Account Connections</h3>
+              <p className="text-[11px] text-[var(--text-secondary)]">Official OAuth credentials, API sync & publishing</p>
             </div>
           </div>
 
           <button
             onClick={closeModal}
-            className="p-1.5 rounded-full hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
+            className="p-1.5 rounded-full hover:bg-[var(--overlay-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -274,13 +274,13 @@ export const ConnectedAccountsModal: React.FC = () => {
         <div className="p-5 space-y-3.5 overflow-y-auto max-h-[68vh]">{renderBody()}</div>
 
         {/* Footer */}
-        <div className="p-4 bg-[#131627] border-t border-white/[0.08] flex items-center justify-between">
+        <div className="p-4 bg-[var(--bg-surface)] border-t border-[var(--border-color)] flex items-center justify-between">
           <button
             onClick={() => {
               refreshAccounts();
               showToast('Tokens refreshed and synced with platform servers!', 'success');
             }}
-            className="flex items-center gap-1.5 text-xs text-pink-400 hover:text-pink-300 font-semibold"
+            className="flex items-center gap-1.5 text-xs text-[var(--accent)] hover:opacity-80 font-semibold"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             <span>Sync Live Metrics</span>
@@ -288,7 +288,7 @@ export const ConnectedAccountsModal: React.FC = () => {
 
           <button
             onClick={closeModal}
-            className="px-4 py-2 rounded-xl bg-pink-600 hover:bg-pink-500 text-xs font-bold text-white transition-colors"
+            className="px-4 py-2 rounded-xl bg-[var(--accent)] hover:opacity-90 text-xs font-bold text-white transition-colors"
           >
             Done
           </button>

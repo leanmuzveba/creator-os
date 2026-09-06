@@ -12,7 +12,7 @@ import { processMediaFile } from '../utils/videoUtils';
 import { logger } from '../utils/logger';
 
 export const ScheduleModal: React.FC = () => {
-  const { isScheduleModalOpen, setIsScheduleModalOpen, scheduleModalInitialData, addPost, updatePost, showToast, socialAccounts } = useApp();
+  const { isScheduleModalOpen, setIsScheduleModalOpen, scheduleModalInitialData, addPost, updatePost, showToast, socialAccounts, theme } = useApp();
 
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<ContentCategory>('Free Tech Resources');
@@ -180,18 +180,18 @@ export const ScheduleModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg bg-[#0b0d17] border border-white/15 rounded-3xl overflow-hidden shadow-2xl my-auto">
+      <div className="relative w-full max-w-lg bg-[var(--bg-page)] border border-[var(--border-color-strong)] rounded-3xl overflow-hidden shadow-2xl my-auto">
         {/* Header */}
-        <div className="px-5 py-4 bg-[#131627] border-b border-white/[0.08] flex items-center justify-between">
+        <div className="px-5 py-4 bg-[var(--bg-surface)] border-b border-[var(--border-color)] flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <CalendarIcon className="w-5 h-5 text-pink-400" />
-            <h3 className="text-sm font-bold text-white">
+            <CalendarIcon className="w-5 h-5 text-[var(--accent)]" />
+            <h3 className="text-sm font-bold text-[var(--text-primary)]">
               {scheduleModalInitialData?.id ? 'Edit & Reschedule Post' : 'Multi-Platform Publishing'}
             </h3>
           </div>
           <button
             onClick={() => setIsScheduleModalOpen(false)}
-            className="p-1.5 rounded-full hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
+            className="p-1.5 rounded-full hover:bg-[var(--overlay-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -201,17 +201,17 @@ export const ScheduleModal: React.FC = () => {
         <form onSubmit={handleSubmit} className="p-5 space-y-4 max-h-[80vh] overflow-y-auto">
           {/* Content Card preview (matching Screen 7) */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-300">Content Media</label>
-            <div className="p-3 rounded-2xl bg-[#131627] border border-white/[0.08] flex items-center justify-between gap-3">
+            <label className="text-xs font-bold text-[var(--text-secondary)]">Content Media</label>
+            <div className="p-3 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="relative w-12 h-14 rounded-xl overflow-hidden ring-1 ring-pink-500/40 flex-shrink-0 bg-black">
+                <div className="relative w-12 h-14 rounded-xl overflow-hidden ring-1 ring-[var(--accent-40)] flex-shrink-0 bg-black">
                   <img
                     src={thumbnailUrl}
                     alt="Thumbnail"
                     className="w-full h-full object-cover"
                   />
                   {videoUrl && (
-                    <span className="absolute bottom-0.5 right-0.5 p-0.5 bg-pink-600 rounded text-white text-[8px] font-bold">
+                    <span className="absolute bottom-0.5 right-0.5 p-0.5 bg-[var(--accent)] rounded text-white text-[8px] font-bold">
                       <Film className="w-2.5 h-2.5" />
                     </span>
                   )}
@@ -222,9 +222,9 @@ export const ScheduleModal: React.FC = () => {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Enter video title..."
-                    className="w-full text-xs font-bold text-white bg-transparent border-b border-transparent hover:border-pink-500/40 focus:border-pink-500 focus:outline-none truncate"
+                    className="w-full text-xs font-bold text-[var(--text-primary)] bg-transparent border-b border-transparent hover:border-[var(--accent-40)] focus:border-[var(--accent)] focus:outline-none truncate"
                   />
-                  <p className="text-[11px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-[var(--text-secondary)] mt-0.5">
                     {duration} • {category}
                   </p>
                 </div>
@@ -242,7 +242,7 @@ export const ScheduleModal: React.FC = () => {
                   type="button"
                   onClick={() => modalFileInputRef.current?.click()}
                   disabled={isReplacingMedia}
-                  className="px-2.5 py-1.5 rounded-xl bg-pink-600/20 hover:bg-pink-600/30 text-pink-300 border border-pink-500/30 text-xs font-semibold flex items-center gap-1 transition-colors"
+                  className="px-2.5 py-1.5 rounded-xl bg-[var(--accent-20)] hover:bg-[var(--accent-30)] text-[var(--accent)] border border-[var(--accent-30)] text-xs font-semibold flex items-center gap-1 transition-colors"
                   title="Upload from device or gallery"
                 >
                   <Upload className="w-3.5 h-3.5" />
@@ -262,7 +262,7 @@ export const ScheduleModal: React.FC = () => {
                     const nextImg = sampleImages[(sampleImages.indexOf(thumbnailUrl) + 1) % sampleImages.length];
                     setThumbnailUrl(nextImg);
                   }}
-                  className="px-2.5 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-xs font-semibold text-slate-300 transition-colors"
+                  className="px-2.5 py-1.5 rounded-xl bg-[var(--overlay-hover)] hover:opacity-80 text-xs font-semibold text-[var(--text-secondary)] transition-colors"
                   title="Cycle sample thumbnails"
                 >
                   Cover
@@ -273,11 +273,11 @@ export const ScheduleModal: React.FC = () => {
 
           {/* Pillar Category Dropdown */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-300">Content Pillar (Lean's 5 Pillars)</label>
+            <label className="text-xs font-bold text-[var(--text-secondary)]">Content Pillar (Lean's 5 Pillars)</label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value as ContentCategory)}
-              className="w-full px-3 py-2 text-xs bg-[#131627] border border-white/10 rounded-xl text-white focus:outline-none focus:border-pink-500"
+              className="w-full px-3 py-2 text-xs bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)]"
             >
               {categories.map((c) => (
                 <option key={c} value={c}>
@@ -289,7 +289,7 @@ export const ScheduleModal: React.FC = () => {
 
           {/* Platforms Selector (matching Screen 7) */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-300">Target Platforms (Multi-Publish)</label>
+            <label className="text-xs font-bold text-[var(--text-secondary)]">Target Platforms (Multi-Publish)</label>
             <div className="grid grid-cols-4 gap-2">
               {(['tiktok', 'instagram', 'youtube', 'facebook'] as PlatformType[]).map((plat) => {
                 const isSelected = selectedPlatforms.includes(plat);
@@ -300,13 +300,13 @@ export const ScheduleModal: React.FC = () => {
                     onClick={() => togglePlatform(plat)}
                     className={`py-2.5 px-2 rounded-2xl border flex flex-col items-center gap-1.5 transition-all ${
                       isSelected
-                        ? 'bg-pink-600/20 border-pink-500 text-white shadow-lg shadow-pink-600/10'
-                        : 'bg-[#131627] border-white/[0.08] text-slate-400 hover:border-white/20'
+                        ? 'bg-[var(--accent-20)] border-[var(--accent)] text-[var(--text-primary)] shadow-lg shadow-[var(--accent-10)]'
+                        : 'bg-[var(--bg-surface)] border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--border-color-strong)]'
                     }`}
                   >
-                    <PlatformIcon platform={plat} size={20} className={isSelected ? 'text-pink-400' : 'text-slate-400'} />
+                    <PlatformIcon platform={plat} size={20} className={isSelected ? 'text-[var(--accent)]' : 'text-[var(--text-secondary)]'} />
                     <span className="text-[10px] font-semibold capitalize">{plat}</span>
-                    {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-pink-400" />}
+                    {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" />}
                   </button>
                 );
               })}
@@ -316,23 +316,24 @@ export const ScheduleModal: React.FC = () => {
           {/* Date & Time (matching Screen 7) */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-300">Date</label>
+              <label className="text-xs font-bold text-[var(--text-secondary)]">Date</label>
               <input
                 type="date"
                 value={scheduledDate}
                 onChange={(e) => setScheduledDate(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-[#131627] border border-white/10 rounded-xl text-white focus:outline-none focus:border-pink-500"
+                style={{ colorScheme: theme }}
+                className="w-full px-3 py-2 text-xs bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)]"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-300">Time</label>
+              <label className="text-xs font-bold text-[var(--text-secondary)]">Time</label>
               <input
                 type="text"
                 value={scheduledTime}
                 onChange={(e) => setScheduledTime(e.target.value)}
                 placeholder="10:00 AM"
-                className="w-full px-3 py-2 text-xs bg-[#131627] border border-white/10 rounded-xl text-white focus:outline-none focus:border-pink-500"
+                className="w-full px-3 py-2 text-xs bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)]"
               />
             </div>
           </div>
@@ -340,14 +341,14 @@ export const ScheduleModal: React.FC = () => {
           {/* Caption & Hashtags Editor */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-slate-300">Caption & Metadata</label>
+              <label className="text-xs font-bold text-[var(--text-secondary)]">Caption & Metadata</label>
               <button
                 type="button"
                 onClick={handleAiEnhanceCaption}
                 disabled={isAiGenerating}
-                className="flex items-center gap-1 text-[11px] font-semibold text-pink-400 hover:text-pink-300 transition-colors"
+                className="flex items-center gap-1 text-[11px] font-semibold text-[var(--accent)] hover:opacity-80 transition-colors"
               >
-                <Wand2 className="w-3.5 h-3.5 text-pink-400" />
+                <Wand2 className="w-3.5 h-3.5 text-[var(--accent)]" />
                 {isAiGenerating ? 'AI Generating...' : 'AI Enhance'}
               </button>
             </div>
@@ -358,18 +359,18 @@ export const ScheduleModal: React.FC = () => {
               onChange={(e) => setCaption(e.target.value)}
               placeholder="Write your high-converting caption with hashtags..."
               maxLength={2200}
-              className="w-full p-3 text-xs bg-[#131627] border border-white/10 rounded-xl text-white focus:outline-none focus:border-pink-500 leading-relaxed"
+              className="w-full p-3 text-xs bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] leading-relaxed"
             />
 
-            <div className="flex items-center justify-between text-[10px] text-slate-400">
+            <div className="flex items-center justify-between text-[10px] text-[var(--text-secondary)]">
               <div className="flex items-center gap-1 flex-wrap">
-                <span className="text-slate-500">Quick Tags:</span>
+                <span className="text-[var(--text-secondary)]">Quick Tags:</span>
                 {suggestedHashtags.slice(0, 5).map((t) => (
                   <button
                     key={t}
                     type="button"
                     onClick={() => handleAddHashtag(t)}
-                    className="px-1.5 py-0.5 rounded bg-white/[0.04] hover:bg-pink-500/20 text-slate-300 hover:text-pink-300 transition-colors"
+                    className="px-1.5 py-0.5 rounded bg-[var(--overlay-hover)] hover:bg-[var(--accent-20)] text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors"
                   >
                     {t}
                   </button>
@@ -380,7 +381,7 @@ export const ScheduleModal: React.FC = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-2 border-t border-white/[0.08] flex items-center gap-3">
+          <div className="pt-2 border-t border-[var(--border-color)] flex items-center gap-3">
             <button
               type="button"
               onClick={() => {

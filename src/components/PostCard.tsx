@@ -51,7 +51,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post, layout = 'grid' }) => 
 
   if (layout === 'list') {
     return (
-      <div className="creator-card p-3 sm:p-4 flex items-center justify-between gap-4 hover:border-pink-500/40 transition-all group">
+      <div className="creator-card p-3 sm:p-4 flex items-center justify-between gap-4 hover:border-[var(--accent-40)] transition-all group">
         <div className="flex items-center gap-3.5 min-w-0">
           <div
             onClick={() => setPreviewPost(post)}
@@ -71,26 +71,26 @@ export const PostCard: React.FC<PostCardProps> = ({ post, layout = 'grid' }) => 
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap mb-1">
               {getStatusBadge()}
-              <span className="text-[11px] text-slate-400">{post.category}</span>
+              <span className="text-[11px] text-[var(--text-secondary)]">{post.category}</span>
             </div>
             <h4
               onClick={() => setPreviewPost(post)}
-              className="text-sm font-semibold text-slate-100 truncate cursor-pointer hover:text-pink-300 transition-colors"
+              className="text-sm font-semibold text-[var(--text-primary)] truncate cursor-pointer hover:text-[var(--accent)] transition-colors"
             >
               {post.title}
             </h4>
-            <div className="flex items-center gap-2 mt-1.5 text-xs text-slate-400">
+            <div className="flex items-center gap-2 mt-1.5 text-xs text-[var(--text-secondary)]">
               <span>{formattedDate}</span>
               <span>•</span>
               <div className="flex items-center gap-1">
                 {post.platforms.map((p) => (
-                  <PlatformIcon key={p} platform={p} size={13} className="text-slate-300" />
+                  <PlatformIcon key={p} platform={p} size={13} className="text-[var(--text-secondary)]" />
                 ))}
               </div>
               {post.views && (
                 <>
                   <span>•</span>
-                  <span className="text-emerald-400 font-medium">{post.views.toLocaleString()} views</span>
+                  <span className="text-[var(--accent-positive)] font-medium">{post.views.toLocaleString()} views</span>
                 </>
               )}
             </div>
@@ -108,14 +108,14 @@ export const PostCard: React.FC<PostCardProps> = ({ post, layout = 'grid' }) => 
           )}
           <button
             onClick={() => openScheduleModalWithData(post)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--overlay-hover)] transition-colors"
             title="Edit / Schedule"
           >
             <Edit className="w-4 h-4" />
           </button>
           <button
             onClick={() => deletePost(post.id)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-red-400 hover:bg-[var(--overlay-hover)] transition-colors"
             title="Delete"
           >
             <Trash2 className="w-4 h-4" />
@@ -126,7 +126,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post, layout = 'grid' }) => 
   }
 
   return (
-    <div className="creator-card overflow-hidden flex flex-col group hover:border-pink-500/40 transition-all">
+    <div className="creator-card overflow-hidden flex flex-col group hover:border-[var(--accent-40)] transition-all">
       {/* Thumbnail Area */}
       <div
         onClick={() => setPreviewPost(post)}
@@ -138,7 +138,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post, layout = 'grid' }) => 
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
 
-        <div className="absolute inset-0 bg-gradient-to-t from-[#131627] via-transparent to-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-surface)] via-transparent to-black/30" />
 
         {/* Top Status & Platform Badges */}
         <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between">
@@ -166,18 +166,18 @@ export const PostCard: React.FC<PostCardProps> = ({ post, layout = 'grid' }) => 
       {/* Content Meta */}
       <div className="p-3.5 flex-1 flex flex-col justify-between">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-pink-400 mb-1">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--accent)] mb-1">
             {post.category}
           </p>
           <h4
             onClick={() => setPreviewPost(post)}
-            className="text-xs sm:text-sm font-bold text-slate-100 line-clamp-2 cursor-pointer hover:text-pink-300 transition-colors"
+            className="text-xs sm:text-sm font-bold text-[var(--text-primary)] line-clamp-2 cursor-pointer hover:text-[var(--accent)] transition-colors"
           >
             {post.title}
           </h4>
         </div>
 
-        <div className="mt-3 pt-2.5 border-t border-white/[0.06] flex items-center justify-between text-xs text-slate-400">
+        <div className="mt-3 pt-2.5 border-t border-[var(--border-color)] flex items-center justify-between text-xs text-[var(--text-secondary)]">
           <div className="flex items-center gap-1.5 text-[11px]">
             <span>{formattedDate}</span>
           </div>
@@ -185,14 +185,14 @@ export const PostCard: React.FC<PostCardProps> = ({ post, layout = 'grid' }) => 
           <div className="flex items-center gap-1">
             <button
               onClick={() => openScheduleModalWithData(post)}
-              className="p-1 rounded text-slate-400 hover:text-white transition-colors"
+              className="p-1 rounded text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
               title="Edit Post"
             >
               <Edit className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => setPreviewPost(post)}
-              className="p-1 rounded text-slate-400 hover:text-pink-400 transition-colors"
+              className="p-1 rounded text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors"
               title="Preview Reel"
             >
               <Eye className="w-3.5 h-3.5" />

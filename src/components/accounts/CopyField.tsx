@@ -31,16 +31,16 @@ export const CopyField: React.FC<CopyFieldProps> = ({
   copiedKey,
   onCopy,
   label,
-  valueClass = 'text-slate-200',
+  valueClass = 'text-[var(--text-primary)]',
   title = 'Copy',
 }) => (
   <div>
-    {label && <label className="text-[10px] text-slate-400 block mb-0.5">{label}</label>}
-    <div className="flex items-center gap-2 bg-[#0b0d17] p-2 rounded-xl border border-white/10 font-mono text-[11px] break-all">
+    {label && <label className="text-[10px] text-[var(--text-secondary)] block mb-0.5">{label}</label>}
+    <div className="flex items-center gap-2 bg-[var(--bg-page)] p-2 rounded-xl border border-[var(--border-color)] font-mono text-[11px] break-all">
       <span className={`flex-1 select-all ${valueClass}`}>{value}</span>
       <button
         onClick={() => onCopy(value, copyKey)}
-        className="p-1 rounded bg-white/10 hover:bg-white/20 text-white flex-shrink-0"
+        className="p-1 rounded bg-[var(--overlay-hover)] hover:opacity-80 text-[var(--text-primary)] flex-shrink-0"
         title={title}
       >
         {copiedKey === copyKey ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}

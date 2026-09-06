@@ -52,23 +52,23 @@ export const PostPreviewModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-md bg-[#0b0d17] border border-white/15 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
+      <div className="relative w-full max-w-md bg-[var(--bg-page)] border border-[var(--border-color-strong)] rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
         {/* Top App Bar */}
-        <div className="px-4 py-3 bg-[#131627] border-b border-white/[0.08] flex items-center justify-between z-10">
+        <div className="px-4 py-3 bg-[var(--bg-surface)] border-b border-[var(--border-color)] flex items-center justify-between z-10">
           <button
             onClick={() => setPreviewPost(null)}
-            className="p-1.5 rounded-full hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
+            className="p-1.5 rounded-full hover:bg-[var(--overlay-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          
+
           <div className="flex flex-col items-center">
-            <span className="text-xs font-bold text-slate-100">Post Preview</span>
+            <span className="text-xs font-bold text-[var(--text-primary)]">Post Preview</span>
             <div className="flex items-center gap-1">
               {previewPost.platforms.map((p) => (
-                <PlatformIcon key={p} platform={p} size={12} className="text-slate-400" />
+                <PlatformIcon key={p} platform={p} size={12} className="text-[var(--text-secondary)]" />
               ))}
-              <span className="text-[10px] text-slate-400 capitalize">
+              <span className="text-[10px] text-[var(--text-secondary)] capitalize">
                 • {previewPost.status}
               </span>
             </div>
@@ -81,14 +81,14 @@ export const PostPreviewModal: React.FC = () => {
                 setPreviewPost(null);
                 openScheduleModalWithData(p);
               }}
-              className="p-1.5 rounded-full hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
+              className="p-1.5 rounded-full hover:bg-[var(--overlay-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
               title="Edit Post"
             >
               <Edit className="w-4 h-4" />
             </button>
             <button
               onClick={() => setPreviewPost(null)}
-              className="p-1.5 rounded-full hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
+              className="p-1.5 rounded-full hover:bg-[var(--overlay-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -263,13 +263,13 @@ export const PostPreviewModal: React.FC = () => {
         </div>
 
         {/* Bottom Publish / Actions Bar */}
-        <div className="p-3 bg-[#131627] border-t border-white/[0.08] flex items-center gap-2">
+        <div className="p-3 bg-[var(--bg-surface)] border-t border-[var(--border-color)] flex items-center gap-2">
           {previewPost.status !== 'published' ? (
             <button
               onClick={() => publishPostNow(previewPost.id)}
               className="flex-1 pink-glow-btn py-2.5 px-4 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-2 transition-all transform active:scale-95"
             >
-              <Sparkles className="w-4 h-4 text-pink-300" />
+              <Sparkles className="w-4 h-4 text-white/80" />
               <span>Publish Now to All Connected</span>
             </button>
           ) : (
@@ -285,7 +285,7 @@ export const PostPreviewModal: React.FC = () => {
               setPreviewPost(null);
               openScheduleModalWithData(p);
             }}
-            className="px-3.5 py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-xs font-semibold text-slate-200 transition-colors"
+            className="px-3.5 py-2.5 rounded-xl bg-[var(--overlay-hover)] hover:opacity-80 text-xs font-semibold text-[var(--text-primary)] transition-colors"
           >
             Edit Post
           </button>
