@@ -3,7 +3,7 @@
  * entry point, notifications dropdown, and the connected-accounts/profile menu.
  */
 import React, { useState, useRef } from 'react';
-import { Bell, Sparkles, Upload, Smartphone, Monitor, CheckCircle2, ChevronDown, Radio, Loader2 } from 'lucide-react';
+import { Bell, Sparkles, Upload, Smartphone, Monitor, CheckCircle2, ChevronDown, Radio, Loader2, ShieldCheck } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { PlatformIcon } from './PlatformIcon';
 import { processMediaFile } from '../utils/videoUtils';
@@ -15,6 +15,7 @@ export const Header: React.FC = () => {
     setActiveTab,
     socialAccounts,
     setIsAccountsModalOpen,
+    setIsProfileOpen,
     openScheduleModalWithData,
     addPost,
     showToast,
@@ -302,11 +303,21 @@ export const Header: React.FC = () => {
             )}
           </div>
 
-          {/* User Profile Avatar with Connected Platforms badge */}
+          {/* Connected Accounts / verification shield */}
           <button
             onClick={() => setIsAccountsModalOpen(true)}
+            className="p-2 rounded-xl bg-[#131627] border border-white/[0.08] hover:border-pink-500/40 text-slate-300 hover:text-white transition-colors"
+            title="Connected Accounts"
+            aria-label="Connected accounts"
+          >
+            <ShieldCheck className="w-4 h-4" />
+          </button>
+
+          {/* User Profile Avatar with Connected Platforms badge */}
+          <button
+            onClick={() => setIsProfileOpen(true)}
             className="flex items-center gap-2 p-1 pl-1.5 pr-2 rounded-xl bg-[#131627] border border-white/[0.08] hover:border-pink-500/40 transition-all group"
-            title="Connected Accounts & Profile"
+            title="Profile Settings"
           >
             <div className="relative">
               <img

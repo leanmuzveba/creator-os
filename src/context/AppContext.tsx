@@ -75,6 +75,9 @@ interface AppContextType {
   isAccountsModalOpen: boolean;
   setIsAccountsModalOpen: (open: boolean) => void;
 
+  isProfileOpen: boolean;
+  setIsProfileOpen: (open: boolean) => void;
+
   // Actions
   refreshAccounts: () => Promise<void>;
   updateAccount: (id: PlatformType, updates: Partial<SocialAccount>) => Promise<void>;
@@ -114,6 +117,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const [selectedTrend, setSelectedTrend] = useState<TrendItem | null>(null);
   const [isAccountsModalOpen, setIsAccountsModalOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const [aiInitialPrompt, setAiInitialPrompt] = useState('');
   const [aiInitialCategory, setAiInitialCategory] = useState<ContentCategory>('Free Tech Resources');
@@ -391,6 +395,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setSelectedTrend,
         isAccountsModalOpen,
         setIsAccountsModalOpen,
+        isProfileOpen,
+        setIsProfileOpen,
         refreshAccounts,
         updateAccount,
         addPost,

@@ -20,6 +20,7 @@ import { PostPreviewModal } from './components/PostPreviewModal';
 import { ScheduleModal } from './components/ScheduleModal';
 import { TrendModal } from './components/TrendModal';
 import { ConnectedAccountsModal } from './components/ConnectedAccountsModal';
+import { ProfileView } from './components/ProfileView';
 import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 
 /** App shell: header, active view, bottom nav, global modals, and toast. */
@@ -78,6 +79,7 @@ const MainAppContent: React.FC = () => {
       <ScheduleModal />
       <TrendModal />
       <ConnectedAccountsModal />
+      <ProfileView />
 
       {/* Toast notifications */}
       {toast && (
