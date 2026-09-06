@@ -12,7 +12,7 @@ interface EditProfileViewProps {
 }
 
 export const EditProfileView: React.FC<EditProfileViewProps> = ({ onClose }) => {
-  const { displayName, age, birthday, updateProfile, showToast } = useApp();
+  const { displayName, age, birthday, updateProfile, showToast, theme } = useApp();
   const [name, setName] = useState(displayName);
   const [ageInput, setAgeInput] = useState(age !== null ? String(age) : '');
   const [birthdayInput, setBirthdayInput] = useState(birthday || '');
@@ -29,20 +29,20 @@ export const EditProfileView: React.FC<EditProfileViewProps> = ({ onClose }) => 
   };
 
   return (
-    <div className="fixed inset-0 z-[60] bg-[#0b0d17] overflow-y-auto">
+    <div className="fixed inset-0 z-[60] bg-[var(--bg-page)] overflow-y-auto">
       <div className="max-w-lg mx-auto min-h-screen flex flex-col">
         <div className="flex items-center px-2 py-2">
           <button
             onClick={onClose}
-            className="w-9 h-9 flex items-center justify-center rounded-full text-slate-200 hover:text-white transition-colors"
+            className="w-9 h-9 flex items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
             aria-label="Back"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
-          <h1 className="flex-1 text-center text-[17px] font-bold text-white">Edit Profile</h1>
+          <h1 className="flex-1 text-center text-[17px] font-bold text-[var(--text-primary)]">Edit Profile</h1>
           <button
             onClick={handleSave}
-            className="px-3 py-2 text-sm font-bold text-pink-400 hover:text-pink-300 transition-colors"
+            className="px-3 py-2 text-sm font-bold text-[var(--accent)] hover:opacity-80 transition-colors"
           >
             Save
           </button>
@@ -50,34 +50,37 @@ export const EditProfileView: React.FC<EditProfileViewProps> = ({ onClose }) => 
 
         <div className="flex-1 px-5 py-3 space-y-5">
           <div>
-            <label className="block mb-2 text-xs font-bold tracking-wide text-slate-400">NAME</label>
+            <label className="block mb-2 text-xs font-bold tracking-wide text-[var(--text-secondary)]">NAME</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Your name"
-              className="w-full px-3.5 py-3 rounded-xl bg-[#131627] border border-white/[0.08] text-white placeholder:text-slate-500 focus:border-pink-500 outline-none transition-colors"
+              className="w-full px-3.5 py-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus:border-[var(--accent)] outline-none transition-colors"
             />
           </div>
           <div>
-            <label className="block mb-2 text-xs font-bold tracking-wide text-slate-400">AGE</label>
+            <label className="block mb-2 text-xs font-bold tracking-wide text-[var(--text-secondary)]">AGE</label>
             <input
               type="number"
               value={ageInput}
               onChange={(e) => setAgeInput(e.target.value)}
               placeholder="Your age"
-              className="w-full px-3.5 py-3 rounded-xl bg-[#131627] border border-white/[0.08] text-white placeholder:text-slate-500 focus:border-pink-500 outline-none transition-colors"
+              className="w-full px-3.5 py-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus:border-[var(--accent)] outline-none transition-colors"
             />
           </div>
           <div>
-            <label className="block mb-2 text-xs font-bold tracking-wide text-slate-400">BIRTHDAY</label>
+            <label className="block mb-2 text-xs font-bold tracking-wide text-[var(--text-secondary)]">
+              BIRTHDAY
+            </label>
             <div className="relative">
-              <Cake className="w-[18px] h-[18px] absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              <Cake className="w-[18px] h-[18px] absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] pointer-events-none" />
               <input
                 type="date"
                 value={birthdayInput}
                 onChange={(e) => setBirthdayInput(e.target.value)}
                 max={new Date().toISOString().split('T')[0]}
-                className="w-full pl-10 pr-3.5 py-3 rounded-xl bg-[#131627] border border-white/[0.08] text-white [color-scheme:dark] focus:border-pink-500 outline-none transition-colors"
+                style={{ colorScheme: theme }}
+                className="w-full pl-10 pr-3.5 py-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-primary)] focus:border-[var(--accent)] outline-none transition-colors"
               />
             </div>
           </div>

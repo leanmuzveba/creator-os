@@ -5,6 +5,12 @@
  * a deep navy camera body / wordmark paired with a vivid pink → magenta lens accent.
  * Reusable primitives below (buttons, cards) consume these tokens so the whole
  * UI stays in sync with the brand rather than hard-coding hex values per component.
+ *
+ * The tokens below :root are theme-aware — dark (default) values here,
+ * light-blue overrides in `[data-theme="light"]` — mirroring the mobile app's
+ * `AppColors.applyTheme`. Components should read colors via these variables
+ * (e.g. `bg-[var(--bg-surface)]`) instead of hardcoding hex so the App Theme
+ * switch in Profile Settings re-colors them automatically.
  */
 :root {
   --brand-navy: #1e1b7e;        /* logo wordmark / camera body navy */
@@ -12,66 +18,150 @@
   --brand-ink: #0b0d17;         /* page background (near-black navy) */
   --brand-pink: #ec4899;        /* primary accent (logo pink) */
   --brand-magenta: #f43fd8;     /* brighter logo magenta for gradients/glow */
+
+  /* Semantic theme tokens (dark palette, the default) */
+  --bg-page: #0b0d17;
+  --bg-page-90: rgba(11, 13, 23, 0.9);
+  --bg-surface: #131627;
+  --bg-surface-95: rgba(19, 22, 39, 0.95);
+  --bg-surface-alt: #0d0f1e;
+  --bg-surface-alt-95: rgba(13, 15, 30, 0.95);
+
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-color-strong: rgba(255, 255, 255, 0.12);
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+
+  --accent: #ec4899;
+  --accent-secondary: #f43fd8;
+  --accent-fans: #f9a8d4;
+  --accent-positive: #34d399;
+
+  --accent-10: rgba(236, 72, 153, 0.1);
+  --accent-15: rgba(236, 72, 153, 0.15);
+  --accent-20: rgba(236, 72, 153, 0.2);
+  --accent-30: rgba(236, 72, 153, 0.3);
+  --accent-40: rgba(236, 72, 153, 0.4);
+
+  --overlay-hover: rgba(255, 255, 255, 0.05);
+  --overlay-faint: rgba(255, 255, 255, 0.02);
+  --overlay-border-faint: rgba(255, 255, 255, 0.04);
+
+  --bg-surface-hover: #191d33;
+  --track-off: rgba(255, 255, 255, 0.15);
+  --frame-bezel: #222744;
+
+  --brand-gradient-start: #ffffff;
+  --brand-gradient-mid: #f8b6ef;
+  --brand-gradient-end: var(--brand-magenta);
+
+  --scrollbar-track: #0f111e;
+  --scrollbar-thumb: #282c44;
+  --scrollbar-thumb-hover: #3c4263;
+}
+
+/* Light Blue theme — set via `data-theme="light"` on <html> from AppContext. */
+[data-theme="light"] {
+  --bg-page: #ffffff;
+  --bg-page-90: rgba(255, 255, 255, 0.9);
+  --bg-surface: #f1f5fb;
+  --bg-surface-95: rgba(241, 245, 251, 0.95);
+  --bg-surface-alt: #e8eefb;
+  --bg-surface-alt-95: rgba(232, 238, 251, 0.95);
+
+  --border-color: rgba(37, 99, 235, 0.12);
+  --border-color-strong: rgba(37, 99, 235, 0.18);
+
+  --text-primary: #1d4ed8;
+  --text-secondary: #5b7fbe;
+
+  --accent: #2563eb;
+  --accent-secondary: #2563eb;
+  --accent-fans: #dc2626;
+  --accent-positive: #15803d;
+
+  --accent-10: rgba(37, 99, 235, 0.1);
+  --accent-15: rgba(37, 99, 235, 0.15);
+  --accent-20: rgba(37, 99, 235, 0.2);
+  --accent-30: rgba(37, 99, 235, 0.3);
+  --accent-40: rgba(37, 99, 235, 0.4);
+
+  --overlay-hover: rgba(37, 99, 235, 0.06);
+  --overlay-faint: rgba(37, 99, 235, 0.03);
+  --overlay-border-faint: rgba(37, 99, 235, 0.08);
+
+  --bg-surface-hover: #e4ecfa;
+  --track-off: rgba(37, 99, 235, 0.15);
+  --frame-bezel: #cbd8f2;
+
+  --brand-gradient-start: var(--brand-navy);
+  --brand-gradient-mid: #3b82f6;
+  --brand-gradient-end: var(--accent);
+
+  --scrollbar-track: #eef2fb;
+  --scrollbar-thumb: #c7d3ea;
+  --scrollbar-thumb-hover: #a9bce0;
 }
 
 @layer base {
   * {
-    border-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--border-color);
   }
   body {
-    background-color: var(--brand-ink);
-    color: #f8fafc;
+    background-color: var(--bg-page);
+    color: var(--text-primary);
     overflow-x: hidden;
   }
 }
 
-/* Custom scrollbar for clean dark UI */
+/* Custom scrollbar, theme-aware */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0f111e;
+  background: var(--scrollbar-track);
 }
 ::-webkit-scrollbar-thumb {
-  background: #282c44;
+  background: var(--scrollbar-thumb);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3c4263;
+  background: var(--scrollbar-thumb-hover);
 }
 
 /* Smooth glass and neon glow styling */
 .creator-card {
-  background: #131627;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
 }
 
 .creator-card-interactive {
-  background: #131627;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .creator-card-interactive:hover {
-  border-color: rgba(236, 72, 153, 0.4);
+  border-color: var(--accent-40);
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(236, 72, 153, 0.2);
+  box-shadow: 0 10px 25px -5px var(--accent-20);
 }
 
 .purple-glow-btn, .pink-glow-btn {
-  background: linear-gradient(135deg, var(--brand-magenta) 0%, var(--brand-pink) 100%);
-  box-shadow: 0 4px 18px rgba(236, 72, 153, 0.4);
+  background: linear-gradient(135deg, var(--accent-secondary) 0%, var(--accent) 100%);
+  box-shadow: 0 4px 18px var(--accent-40);
 }
 .purple-glow-btn:hover, .pink-glow-btn:hover {
-  background: linear-gradient(135deg, #f65fe4 0%, #db2777 100%);
-  box-shadow: 0 6px 24px rgba(244, 63, 216, 0.55);
+  filter: brightness(1.08);
+  box-shadow: 0 6px 24px var(--accent-40);
 }
 
-/* Brand lockup gradient (navy → magenta), used for the logo wordmark. */
+/* Brand lockup gradient (navy/white → pink/blue → magenta/blue), used for the logo wordmark. */
 .brand-text-gradient {
-  background: linear-gradient(90deg, #ffffff 0%, #f8b6ef 60%, var(--brand-magenta) 100%);
+  background: linear-gradient(90deg, var(--brand-gradient-start) 0%, var(--brand-gradient-mid) 60%, var(--brand-gradient-end) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;

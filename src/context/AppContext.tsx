@@ -33,6 +33,20 @@ const readStoredAvatar = (): string => {
   }
 };
 
+/** localStorage key used to persist the App Theme choice. */
+const THEME_STORAGE_KEY = 'creator_os_light_theme';
+
+/** Read the user's cached App Theme choice from localStorage. */
+const readStoredTheme = (): 'dark' | 'light' => {
+  if (typeof window === 'undefined') return 'dark';
+  try {
+    return localStorage.getItem(THEME_STORAGE_KEY) === 'true' ? 'light' : 'dark';
+  } catch (err) {
+    logger.warn('Could not read cached theme from localStorage:', err);
+    return 'dark';
+  }
+};
+
 /** localStorage key used to persist the Notifications toggle. */
 const NOTIFICATIONS_STORAGE_KEY = 'creator_os_notifications_enabled';
 
@@ -137,6 +151,8 @@ interface AppContextType {
   setAvatar: (dataUrl: string) => void;
   notificationsEnabled: boolean;
   setNotificationsEnabled: (enabled: boolean) => Promise<void>;
+  theme: 'dark' | 'light';
+  setTheme: (theme: 'dark' | 'light') => void;
 
   // Actions
   refreshAccounts: () => Promise<void>;
@@ -186,6 +202,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [notificationsEnabled, setNotificationsEnabledState] = useState<boolean>(() =>
     readStoredNotificationsEnabled()
   );
+  const [theme, setThemeState] = useState<'dark' | 'light'>(() => readStoredTheme());
+
+  // Reflect the active theme on <html> so CSS variables in index.css switch.
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (theme === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+  }, [theme]);
 
   const [aiInitialPrompt, setAiInitialPrompt] = useState('');
   const [aiInitialCategory, setAiInitialCategory] = useState<ContentCategory>('Free Tech Resources');
@@ -266,6 +293,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       showNotificationConfirmation();
     } else {
       persistNotificationsEnabled(false);
+    }
+  };
+
+  const setTheme = (nextTheme: 'dark' | 'light') => {
+    setThemeState(nextTheme);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(THEME_STORAGE_KEY, String(nextTheme === 'light'));
+      } catch (err) {
+        logger.warn('Failed to save theme to localStorage:', err);
+      }
     }
   };
 
@@ -533,6 +571,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setAvatar,
         notificationsEnabled,
         setNotificationsEnabled,
+        theme,
+        setTheme,
         refreshAccounts,
         updateAccount,
         addPost,

@@ -48,7 +48,7 @@ const MainAppContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b0d17] text-slate-100 flex flex-col selection:bg-pink-500 selection:text-white font-sans antialiased">
+    <div className="min-h-screen bg-[var(--bg-page)] text-[var(--text-primary)] flex flex-col selection:bg-pink-500 selection:text-white font-sans antialiased">
       {/* App Header */}
       <Header />
 
@@ -57,9 +57,9 @@ const MainAppContent: React.FC = () => {
         {isMobileDeviceView ? (
           /* Phone device container simulation mode for pixel-perfect mobile view */
           <div className="flex justify-center py-2">
-            <div className="w-full max-w-[430px] min-h-[844px] bg-[#0b0d17] rounded-[42px] border-[8px] border-[#222744] shadow-2xl shadow-pink-950/30 p-4 sm:p-5 relative overflow-hidden flex flex-col">
+            <div className="w-full max-w-[430px] min-h-[844px] bg-[var(--bg-page)] rounded-[42px] border-[8px] border-[var(--frame-bezel)] shadow-2xl shadow-pink-950/30 p-4 sm:p-5 relative overflow-hidden flex flex-col">
               {/* Dynamic Island / Notch */}
-              <div className="w-28 h-4 bg-[#222744] rounded-full mx-auto mb-4 flex-shrink-0" />
+              <div className="w-28 h-4 bg-[var(--frame-bezel)] rounded-full mx-auto mb-4 flex-shrink-0" />
               <div className="flex-1 overflow-y-auto pb-16 no-scrollbar">
                 {renderActiveView()}
               </div>
@@ -85,17 +85,17 @@ const MainAppContent: React.FC = () => {
       {toast && (
         <div className="fixed top-16 right-4 sm:right-6 z-50 animate-in fade-in slide-in-from-top-3 duration-200">
           <div
-            className={`px-4 py-3 rounded-2xl shadow-2xl border flex items-center gap-2.5 text-xs font-semibold backdrop-blur-xl ${
+            className={`px-4 py-3 rounded-2xl shadow-2xl border flex items-center gap-2.5 text-xs font-semibold backdrop-blur-xl bg-[var(--bg-surface-95)] ${
               toast.type === 'success'
-                ? 'bg-[#131627]/95 border-emerald-500/40 text-emerald-300'
+                ? 'border-emerald-500/40 text-emerald-300'
                 : toast.type === 'error'
-                ? 'bg-[#131627]/95 border-red-500/40 text-red-300'
-                : 'bg-[#131627]/95 border-pink-500/40 text-pink-200'
+                ? 'border-red-500/40 text-red-300'
+                : 'border-[var(--accent-40)] text-[var(--accent)]'
             }`}
           >
             {toast.type === 'success' && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
             {toast.type === 'error' && <AlertCircle className="w-4 h-4 text-red-400" />}
-            {toast.type === 'info' && <Info className="w-4 h-4 text-pink-400" />}
+            {toast.type === 'info' && <Info className="w-4 h-4 text-[var(--accent)]" />}
             <span>{toast.message}</span>
           </div>
         </div>
