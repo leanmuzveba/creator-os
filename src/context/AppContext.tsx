@@ -8,6 +8,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { PostItem, SocialAccount, TrendItem, ViewTab, ContentCategory, PlatformType } from '../types';
 import { logger } from '../utils/logger';
+import { requestPermission as requestNotificationPermission, showConfirmation as showNotificationConfirmation } from '../utils/notifications';
 
 /** localStorage key used to persist connected social accounts between sessions. */
 const ACCOUNTS_STORAGE_KEY = 'creator_os_social_accounts';
@@ -29,6 +30,20 @@ const readStoredAvatar = (): string => {
   } catch (err) {
     logger.warn('Could not read cached avatar from localStorage:', err);
     return '';
+  }
+};
+
+/** localStorage key used to persist the Notifications toggle. */
+const NOTIFICATIONS_STORAGE_KEY = 'creator_os_notifications_enabled';
+
+/** Read the user's cached notifications preference from localStorage. */
+const readStoredNotificationsEnabled = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  try {
+    return localStorage.getItem(NOTIFICATIONS_STORAGE_KEY) === 'true';
+  } catch (err) {
+    logger.warn('Could not read cached notifications setting from localStorage:', err);
+    return false;
   }
 };
 
@@ -120,6 +135,8 @@ interface AppContextType {
   updateProfile: (name: string, age: number | null, birthday: string | null) => void;
   avatarUrl: string;
   setAvatar: (dataUrl: string) => void;
+  notificationsEnabled: boolean;
+  setNotificationsEnabled: (enabled: boolean) => Promise<void>;
 
   // Actions
   refreshAccounts: () => Promise<void>;
@@ -166,6 +183,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [age, setAge] = useState<number | null>(() => readStoredProfile().age);
   const [birthday, setBirthday] = useState<string | null>(() => readStoredProfile().birthday);
   const [avatarUrl, setAvatarUrl] = useState<string>(() => readStoredAvatar());
+  const [notificationsEnabled, setNotificationsEnabledState] = useState<boolean>(() =>
+    readStoredNotificationsEnabled()
+  );
 
   const [aiInitialPrompt, setAiInitialPrompt] = useState('');
   const [aiInitialCategory, setAiInitialCategory] = useState<ContentCategory>('Free Tech Resources');
@@ -221,6 +241,31 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       } catch (err) {
         logger.warn('Failed to save avatar to localStorage:', err);
       }
+    }
+  };
+
+  const persistNotificationsEnabled = (enabled: boolean) => {
+    setNotificationsEnabledState(enabled);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(NOTIFICATIONS_STORAGE_KEY, String(enabled));
+      } catch (err) {
+        logger.warn('Failed to save notifications setting to localStorage:', err);
+      }
+    }
+  };
+
+  const setNotificationsEnabled = async (enabled: boolean): Promise<void> => {
+    if (enabled) {
+      const granted = await requestNotificationPermission();
+      if (!granted) {
+        showToast('Enable notifications for Creator OS in your browser settings', 'error');
+        return;
+      }
+      persistNotificationsEnabled(true);
+      showNotificationConfirmation();
+    } else {
+      persistNotificationsEnabled(false);
     }
   };
 
@@ -486,6 +531,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         updateProfile,
         avatarUrl,
         setAvatar,
+        notificationsEnabled,
+        setNotificationsEnabled,
         refreshAccounts,
         updateAccount,
         addPost,

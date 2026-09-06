@@ -37,6 +37,8 @@ export const ProfileView: React.FC = () => {
     displayName,
     avatarUrl,
     setAvatar,
+    notificationsEnabled,
+    setNotificationsEnabled,
   } = useApp();
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
@@ -140,8 +142,8 @@ export const ProfileView: React.FC = () => {
           <ToggleTile
             icon={<Bell className="w-[18px] h-[18px]" />}
             label="Notifications"
-            value={false}
-            onChange={() => showToast('Notifications toggle is coming soon', 'info')}
+            value={notificationsEnabled}
+            onChange={(value) => setNotificationsEnabled(value)}
           />
           <SettingsTile
             icon={<Lock className="w-[18px] h-[18px]" />}
