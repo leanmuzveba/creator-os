@@ -22,22 +22,22 @@ export const IdeasResults: React.FC<IdeasResultsProps> = ({ ideas, category, cop
       >
         <div className="space-y-2 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="px-1.5 py-0.5 rounded-md text-[9px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+            <span className="px-1.5 py-0.5 rounded-md text-[9px] font-semibold bg-[var(--positive-15)] text-[var(--accent-positive)] border border-[var(--positive-20)]">
               {idea.potential || 'High engagement potential'}
             </span>
-            <span className="text-[11px] text-pink-300 font-semibold">{idea.category || category}</span>
+            <span className="text-[11px] text-[var(--accent)] font-semibold">{idea.category || category}</span>
           </div>
 
-          <h4 className="text-sm sm:text-base font-bold text-white group-hover:text-pink-300 transition-colors flex items-center gap-2">
-            <ChevronRight className="w-4 h-4 text-pink-400 flex-shrink-0" />
+          <h4 className="text-sm sm:text-base font-bold text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors flex items-center gap-2">
+            <ChevronRight className="w-4 h-4 text-[var(--accent)] flex-shrink-0" />
             <span>{idea.title}</span>
           </h4>
 
-          <p className="text-xs text-slate-300 leading-relaxed pl-6">{idea.description}</p>
+          <p className="text-xs text-[var(--text-secondary)] leading-relaxed pl-6">{idea.description}</p>
 
           {idea.hook && (
             <div className="pl-6 pt-1">
-              <p className="text-[11px] font-mono text-pink-200/90 italic bg-pink-950/20 p-2 rounded-lg border border-pink-500/20">
+              <p className="text-[11px] font-mono text-[var(--accent)] italic bg-[var(--accent-15)] p-2 rounded-lg border border-[var(--accent-20)]">
                 🎙️ Hook: "{idea.hook}"
               </p>
             </div>
@@ -47,7 +47,7 @@ export const IdeasResults: React.FC<IdeasResultsProps> = ({ ideas, category, cop
         <div className="flex items-center gap-2 self-end sm:self-center flex-shrink-0">
           <button
             onClick={() => onCopy(`${idea.title}\n\nHook: ${idea.hook}`, index)}
-            className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.1] text-slate-300 hover:text-white transition-colors"
+            className="p-2 rounded-xl bg-[var(--overlay-faint)] hover:bg-[var(--overlay-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
             title="Copy Idea"
           >
             {copiedIndex === index ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
@@ -55,7 +55,7 @@ export const IdeasResults: React.FC<IdeasResultsProps> = ({ ideas, category, cop
 
           <button
             onClick={() => onUse(idea)}
-            className="px-3.5 py-2 rounded-xl bg-pink-600 hover:bg-pink-500 text-xs font-bold text-white flex items-center gap-1.5 transition-colors"
+            className="px-3.5 py-2 rounded-xl bg-[var(--accent)] hover:opacity-90 text-xs font-bold text-white flex items-center gap-1.5 transition-colors"
           >
             <span>Use in Post</span>
             <ArrowRight className="w-3.5 h-3.5" />

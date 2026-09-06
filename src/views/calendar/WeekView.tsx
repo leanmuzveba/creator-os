@@ -21,7 +21,7 @@ function weekStatusClass(status: PostItem['status']): string {
 const WeekPostCard: React.FC<{ post: PostItem; onClick: () => void }> = ({ post, onClick }) => (
   <div
     onClick={onClick}
-    className="p-2 rounded-xl bg-black/40 hover:bg-white/10 border border-white/10 cursor-pointer transition-all group space-y-1.5"
+    className="p-2 rounded-xl bg-black/40 hover:bg-[var(--overlay-hover)] border border-[var(--border-color)] cursor-pointer transition-all group space-y-1.5"
   >
     <div className="flex items-center justify-between gap-1">
       <div className="flex items-center gap-1">
@@ -34,11 +34,11 @@ const WeekPostCard: React.FC<{ post: PostItem; onClick: () => void }> = ({ post,
       </span>
     </div>
 
-    <h5 className="text-[11px] font-bold text-white line-clamp-2 leading-tight group-hover:text-pink-300 transition-colors">
+    <h5 className="text-[11px] font-bold text-[var(--text-primary)] line-clamp-2 leading-tight group-hover:text-[var(--accent)] transition-colors">
       {post.title}
     </h5>
 
-    <div className="flex items-center gap-1 text-[10px] text-slate-400 font-mono">
+    <div className="flex items-center gap-1 text-[10px] text-[var(--text-secondary)] font-mono">
       <Clock className="w-2.5 h-2.5" />
       <span>{post.scheduledTime || '10:00 AM'}</span>
     </div>
@@ -78,11 +78,11 @@ export const WeekView: React.FC<WeekViewProps> = ({
   return (
     <div className="space-y-5 animate-in fade-in duration-200">
       {/* Week Navigator */}
-      <div className="flex items-center justify-between bg-[#131627] border border-white/10 rounded-2xl px-4 py-3">
+      <div className="flex items-center justify-between bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-2xl px-4 py-3">
         <div className="flex items-center gap-2">
-          <Layers className="w-4 h-4 text-purple-400" />
-          <span className="text-sm sm:text-base font-extrabold text-white">{weekRangeLabel}</span>
-          <span className="text-xs text-purple-300 font-mono hidden sm:inline">
+          <Layers className="w-4 h-4 text-[var(--accent)]" />
+          <span className="text-sm sm:text-base font-extrabold text-[var(--text-primary)]">{weekRangeLabel}</span>
+          <span className="text-xs text-[var(--accent)] font-mono hidden sm:inline">
             ({currentWeekPosts.length} scheduled this week)
           </span>
         </div>
@@ -91,7 +91,7 @@ export const WeekView: React.FC<WeekViewProps> = ({
           <button
             onClick={() => shiftWeek(-7)}
             aria-label="Previous Week"
-            className="p-1.5 rounded-xl bg-black/40 border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-xl bg-black/40 border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--overlay-hover)] transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -100,14 +100,14 @@ export const WeekView: React.FC<WeekViewProps> = ({
               setCurrentDate(new Date());
               setSelectedDateStr(todayStr);
             }}
-            className="px-2.5 py-1 rounded-lg text-xs font-bold bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/5"
+            className="px-2.5 py-1 rounded-lg text-xs font-bold bg-[var(--overlay-hover)] hover:opacity-80 text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]"
           >
             This Week
           </button>
           <button
             onClick={() => shiftWeek(7)}
             aria-label="Next Week"
-            className="p-1.5 rounded-xl bg-black/40 border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-xl bg-black/40 border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--overlay-hover)] transition-colors"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -125,32 +125,32 @@ export const WeekView: React.FC<WeekViewProps> = ({
               key={dayItem.dateStr}
               className={`creator-card p-3 flex flex-col justify-between min-h-[220px] transition-all border ${
                 isSelected
-                  ? 'border-purple-500/80 bg-purple-950/20 ring-1 ring-purple-500'
+                  ? 'border-[var(--accent-40)] bg-[var(--accent-15)] ring-1 ring-[var(--accent-40)]'
                   : isToday
-                  ? 'border-pink-500/40 bg-pink-950/10'
-                  : 'border-white/[0.06] bg-[#0c0f1d]'
+                  ? 'border-[var(--accent-40)] bg-[var(--accent-15)]'
+                  : 'border-[var(--border-color)] bg-[var(--bg-page)]'
               }`}
             >
               <div>
-                <div className="flex items-center justify-between pb-2 border-b border-white/[0.08]">
+                <div className="flex items-center justify-between pb-2 border-b border-[var(--border-color)]">
                   <div>
-                    <span className="text-[11px] font-bold text-slate-400 block uppercase tracking-wider">
+                    <span className="text-[11px] font-bold text-[var(--text-secondary)] block uppercase tracking-wider">
                       {dayItem.dayName}
                     </span>
                     <div className="flex items-center gap-1.5 mt-0.5">
                       <span
                         className={`text-base font-extrabold ${
-                          isToday ? 'text-pink-400 font-black' : isSelected ? 'text-purple-300' : 'text-white'
+                          isToday ? 'text-[var(--accent)] font-black' : isSelected ? 'text-[var(--accent)]' : 'text-[var(--text-primary)]'
                         }`}
                       >
                         {dayItem.dayNumber}
                       </span>
-                      <span className="text-[10px] text-slate-400 font-mono">{dayItem.monthShort}</span>
+                      <span className="text-[10px] text-[var(--text-secondary)] font-mono">{dayItem.monthShort}</span>
                     </div>
                   </div>
 
                   {isToday && (
-                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-pink-500/20 text-pink-300 border border-pink-500/30">
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[var(--accent-20)] text-[var(--accent)] border border-[var(--accent-30)]">
                       Today
                     </span>
                   )}
@@ -159,7 +159,7 @@ export const WeekView: React.FC<WeekViewProps> = ({
                 <div className="space-y-2 mt-2.5">
                   {dayPosts.length === 0 ? (
                     <div className="py-6 text-center">
-                      <span className="text-[11px] text-slate-500 italic block">No schedule</span>
+                      <span className="text-[11px] text-[var(--text-secondary)] italic block">No schedule</span>
                     </div>
                   ) : (
                     dayPosts.map((post) => (
@@ -171,7 +171,7 @@ export const WeekView: React.FC<WeekViewProps> = ({
 
               <button
                 onClick={() => openScheduleModalWithData({ scheduledDate: dayItem.dateStr })}
-                className="mt-3 w-full py-1.5 rounded-lg bg-white/5 hover:bg-purple-600 hover:text-white text-slate-400 border border-white/5 text-[10px] font-bold flex items-center justify-center gap-1 transition-all"
+                className="mt-3 w-full py-1.5 rounded-lg bg-[var(--overlay-hover)] hover:bg-[var(--accent)] hover:text-white text-[var(--text-secondary)] border border-[var(--border-color)] text-[10px] font-bold flex items-center justify-center gap-1 transition-all"
               >
                 <Plus className="w-3 h-3" />
                 <span>Schedule</span>
@@ -184,14 +184,14 @@ export const WeekView: React.FC<WeekViewProps> = ({
       {/* Week summary card */}
       <div className="creator-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
+          <div className="w-9 h-9 rounded-xl bg-[var(--accent-20)] border border-[var(--accent-30)] flex items-center justify-center text-[var(--accent)]">
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
-            <h4 className="text-xs sm:text-sm font-bold text-white">
+            <h4 className="text-xs sm:text-sm font-bold text-[var(--text-primary)]">
               {currentWeekPosts.length} Posts Active for {weekRangeLabel}
             </h4>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-[var(--text-secondary)]">
               {currentWeekPosts.filter((p) => p.status === 'scheduled').length} scheduled •{' '}
               {currentWeekPosts.filter((p) => p.status === 'published').length} published
             </p>

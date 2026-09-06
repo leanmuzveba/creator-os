@@ -86,11 +86,11 @@ export const MonthView: React.FC<MonthViewProps> = ({
   return (
     <div className="space-y-5 animate-in fade-in duration-200">
       {/* Month Navigator Header */}
-      <div className="flex items-center justify-between bg-[#131627] border border-white/10 rounded-2xl px-4 py-3">
+      <div className="flex items-center justify-between bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-2xl px-4 py-3">
         <div className="flex items-center gap-2">
-          <CalendarDays className="w-4 h-4 text-purple-400" />
-          <span className="text-sm sm:text-base font-extrabold text-white">{monthName}</span>
-          <span className="text-xs text-slate-400 font-mono hidden sm:inline">
+          <CalendarDays className="w-4 h-4 text-[var(--accent)]" />
+          <span className="text-sm sm:text-base font-extrabold text-[var(--text-primary)]">{monthName}</span>
+          <span className="text-xs text-[var(--text-secondary)] font-mono hidden sm:inline">
             ({currentMonthPosts.length} scheduled / published)
           </span>
         </div>
@@ -99,7 +99,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
           <button
             onClick={() => setCurrentDate((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))}
             aria-label="Previous Month"
-            className="p-1.5 rounded-xl bg-black/40 border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-xl bg-black/40 border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--overlay-hover)] transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -108,14 +108,14 @@ export const MonthView: React.FC<MonthViewProps> = ({
               setCurrentDate(new Date());
               setSelectedDateStr(todayStr);
             }}
-            className="px-2.5 py-1 rounded-lg text-xs font-bold bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/5"
+            className="px-2.5 py-1 rounded-lg text-xs font-bold bg-[var(--overlay-hover)] hover:opacity-80 text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]"
           >
             Current Month
           </button>
           <button
             onClick={() => setCurrentDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))}
             aria-label="Next Month"
-            className="p-1.5 rounded-xl bg-black/40 border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-xl bg-black/40 border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--overlay-hover)] transition-colors"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -124,7 +124,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
 
       {/* Month Calendar Grid */}
       <div className="creator-card p-4 sm:p-5 space-y-2">
-        <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-slate-400 pb-2 border-b border-white/[0.06]">
+        <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-[var(--text-secondary)] pb-2 border-b border-[var(--border-color)]">
           {DAYS_OF_WEEK.map((d) => (
             <div key={d} className="py-1">
               {d}
@@ -143,19 +143,19 @@ export const MonthView: React.FC<MonthViewProps> = ({
                 onClick={() => handleSelectCell(cell)}
                 className={`min-h-[52px] sm:min-h-[64px] p-1.5 rounded-2xl flex flex-col items-center justify-between relative transition-all group ${
                   !cell.isCurrentMonth
-                    ? 'text-slate-600 bg-black/20 opacity-40 hover:opacity-80'
+                    ? 'text-[var(--text-secondary)] bg-black/20 opacity-40 hover:opacity-80'
                     : isSelected
-                    ? 'bg-purple-600 text-white font-bold shadow-lg shadow-purple-600/40 ring-2 ring-purple-400 z-10'
+                    ? 'bg-[var(--accent)] text-white font-bold shadow-lg shadow-[var(--accent-40)] ring-2 ring-[var(--accent-40)] z-10'
                     : cell.isToday
-                    ? 'bg-purple-950/30 text-purple-200 border-2 border-purple-500/50 hover:bg-purple-900/30'
-                    : 'bg-[#0b0d17] hover:bg-white/5 text-slate-200 border border-white/[0.04]'
+                    ? 'bg-[var(--accent-15)] text-[var(--accent)] border-2 border-[var(--accent-40)] hover:bg-[var(--accent-20)]'
+                    : 'bg-[var(--bg-page)] hover:bg-[var(--overlay-hover)] text-[var(--text-primary)] border border-[var(--border-color)]'
                 }`}
               >
                 <div className="w-full flex items-center justify-between px-1">
-                  <span className={`text-xs sm:text-sm ${cell.isToday && !isSelected ? 'text-pink-400 font-black' : ''}`}>
+                  <span className={`text-xs sm:text-sm ${cell.isToday && !isSelected ? 'text-[var(--accent)] font-black' : ''}`}>
                     {cell.day}
                   </span>
-                  {cell.isToday && !isSelected && <span className="w-1.5 h-1.5 rounded-full bg-pink-400" />}
+                  {cell.isToday && !isSelected && <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" />}
                 </div>
 
                 {dayPosts.length > 0 ? <DayIndicatorDots posts={dayPosts} isSelected={isSelected} /> : <div className="h-2" />}
@@ -167,20 +167,20 @@ export const MonthView: React.FC<MonthViewProps> = ({
 
       {/* Month Scheduled Posts Queue */}
       <div className="space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-white/10">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[var(--border-color)]">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
-              <CalendarIcon className="w-4 h-4 text-purple-400" />
-              <h3 className="text-sm sm:text-base font-bold text-white">
+              <CalendarIcon className="w-4 h-4 text-[var(--accent)]" />
+              <h3 className="text-sm sm:text-base font-bold text-[var(--text-primary)]">
                 {monthListMode === 'selected-day' ? formattedSelectedDate : `${monthName} Posts`}
               </h3>
             </div>
 
-            <div className="flex items-center gap-1 bg-[#131627] border border-white/10 rounded-lg p-0.5 text-xs">
+            <div className="flex items-center gap-1 bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-lg p-0.5 text-xs">
               <button
                 onClick={() => setMonthListMode('selected-day')}
                 className={`px-2 py-0.5 rounded font-semibold transition-all ${
-                  monthListMode === 'selected-day' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'
+                  monthListMode === 'selected-day' ? 'bg-[var(--accent)] text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 Day ({selectedDayPosts.length})
@@ -188,7 +188,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
               <button
                 onClick={() => setMonthListMode('all-month')}
                 className={`px-2 py-0.5 rounded font-semibold transition-all ${
-                  monthListMode === 'all-month' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'
+                  monthListMode === 'all-month' ? 'bg-[var(--accent)] text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 All Month ({currentMonthPosts.length})
@@ -207,12 +207,12 @@ export const MonthView: React.FC<MonthViewProps> = ({
 
         {listedPosts.length === 0 ? (
           <div className="creator-card p-8 text-center space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-purple-900/20 border border-purple-500/20 flex items-center justify-center mx-auto text-purple-400">
+            <div className="w-12 h-12 rounded-2xl bg-[var(--accent-15)] border border-[var(--accent-20)] flex items-center justify-center mx-auto text-[var(--accent)]">
               <CalendarIcon className="w-6 h-6" />
             </div>
             <div className="max-w-md mx-auto">
-              <h4 className="text-sm font-bold text-white">No content scheduled for this date</h4>
-              <p className="text-xs text-slate-400 mt-1">
+              <h4 className="text-sm font-bold text-[var(--text-primary)]">No content scheduled for this date</h4>
+              <p className="text-xs text-[var(--text-secondary)] mt-1">
                 {monthListMode === 'selected-day'
                   ? `You haven't scheduled any posts for ${formattedSelectedDate} yet.`
                   : `No posts scheduled or published in ${monthName}.`}
@@ -242,28 +242,28 @@ export const MonthView: React.FC<MonthViewProps> = ({
                         src={item.thumbnailUrl}
                         alt={item.title}
                         referrerPolicy="no-referrer"
-                        className="w-12 h-12 rounded-xl object-cover border border-white/10 flex-shrink-0"
+                        className="w-12 h-12 rounded-xl object-cover border border-[var(--border-color)] flex-shrink-0"
                       />
                     ) : (
-                      <div className="w-12 h-12 rounded-xl bg-black/40 border border-white/10 flex items-center justify-center text-white flex-shrink-0">
+                      <div className="w-12 h-12 rounded-xl bg-black/40 border border-[var(--border-color)] flex items-center justify-center text-white flex-shrink-0">
                         <PlatformIcon platform={item.platforms[0] || 'tiktok'} size={20} />
                       </div>
                     )}
 
                     <div className="min-w-0">
-                      <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-pink-300 transition-colors truncate">
+                      <h4 className="text-xs sm:text-sm font-bold text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors truncate">
                         {item.title}
                       </h4>
-                      <div className="flex items-center gap-3 mt-1 text-[11px] text-slate-400 flex-wrap">
+                      <div className="flex items-center gap-3 mt-1 text-[11px] text-[var(--text-secondary)] flex-wrap">
                         <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3 text-slate-400" />
+                          <Clock className="w-3 h-3 text-[var(--text-secondary)]" />
                           <span>{item.scheduledTime || '10:00 AM'}</span>
                         </span>
                         {monthListMode === 'all-month' && postDate && (
-                          <span className="font-mono text-purple-300 font-semibold">{postDate}</span>
+                          <span className="font-mono text-[var(--accent)] font-semibold">{postDate}</span>
                         )}
-                        <span className="text-slate-500">•</span>
-                        <span className="text-slate-300">{item.category}</span>
+                        <span className="text-[var(--text-secondary)]">•</span>
+                        <span className="text-[var(--text-secondary)]">{item.category}</span>
                       </div>
                     </div>
                   </div>

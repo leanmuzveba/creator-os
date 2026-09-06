@@ -156,20 +156,20 @@ export const AiAssistantView: React.FC = () => {
       {/* Header (matching Screen 3) */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-pink-600/20 text-pink-400 border border-pink-500/30">
+          <div className="p-2 rounded-xl bg-[var(--accent-20)] text-[var(--accent)] border border-[var(--accent-30)]">
             <Sparkles className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">AI Assistant</h1>
-            <p className="text-xs text-slate-400">
+            <h1 className="text-xl sm:text-2xl font-black text-[var(--text-primary)] tracking-tight">AI Assistant</h1>
+            <p className="text-xs text-[var(--text-secondary)]">
               Generates high-performing concepts, viral hooks, full scripts & shot lists.
             </p>
           </div>
         </div>
 
         {/* 5 Content Pillars Quick Tag */}
-        <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#131627] border border-white/10 text-xs text-pink-300">
-          <Wand2 className="w-3.5 h-3.5 text-pink-400" />
+        <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs text-[var(--accent)]">
+          <Wand2 className="w-3.5 h-3.5 text-[var(--accent)]" />
           <span>Tuned to Lean's 5 Brand Pillars</span>
         </div>
       </div>
@@ -180,8 +180,8 @@ export const AiAssistantView: React.FC = () => {
           onClick={() => setActiveSubTab('ideas')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
             activeSubTab === 'ideas'
-              ? 'bg-pink-600 text-white shadow-md shadow-pink-600/30'
-              : 'bg-[#131627] text-slate-400 hover:text-slate-200 border border-white/[0.08]'
+              ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]'
+              : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]'
           }`}
         >
           <Lightbulb className="w-4 h-4" />
@@ -192,8 +192,8 @@ export const AiAssistantView: React.FC = () => {
           onClick={() => setActiveSubTab('hooks')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
             activeSubTab === 'hooks'
-              ? 'bg-pink-600 text-white shadow-md shadow-pink-600/30'
-              : 'bg-[#131627] text-slate-400 hover:text-slate-200 border border-white/[0.08]'
+              ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]'
+              : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]'
           }`}
         >
           <Anchor className="w-4 h-4" />
@@ -204,8 +204,8 @@ export const AiAssistantView: React.FC = () => {
           onClick={() => setActiveSubTab('scripts')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
             activeSubTab === 'scripts'
-              ? 'bg-pink-600 text-white shadow-md shadow-pink-600/30'
-              : 'bg-[#131627] text-slate-400 hover:text-slate-200 border border-white/[0.08]'
+              ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]'
+              : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]'
           }`}
         >
           <FileText className="w-4 h-4" />
@@ -216,8 +216,8 @@ export const AiAssistantView: React.FC = () => {
           onClick={() => setActiveSubTab('shotlist')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
             activeSubTab === 'shotlist'
-              ? 'bg-pink-600 text-white shadow-md shadow-pink-600/30'
-              : 'bg-[#131627] text-slate-400 hover:text-slate-200 border border-white/[0.08]'
+              ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]'
+              : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]'
           }`}
         >
           <Video className="w-4 h-4" />
@@ -230,8 +230,8 @@ export const AiAssistantView: React.FC = () => {
         {/* Prompt Textarea */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs">
-            <label className="font-bold text-slate-200">Tell the AI what you need...</label>
-            <span className="text-[11px] font-mono text-slate-400">{promptInput.length}/300</span>
+            <label className="font-bold text-[var(--text-primary)]">Tell the AI what you need...</label>
+            <span className="text-[11px] font-mono text-[var(--text-secondary)]">{promptInput.length}/300</span>
           </div>
 
           <div className="relative">
@@ -241,7 +241,7 @@ export const AiAssistantView: React.FC = () => {
               value={promptInput}
               onChange={(e) => setPromptInput(e.target.value)}
               placeholder="e.g. Give me content ideas about free tech resources for students..."
-              className="w-full p-3.5 text-xs sm:text-sm bg-[#0b0d17] border border-white/10 rounded-2xl text-white focus:outline-none focus:border-pink-500 placeholder:text-slate-500 leading-relaxed"
+              className="w-full p-3.5 text-xs sm:text-sm bg-[var(--bg-page)] border border-[var(--border-color)] rounded-2xl text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] placeholder:text-[var(--text-secondary)] leading-relaxed"
             />
           </div>
         </div>
@@ -250,11 +250,11 @@ export const AiAssistantView: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* Category Dropdown */}
           <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-300">Category Pillar</label>
+            <label className="text-xs font-bold text-[var(--text-secondary)]">Category Pillar</label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value as ContentCategory)}
-              className="w-full px-3.5 py-2.5 text-xs bg-[#0b0d17] border border-white/10 rounded-xl text-white focus:outline-none focus:border-pink-500 cursor-pointer"
+              className="w-full px-3.5 py-2.5 text-xs bg-[var(--bg-page)] border border-[var(--border-color)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] cursor-pointer"
             >
               {categories.map((cat) => (
                 <option key={cat} value={cat}>
@@ -266,11 +266,11 @@ export const AiAssistantView: React.FC = () => {
 
           {/* Platform Dropdown */}
           <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-300">Target Platform</label>
+            <label className="text-xs font-bold text-[var(--text-secondary)]">Target Platform</label>
             <select
               value={platform}
               onChange={(e) => setPlatform(e.target.value)}
-              className="w-full px-3.5 py-2.5 text-xs bg-[#0b0d17] border border-white/10 rounded-xl text-white focus:outline-none focus:border-pink-500 cursor-pointer"
+              className="w-full px-3.5 py-2.5 text-xs bg-[var(--bg-page)] border border-[var(--border-color)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] cursor-pointer"
             >
               {platforms.map((p) => (
                 <option key={p} value={p}>
@@ -289,12 +289,12 @@ export const AiAssistantView: React.FC = () => {
         >
           {isLoading ? (
             <>
-              <RefreshCw className="w-4 h-4 animate-spin text-pink-300" />
+              <RefreshCw className="w-4 h-4 animate-spin text-white/80" />
               <span>Generating with Gemini AI...</span>
             </>
           ) : (
             <>
-              <Sparkles className="w-4 h-4 text-pink-300" />
+              <Sparkles className="w-4 h-4 text-white/80" />
               <span>
                 {activeSubTab === 'ideas' && 'Generate Ideas'}
                 {activeSubTab === 'hooks' && 'Generate Viral Hooks'}
@@ -309,10 +309,10 @@ export const AiAssistantView: React.FC = () => {
       {/* Generated Results Section (matching Screen 3) */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm sm:text-base font-bold text-white capitalize">
+          <h3 className="text-sm sm:text-base font-bold text-[var(--text-primary)] capitalize">
             Generated {activeSubTab}
           </h3>
-          <span className="text-xs text-slate-400">Click card to create post</span>
+          <span className="text-xs text-[var(--text-secondary)]">Click card to create post</span>
         </div>
 
         {/* Each sub-tab renders its own result component. */}

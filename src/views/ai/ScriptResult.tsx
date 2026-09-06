@@ -12,10 +12,10 @@ interface ScriptResultProps {
 
 export const ScriptResult: React.FC<ScriptResultProps> = ({ script, onUse }) => (
   <div className="creator-card p-5 space-y-4">
-    <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+    <div className="flex items-center justify-between pb-3 border-b border-[var(--border-color)]">
       <div>
-        <h4 className="text-base font-bold text-white">{script.title}</h4>
-        <p className="text-xs text-pink-300 font-medium">45-Second High-Retention Script</p>
+        <h4 className="text-base font-bold text-[var(--text-primary)]">{script.title}</h4>
+        <p className="text-xs text-[var(--accent)] font-medium">45-Second High-Retention Script</p>
       </div>
 
       <button
@@ -28,34 +28,34 @@ export const ScriptResult: React.FC<ScriptResultProps> = ({ script, onUse }) => 
     </div>
 
     {/* Hook */}
-    <div className="p-3.5 rounded-xl bg-pink-950/30 border border-pink-500/30 space-y-1">
-      <span className="text-[10px] font-bold uppercase text-pink-400 tracking-wider">Opening Hook (0:00 - 0:04)</span>
-      <p className="text-sm font-semibold text-pink-100">"{script.hook}"</p>
+    <div className="p-3.5 rounded-xl bg-[var(--accent-15)] border border-[var(--accent-30)] space-y-1">
+      <span className="text-[10px] font-bold uppercase text-[var(--accent)] tracking-wider">Opening Hook (0:00 - 0:04)</span>
+      <p className="text-sm font-semibold text-[var(--text-primary)]">"{script.hook}"</p>
     </div>
 
     {/* Body */}
     <div className="space-y-2">
-      <span className="text-xs font-bold text-slate-300">Body & Visual Steps</span>
+      <span className="text-xs font-bold text-[var(--text-secondary)]">Body & Visual Steps</span>
       {script.body?.map((step: string, i: number) => (
-        <div key={i} className="p-3 rounded-xl bg-[#0b0d17] border border-white/5 flex items-start gap-3 text-xs">
-          <span className="w-5 h-5 rounded-full bg-pink-600/30 text-pink-300 flex items-center justify-center font-bold flex-shrink-0">
+        <div key={i} className="p-3 rounded-xl bg-[var(--bg-page)] border border-[var(--border-color)] flex items-start gap-3 text-xs">
+          <span className="w-5 h-5 rounded-full bg-[var(--accent-30)] text-[var(--accent)] flex items-center justify-center font-bold flex-shrink-0">
             {i + 1}
           </span>
-          <p className="text-slate-200 leading-relaxed">{step}</p>
+          <p className="text-[var(--text-primary)] leading-relaxed">{step}</p>
         </div>
       ))}
     </div>
 
     {/* CTA & Caption */}
-    <div className="p-3.5 rounded-xl bg-[#0b0d17] border border-white/10 space-y-2 text-xs">
+    <div className="p-3.5 rounded-xl bg-[var(--bg-page)] border border-[var(--border-color)] space-y-2 text-xs">
       <div className="flex items-center justify-between">
-        <span className="font-bold text-slate-300">Call to Action (CTA)</span>
+        <span className="font-bold text-[var(--text-secondary)]">Call to Action (CTA)</span>
         <span className="text-[10px] font-mono text-emerald-400 font-bold">Conversion Tuned</span>
       </div>
-      <p className="text-white font-medium">{script.cta}</p>
+      <p className="text-[var(--text-primary)] font-medium">{script.cta}</p>
       {script.caption && (
-        <div className="mt-2 pt-2 border-t border-white/10">
-          <p className="text-slate-400 text-[11px] whitespace-pre-line">{script.caption}</p>
+        <div className="mt-2 pt-2 border-t border-[var(--border-color)]">
+          <p className="text-[var(--text-secondary)] text-[11px] whitespace-pre-line">{script.caption}</p>
         </div>
       )}
     </div>

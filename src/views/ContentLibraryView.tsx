@@ -107,8 +107,8 @@ export const ContentLibraryView: React.FC = () => {
       {/* Header (matching Screen 2) */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">Content Library</h1>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <h1 className="text-xl sm:text-2xl font-black text-[var(--text-primary)] tracking-tight">Content Library</h1>
+          <p className="text-xs text-[var(--text-secondary)] mt-0.5">
             Central repository for ideas, drafts, scheduled videos, and live posts.
           </p>
         </div>
@@ -132,7 +132,7 @@ export const ContentLibraryView: React.FC = () => {
           >
             {isUploading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin text-pink-200" />
+                <Loader2 className="w-4 h-4 animate-spin text-white/80" />
                 <span>Uploading...</span>
               </>
             ) : (
@@ -145,9 +145,9 @@ export const ContentLibraryView: React.FC = () => {
 
           <button
             onClick={() => setActiveTab('ai')}
-            className="px-3 py-2 rounded-xl bg-[#131627] text-slate-300 border border-white/10 hover:border-pink-500/40 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-colors hidden sm:flex"
+            className="px-3 py-2 rounded-xl bg-[var(--bg-surface)] text-[var(--text-secondary)] border border-[var(--border-color)] hover:border-[var(--accent-40)] hover:text-[var(--text-primary)] text-xs font-semibold flex items-center gap-1.5 transition-colors hidden sm:flex"
           >
-            <Sparkles className="w-4 h-4 text-pink-400" />
+            <Sparkles className="w-4 h-4 text-[var(--accent)]" />
             <span>AI Ideas</span>
           </button>
         </div>
@@ -158,21 +158,21 @@ export const ContentLibraryView: React.FC = () => {
         {/* Search & Layout Toggles */}
         <div className="flex items-center gap-2">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[var(--text-secondary)] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Search by title, topic, hashtag..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-xs bg-[#131627] border border-white/10 rounded-xl text-white focus:outline-none focus:border-pink-500 placeholder:text-slate-500"
+              className="w-full pl-9 pr-4 py-2 text-xs bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] placeholder:text-[var(--text-secondary)]"
             />
           </div>
 
-          <div className="flex items-center bg-[#131627] border border-white/10 rounded-xl p-1">
+          <div className="flex items-center bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-xl p-1">
             <button
               onClick={() => setViewMode('grid')}
               className={`p-1.5 rounded-lg transition-colors ${
-                viewMode === 'grid' ? 'bg-pink-600 text-white' : 'text-slate-400 hover:text-white'
+                viewMode === 'grid' ? 'bg-[var(--accent)] text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
               title="Grid View"
             >
@@ -181,7 +181,7 @@ export const ContentLibraryView: React.FC = () => {
             <button
               onClick={() => setViewMode('list')}
               className={`p-1.5 rounded-lg transition-colors ${
-                viewMode === 'list' ? 'bg-pink-600 text-white' : 'text-slate-400 hover:text-white'
+                viewMode === 'list' ? 'bg-[var(--accent)] text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
               title="List View"
             >
@@ -196,8 +196,8 @@ export const ContentLibraryView: React.FC = () => {
             onClick={() => setStatusFilter('all')}
             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
               statusFilter === 'all'
-                ? 'bg-pink-600 text-white shadow-md shadow-pink-600/30'
-                : 'bg-[#131627] text-slate-400 hover:text-slate-200 border border-white/[0.08]'
+                ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]'
+                : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]'
             }`}
           >
             All ({posts.length})
@@ -207,8 +207,8 @@ export const ContentLibraryView: React.FC = () => {
             onClick={() => setStatusFilter('draft')}
             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
               statusFilter === 'draft'
-                ? 'bg-pink-600 text-white shadow-md shadow-pink-600/30'
-                : 'bg-[#131627] text-slate-400 hover:text-slate-200 border border-white/[0.08]'
+                ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]'
+                : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]'
             }`}
           >
             Draft ({draftCount})
@@ -218,8 +218,8 @@ export const ContentLibraryView: React.FC = () => {
             onClick={() => setStatusFilter('scheduled')}
             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
               statusFilter === 'scheduled'
-                ? 'bg-pink-600 text-white shadow-md shadow-pink-600/30'
-                : 'bg-[#131627] text-slate-400 hover:text-slate-200 border border-white/[0.08]'
+                ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]'
+                : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]'
             }`}
           >
             Scheduled ({scheduledCount})
@@ -229,8 +229,8 @@ export const ContentLibraryView: React.FC = () => {
             onClick={() => setStatusFilter('published')}
             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
               statusFilter === 'published'
-                ? 'bg-pink-600 text-white shadow-md shadow-pink-600/30'
-                : 'bg-[#131627] text-slate-400 hover:text-slate-200 border border-white/[0.08]'
+                ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]'
+                : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]'
             }`}
           >
             Published ({publishedCount})
@@ -253,11 +253,11 @@ export const ContentLibraryView: React.FC = () => {
         </div>
       ) : (
         <div className="creator-card p-10 text-center space-y-3">
-          <div className="w-12 h-12 rounded-full bg-pink-600/20 text-pink-400 flex items-center justify-center mx-auto">
+          <div className="w-12 h-12 rounded-full bg-[var(--accent-20)] text-[var(--accent)] flex items-center justify-center mx-auto">
             <Search className="w-6 h-6" />
           </div>
-          <h4 className="text-sm font-bold text-white">No content found</h4>
-          <p className="text-xs text-slate-400 max-w-sm mx-auto">
+          <h4 className="text-sm font-bold text-[var(--text-primary)]">No content found</h4>
+          <p className="text-xs text-[var(--text-secondary)] max-w-sm mx-auto">
             Try adjusting your search query or status filter, or create a new post using the AI Assistant.
           </p>
           <div className="flex items-center justify-center gap-2 pt-1">
@@ -270,7 +270,7 @@ export const ContentLibraryView: React.FC = () => {
             </button>
             <button
               onClick={() => openScheduleModalWithData()}
-              className="px-4 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-xs font-semibold text-slate-200 inline-flex items-center gap-1.5 transition-colors"
+              className="px-4 py-2 rounded-xl bg-[var(--overlay-hover)] hover:opacity-80 text-xs font-semibold text-[var(--text-primary)] inline-flex items-center gap-1.5 transition-colors"
             >
               <Plus className="w-4 h-4" />
               <span>Create Post</span>

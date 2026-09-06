@@ -23,7 +23,7 @@ import { MonthView } from './calendar/MonthView';
 import { WeekView } from './calendar/WeekView';
 
 export const CalendarView: React.FC = () => {
-  const { posts, showToast } = useApp();
+  const { posts, showToast, theme } = useApp();
 
   // Local timezone detection (best-effort; falls back gracefully).
   const [userTimezone, setUserTimezone] = useState<string>(() => {
@@ -177,13 +177,13 @@ export const CalendarView: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">Calendar</h1>
-            <span className="flex items-center gap-1.5 text-[11px] font-mono font-bold px-2.5 py-1 rounded-full bg-[#131627] border border-white/10 text-purple-300">
-              <Globe className="w-3 h-3 text-purple-400" />
+            <h1 className="text-xl sm:text-2xl font-black text-[var(--text-primary)] tracking-tight">Calendar</h1>
+            <span className="flex items-center gap-1.5 text-[11px] font-mono font-bold px-2.5 py-1 rounded-full bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--accent)]">
+              <Globe className="w-3 h-3 text-[var(--accent)]" />
               <span>{userTimezone}</span>
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-[var(--text-secondary)] mt-1">
             Schedule and view your content pipeline with timezone synchronization.
           </p>
         </div>
@@ -193,14 +193,14 @@ export const CalendarView: React.FC = () => {
           <button
             onClick={handleSyncToday}
             title="Sync with current timezone date"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#131627] hover:bg-white/10 border border-white/10 text-xs font-bold text-slate-200 hover:text-white transition-all shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--bg-surface)] hover:bg-[var(--overlay-hover)] border border-[var(--border-color)] text-xs font-bold text-[var(--text-primary)] hover:text-[var(--text-primary)] transition-all shadow-sm"
           >
-            <RotateCcw className="w-3.5 h-3.5 text-pink-400" />
+            <RotateCcw className="w-3.5 h-3.5 text-[var(--accent)]" />
             <span>Today / Sync TZ</span>
           </button>
 
-          <div className="flex items-center gap-1.5 bg-[#131627] border border-white/10 rounded-xl px-2.5 py-1">
-            <CalendarIcon className="w-3.5 h-3.5 text-slate-400" />
+          <div className="flex items-center gap-1.5 bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-xl px-2.5 py-1">
+            <CalendarIcon className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
             <input
               type="date"
               value={jumpDateInput}
@@ -208,15 +208,16 @@ export const CalendarView: React.FC = () => {
                 setJumpDateInput(e.target.value);
                 handleSetCustomDate(e.target.value);
               }}
-              className="bg-transparent text-xs text-white font-mono outline-none cursor-pointer [color-scheme:dark]"
+              style={{ colorScheme: theme }}
+              className="bg-transparent text-xs text-[var(--text-primary)] font-mono outline-none cursor-pointer"
             />
           </div>
 
-          <div className="flex items-center gap-1 bg-[#131627] border border-white/10 rounded-xl p-1">
+          <div className="flex items-center gap-1 bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-xl p-1">
             <button
               onClick={() => setViewType('month')}
               className={`px-3 py-1 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${
-                viewType === 'month' ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30' : 'text-slate-400 hover:text-white'
+                viewType === 'month' ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               <CalendarDays className="w-3.5 h-3.5" />
@@ -225,7 +226,7 @@ export const CalendarView: React.FC = () => {
             <button
               onClick={() => setViewType('week')}
               className={`px-3 py-1 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${
-                viewType === 'week' ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30' : 'text-slate-400 hover:text-white'
+                viewType === 'week' ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               <Layers className="w-3.5 h-3.5" />
