@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
-/// Dark palette matching the CreatorOS web app (`#0b0d17` background, pink/purple accents).
-/// The 7 fields below are mutable (not `const`) so [applyTheme] can swap in the
-/// light-blue palette at runtime; every screen already rebuilds on [AppState]
-/// changes via `context.watch`, so a theme switch repaints everywhere for free.
+/// Named App Theme choices, mirroring the web app's theme picker.
+enum AppThemeName { defaultTheme, pink, lightBlue, moon }
+
+/// Mutable color palette matching the CreatorOS web app. The fields below are
+/// mutable (not `const`) so [applyTheme] can swap in a different named
+/// palette at runtime; every screen already rebuilds on [AppState] changes
+/// via `context.watch`, so a theme switch repaints everywhere for free.
 class AppColors {
   static Color background = const Color(0xFF0B0D17);
   static Color surface = const Color(0xFF131627);
@@ -19,6 +22,11 @@ class AppColors {
   static const red = Color(0xFFEF4444);
   static const blue = Color(0xFF3B82F6);
 
+  /// Readable text/icon color for anything drawn on top of a solid [pink]
+  /// (accent) fill — e.g. button labels. White works for the Default/Pink/
+  /// Light Blue accents, but Moon's light-grey accent needs a dark label.
+  static Color accentText = const Color(0xFFFFFFFF);
+
   /// Dashboard "fans" label accent. The dark-mode pale pink has too little
   /// contrast on the light theme's near-white card background.
   static Color fansAccent = const Color(0xFFF9A8D4);
@@ -27,33 +35,68 @@ class AppColors {
   /// contrast on the light theme's near-white card background.
   static Color positiveAccent = const Color(0xFF34D399);
 
-  static bool isLight = false;
+  static AppThemeName current = AppThemeName.defaultTheme;
 
-  /// Swaps the mutable palette between the default dark theme and a white
-  /// theme with blue text/icons. [pink] doubles as the app's general icon
-  /// accent color, so remapping it to blue covers icon tinting everywhere.
-  static void applyTheme(bool light) {
-    isLight = light;
-    if (light) {
-      background = const Color(0xFFFFFFFF);
-      surface = const Color(0xFFF1F5FB);
-      surfaceAlt = const Color(0xFFE8EEF9);
-      border = const Color(0x1A2563EB);
-      textPrimary = const Color(0xFF1D4ED8);
-      textSecondary = const Color(0xFF5B7FBE);
-      pink = const Color(0xFF2563EB);
-      fansAccent = const Color(0xFFDC2626); // red-600: visible on the light card background
-      positiveAccent = const Color(0xFF15803D); // green-700: visible on the light card background
-    } else {
-      background = const Color(0xFF0B0D17);
-      surface = const Color(0xFF131627);
-      surfaceAlt = const Color(0xFF0D0F1E);
-      border = const Color(0x1AFFFFFF);
-      textPrimary = const Color(0xFFF1F5F9);
-      textSecondary = const Color(0xFF94A3B8);
-      pink = const Color(0xFFEC4899);
-      fansAccent = const Color(0xFFF9A8D4);
-      positiveAccent = const Color(0xFF34D399);
+  /// True for themes with a light (white-ish) background — used to pick the
+  /// base Material theme (ThemeData.light vs ThemeData.dark) and Brightness.
+  static bool get isLight => current == AppThemeName.defaultTheme || current == AppThemeName.lightBlue;
+
+  /// Swaps the mutable palette to the given named theme. [pink] doubles as
+  /// the app's general icon/button accent color, so remapping it covers
+  /// accent tinting everywhere.
+  static void applyTheme(AppThemeName theme) {
+    current = theme;
+    switch (theme) {
+      case AppThemeName.defaultTheme:
+        // Black & white: white background, black text, black buttons.
+        background = const Color(0xFFFFFFFF);
+        surface = const Color(0xFFF4F4F5);
+        surfaceAlt = const Color(0xFFE4E4E7);
+        border = const Color(0x1F000000);
+        textPrimary = const Color(0xFF000000);
+        textSecondary = const Color(0xFF52525B);
+        pink = const Color(0xFF000000);
+        accentText = const Color(0xFFFFFFFF);
+        fansAccent = const Color(0xFF18181B);
+        positiveAccent = const Color(0xFF000000);
+        break;
+      case AppThemeName.pink:
+        background = const Color(0xFF0B0D17);
+        surface = const Color(0xFF131627);
+        surfaceAlt = const Color(0xFF0D0F1E);
+        border = const Color(0x1AFFFFFF);
+        textPrimary = const Color(0xFFF1F5F9);
+        textSecondary = const Color(0xFF94A3B8);
+        pink = const Color(0xFFEC4899);
+        accentText = const Color(0xFFFFFFFF);
+        fansAccent = const Color(0xFFF9A8D4);
+        positiveAccent = const Color(0xFF34D399);
+        break;
+      case AppThemeName.lightBlue:
+        background = const Color(0xFFFFFFFF);
+        surface = const Color(0xFFF1F5FB);
+        surfaceAlt = const Color(0xFFE8EEF9);
+        border = const Color(0x1A2563EB);
+        textPrimary = const Color(0xFF1D4ED8);
+        textSecondary = const Color(0xFF5B7FBE);
+        pink = const Color(0xFF2563EB);
+        accentText = const Color(0xFFFFFFFF);
+        fansAccent = const Color(0xFFDC2626);
+        positiveAccent = const Color(0xFF15803D);
+        break;
+      case AppThemeName.moon:
+        // Dark grey background, white text, light grey buttons.
+        background = const Color(0xFF1C1C1E);
+        surface = const Color(0xFF2C2C2E);
+        surfaceAlt = const Color(0xFF242426);
+        border = const Color(0x24FFFFFF);
+        textPrimary = const Color(0xFFFFFFFF);
+        textSecondary = const Color(0xFFA1A1AA);
+        pink = const Color(0xFFD4D4D8);
+        accentText = const Color(0xFF18181B);
+        fansAccent = const Color(0xFFE4E4E7);
+        positiveAccent = const Color(0xFFE4E4E7);
+        break;
     }
   }
 
@@ -120,7 +163,7 @@ ThemeData buildAppTheme() {
     ),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       backgroundColor: AppColors.pink,
-      foregroundColor: Colors.white,
+      foregroundColor: AppColors.accentText,
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,

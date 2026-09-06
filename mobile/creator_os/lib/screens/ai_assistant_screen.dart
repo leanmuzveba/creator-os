@@ -114,10 +114,10 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
         SizedBox(
           width: double.infinity,
           child: FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: AppColors.pink, padding: const EdgeInsets.symmetric(vertical: 14)),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.pink, foregroundColor: AppColors.accentText, padding: const EdgeInsets.symmetric(vertical: 14)),
             onPressed: _loading ? null : _generate,
             child: _loading
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.accentText))
                 : const Text('Generate'),
           ),
         ),

@@ -252,7 +252,7 @@ class _ConnectedAccountsSheetState extends State<ConnectedAccountsSheet> {
                 ),
                 const SizedBox(height: 14),
                 FilledButton.icon(
-                  style: FilledButton.styleFrom(backgroundColor: AppColors.pink),
+                  style: FilledButton.styleFrom(backgroundColor: AppColors.pink, foregroundColor: AppColors.accentText),
                   onPressed: () => state.loadInitialData(),
                   icon: const Icon(Icons.refresh, size: 16),
                   label: const Text('Retry'),
@@ -383,13 +383,13 @@ class _ConnectedAccountsSheetState extends State<ConnectedAccountsSheet> {
                   child: FilledButton(
                     style: FilledButton.styleFrom(
                       backgroundColor: a.connected ? Colors.white10 : AppColors.pink,
-                      foregroundColor: a.connected ? AppColors.textSecondary : Colors.white,
+                      foregroundColor: a.connected ? AppColors.textSecondary : AppColors.accentText,
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       textStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
                     ),
                     onPressed: isConnecting ? null : () => _connect(a.id),
                     child: isConnecting
-                        ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                        ? SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.accentText))
                         : Text(a.connected ? 'Disconnect' : 'Connect'),
                   ),
                 ),
@@ -431,7 +431,7 @@ class _ConnectedAccountsSheetState extends State<ConnectedAccountsSheet> {
                 TextButton(onPressed: () => setState(() => _editingId = null), child: const Text('Cancel', style: TextStyle(fontSize: 11))),
                 const SizedBox(width: 4),
                 FilledButton(
-                  style: FilledButton.styleFrom(backgroundColor: AppColors.pink, padding: const EdgeInsets.symmetric(horizontal: 12)),
+                  style: FilledButton.styleFrom(backgroundColor: AppColors.pink, foregroundColor: AppColors.accentText, padding: const EdgeInsets.symmetric(horizontal: 12)),
                   onPressed: () => _saveStats(id),
                   child: const Text('Save Stats', style: TextStyle(fontSize: 11)),
                 ),
@@ -473,7 +473,7 @@ class _ConnectedAccountsSheetState extends State<ConnectedAccountsSheet> {
           ),
           const Spacer(),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: AppColors.pink),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.pink, foregroundColor: AppColors.accentText),
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('Done'),
           ),

@@ -71,7 +71,7 @@ class StepHeading extends StatelessWidget {
           height: 16,
           margin: const EdgeInsets.only(top: 1, right: 6),
           decoration: BoxDecoration(color: badgeColor ?? AppColors.pink, shape: BoxShape.circle),
-          child: Center(child: Text('$n', style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.white))),
+          child: Center(child: Text('$n', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.accentText))),
         ),
         Expanded(child: Text(text, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary))),
       ],
@@ -123,7 +123,7 @@ class GuideActions extends StatelessWidget {
         SizedBox(
           width: double.infinity,
           child: FilledButton.icon(
-            style: FilledButton.styleFrom(backgroundColor: AppColors.pink),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.pink, foregroundColor: AppColors.accentText),
             onPressed: onEnable,
             icon: const Icon(Icons.auto_awesome, size: 16),
             label: Text(enableLabel),

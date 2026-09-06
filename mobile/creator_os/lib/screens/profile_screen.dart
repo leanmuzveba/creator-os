@@ -36,11 +36,11 @@ class ProfileScreen extends StatelessWidget {
       backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (sheetContext) {
-        Widget option(String label, IconData icon, bool light) {
-          final selected = AppColors.isLight == light;
+        Widget option(String label, IconData icon, AppThemeName themeName) {
+          final selected = AppColors.current == themeName;
           return ListTile(
             onTap: () {
-              state.setLightTheme(light);
+              state.setTheme(themeName);
               Navigator.of(sheetContext).pop();
             },
             leading: Icon(icon, color: AppColors.pink),
@@ -62,8 +62,10 @@ class ProfileScreen extends StatelessWidget {
                     style: TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1.1),
                   ),
                 ),
-                option('Default', Icons.dark_mode_outlined, false),
-                option('Light Blue', Icons.light_mode_outlined, true),
+                option('Default', Icons.invert_colors, AppThemeName.defaultTheme),
+                option('Pink', Icons.favorite, AppThemeName.pink),
+                option('Light Blue', Icons.light_mode_outlined, AppThemeName.lightBlue),
+                option('Moon', Icons.dark_mode_outlined, AppThemeName.moon),
               ],
             ),
           ),
@@ -256,7 +258,7 @@ class _ProfileHeader extends StatelessWidget {
                     color: AppColors.pink,
                     border: Border.all(color: AppColors.background, width: 3),
                   ),
-                  child: const Icon(Icons.edit, size: 13, color: Colors.white),
+                  child: Icon(Icons.edit, size: 13, color: AppColors.accentText),
                 ),
               ),
             ),

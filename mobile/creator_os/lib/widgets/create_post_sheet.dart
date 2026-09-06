@@ -406,10 +406,10 @@ class _CreatePostSheetState extends State<CreatePostSheet> {
                 Expanded(
                   flex: 2,
                   child: FilledButton(
-                    style: FilledButton.styleFrom(backgroundColor: AppColors.pink),
+                    style: FilledButton.styleFrom(backgroundColor: AppColors.pink, foregroundColor: AppColors.accentText),
                     onPressed: _saving ? null : () => _submit(publishNow: false),
                     child: _saving
-                        ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                        ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.accentText))
                         : Text('Schedule for ${_platforms.length} Platform${_platforms.length == 1 ? '' : 's'}'),
                   ),
                 ),

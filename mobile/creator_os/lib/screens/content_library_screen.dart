@@ -53,9 +53,9 @@ class _ContentLibraryScreenState extends State<ContentLibraryScreen> {
                   ),
                   const SizedBox(width: 8),
                   IconButton.filled(
-                    style: IconButton.styleFrom(backgroundColor: AppColors.pink),
+                    style: IconButton.styleFrom(backgroundColor: AppColors.pink, foregroundColor: AppColors.accentText),
                     onPressed: () => CreatePostSheet.show(context),
-                    icon: const Icon(Icons.add, color: Colors.white),
+                    icon: Icon(Icons.add, color: AppColors.accentText),
                   ),
                 ],
               ),

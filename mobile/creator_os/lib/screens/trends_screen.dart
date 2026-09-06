@@ -117,7 +117,7 @@ class _TrendsScreenState extends State<TrendsScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: FilledButton(
-                  style: FilledButton.styleFrom(backgroundColor: AppColors.pink),
+                  style: FilledButton.styleFrom(backgroundColor: AppColors.pink, foregroundColor: AppColors.accentText),
                   onPressed: () {
                     context.read<AppState>().setActiveTab(ViewTab.ai);
                   },

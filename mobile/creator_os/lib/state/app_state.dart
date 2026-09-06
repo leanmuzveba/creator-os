@@ -23,7 +23,7 @@ class AppState extends ChangeNotifier {
   static const _profileNameKey = 'creator_os_profile_name';
   static const _profileAgeKey = 'creator_os_profile_age';
   static const _profileBirthdayKey = 'creator_os_profile_birthday';
-  static const _lightThemeKey = 'creator_os_light_theme';
+  static const _themeKey = 'creator_os_theme';
   static const _notificationsKey = 'creator_os_notifications_enabled';
 
   final ApiClient api;
@@ -111,7 +111,7 @@ class AppState extends ChangeNotifier {
       final birthdayRaw = prefs.getString(_profileBirthdayKey);
       birthday = birthdayRaw != null ? DateTime.tryParse(birthdayRaw) : null;
       notificationsEnabled = prefs.getBool(_notificationsKey) ?? false;
-      AppColors.applyTheme(prefs.getBool(_lightThemeKey) ?? false);
+      AppColors.applyTheme(_parseTheme(prefs.getString(_themeKey)));
     } catch (e) {
       debugPrint('Failed to load preferences: $e');
     }
@@ -152,12 +152,21 @@ class AppState extends ChangeNotifier {
     showToast('Profile updated');
   }
 
-  Future<void> setLightTheme(bool light) async {
-    AppColors.applyTheme(light);
+  /// Parses a stored theme name back into [AppThemeName], defaulting to
+  /// [AppThemeName.defaultTheme] for missing/unrecognized values.
+  AppThemeName _parseTheme(String? stored) {
+    return AppThemeName.values.firstWhere(
+      (t) => t.name == stored,
+      orElse: () => AppThemeName.defaultTheme,
+    );
+  }
+
+  Future<void> setTheme(AppThemeName theme) async {
+    AppColors.applyTheme(theme);
     notifyListeners();
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(_lightThemeKey, light);
+      await prefs.setString(_themeKey, theme.name);
     } catch (e) {
       debugPrint('Failed to save theme: $e');
     }

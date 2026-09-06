@@ -215,7 +215,7 @@ class _DayCell extends StatelessWidget {
     final Border? border;
     if (cell.isSelected) {
       bg = AppColors.pink;
-      fg = Colors.white;
+      fg = AppColors.accentText;
       border = null;
     } else if (cell.isToday) {
       bg = AppColors.pink.withValues(alpha: 0.12);
@@ -244,7 +244,7 @@ class _DayCell extends StatelessWidget {
                 height: 5,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: cell.isSelected ? Colors.white : AppColors.purple,
+                  color: cell.isSelected ? AppColors.accentText : AppColors.purple,
                 ),
               ),
           ],
