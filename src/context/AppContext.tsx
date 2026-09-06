@@ -12,6 +12,27 @@ import { logger } from '../utils/logger';
 /** localStorage key used to persist connected social accounts between sessions. */
 const ACCOUNTS_STORAGE_KEY = 'creator_os_social_accounts';
 
+/** localStorage keys used to persist the user's own profile fields (name/age/birthday). */
+const PROFILE_NAME_KEY = 'creator_os_profile_name';
+const PROFILE_AGE_KEY = 'creator_os_profile_age';
+const PROFILE_BIRTHDAY_KEY = 'creator_os_profile_birthday';
+const DEFAULT_DISPLAY_NAME = 'Lean';
+
+/** Read the user's cached profile fields from localStorage, falling back to defaults. */
+const readStoredProfile = (): { name: string; age: number | null; birthday: string | null } => {
+  if (typeof window === 'undefined') return { name: DEFAULT_DISPLAY_NAME, age: null, birthday: null };
+  try {
+    const name = localStorage.getItem(PROFILE_NAME_KEY) || DEFAULT_DISPLAY_NAME;
+    const ageRaw = localStorage.getItem(PROFILE_AGE_KEY);
+    const parsedAge = ageRaw ? parseInt(ageRaw, 10) : NaN;
+    const birthday = localStorage.getItem(PROFILE_BIRTHDAY_KEY);
+    return { name, age: Number.isFinite(parsedAge) ? parsedAge : null, birthday };
+  } catch (err) {
+    logger.warn('Could not read cached profile from localStorage:', err);
+    return { name: DEFAULT_DISPLAY_NAME, age: null, birthday: null };
+  }
+};
+
 /**
  * Read and validate the cached social accounts from localStorage.
  * Returns `null` when running outside the browser or when nothing valid is stored.
@@ -78,6 +99,12 @@ interface AppContextType {
   isProfileOpen: boolean;
   setIsProfileOpen: (open: boolean) => void;
 
+  // The app-user's own profile (distinct from connected social accounts)
+  displayName: string;
+  age: number | null;
+  birthday: string | null;
+  updateProfile: (name: string, age: number | null, birthday: string | null) => void;
+
   // Actions
   refreshAccounts: () => Promise<void>;
   updateAccount: (id: PlatformType, updates: Partial<SocialAccount>) => Promise<void>;
@@ -119,6 +146,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isAccountsModalOpen, setIsAccountsModalOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
+  const [displayName, setDisplayName] = useState<string>(() => readStoredProfile().name);
+  const [age, setAge] = useState<number | null>(() => readStoredProfile().age);
+  const [birthday, setBirthday] = useState<string | null>(() => readStoredProfile().birthday);
+
   const [aiInitialPrompt, setAiInitialPrompt] = useState('');
   const [aiInitialCategory, setAiInitialCategory] = useState<ContentCategory>('Free Tech Resources');
   const [aiInitialTab, setAiInitialTab] = useState<'ideas' | 'hooks' | 'scripts' | 'shotlist'>('ideas');
@@ -139,6 +170,30 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
       return next;
     });
+  };
+
+  const updateProfile = (name: string, newAge: number | null, newBirthday: string | null) => {
+    setDisplayName(name);
+    setAge(newAge);
+    setBirthday(newBirthday);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(PROFILE_NAME_KEY, name);
+        if (newAge !== null) {
+          localStorage.setItem(PROFILE_AGE_KEY, String(newAge));
+        } else {
+          localStorage.removeItem(PROFILE_AGE_KEY);
+        }
+        if (newBirthday) {
+          localStorage.setItem(PROFILE_BIRTHDAY_KEY, newBirthday);
+        } else {
+          localStorage.removeItem(PROFILE_BIRTHDAY_KEY);
+        }
+      } catch (err) {
+        logger.warn('Failed to save profile to localStorage:', err);
+      }
+    }
+    showToast('Profile updated', 'success');
   };
 
   const showToast = (message: string, type: 'success' | 'info' | 'error' = 'success') => {
@@ -397,6 +452,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setIsAccountsModalOpen,
         isProfileOpen,
         setIsProfileOpen,
+        displayName,
+        age,
+        birthday,
+        updateProfile,
         refreshAccounts,
         updateAccount,
         addPost,

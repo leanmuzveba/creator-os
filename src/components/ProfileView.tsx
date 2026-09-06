@@ -4,17 +4,26 @@
  * Analytics, App Theme). Opened as a full-screen overlay from the Header
  * avatar button, mirroring the mobile app's pushed ProfileScreen.
  */
-import React from 'react';
+import React, { useState } from 'react';
 import { ChevronLeft, Settings, User, Bell, Lock, BarChart3, Palette, ChevronRight, Users, Zap } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { calculateTotalFollowers, formatMetric } from '../utils/metricUtils';
+import { EditProfileView } from './EditProfileView';
 
 const DEFAULT_AVATAR_URL =
   'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80';
 
 export const ProfileView: React.FC = () => {
-  const { isProfileOpen, setIsProfileOpen, socialAccounts, setIsAccountsModalOpen, setActiveTab, showToast } =
-    useApp();
+  const {
+    isProfileOpen,
+    setIsProfileOpen,
+    socialAccounts,
+    setIsAccountsModalOpen,
+    setActiveTab,
+    showToast,
+    displayName,
+  } = useApp();
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
   if (!isProfileOpen) return null;
 
@@ -50,7 +59,7 @@ export const ProfileView: React.FC = () => {
           <div className="w-[88px] h-[88px] rounded-full p-0.5 border-2 border-pink-500">
             <img src={DEFAULT_AVATAR_URL} alt="Profile avatar" className="w-full h-full rounded-full object-cover" />
           </div>
-          <h2 className="mt-3 text-lg font-bold text-white">Lean</h2>
+          <h2 className="mt-3 text-lg font-bold text-white">{displayName}</h2>
           <p className="mt-0.5 text-[12.5px] text-slate-400 text-center">
             Content Creator · Microsoft Student Ambassador
           </p>
@@ -74,7 +83,7 @@ export const ProfileView: React.FC = () => {
           <SettingsTile
             icon={<User className="w-[18px] h-[18px]" />}
             label="Edit Profile"
-            onClick={() => showToast('Edit Profile is coming soon', 'info')}
+            onClick={() => setIsEditProfileOpen(true)}
           />
           <ToggleTile
             icon={<Bell className="w-[18px] h-[18px]" />}
@@ -107,6 +116,8 @@ export const ProfileView: React.FC = () => {
           />
         </div>
       </div>
+
+      {isEditProfileOpen && <EditProfileView onClose={() => setIsEditProfileOpen(false)} />}
     </div>
   );
 };

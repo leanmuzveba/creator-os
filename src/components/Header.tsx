@@ -16,6 +16,7 @@ export const Header: React.FC = () => {
     socialAccounts,
     setIsAccountsModalOpen,
     setIsProfileOpen,
+    displayName,
     openScheduleModalWithData,
     addPost,
     showToast,
@@ -322,13 +323,13 @@ export const Header: React.FC = () => {
             <div className="relative">
               <img
                 src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-                alt="Lean"
+                alt={displayName}
                 className="w-7 h-7 rounded-full object-cover ring-2 ring-pink-500/40"
               />
               <span className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 rounded-full ring-1 ring-[#0b0d17]" />
             </div>
             <div className="text-left hidden xl:block">
-              <p className="text-xs font-semibold text-white group-hover:text-pink-300 transition-colors">Lean</p>
+              <p className="text-xs font-semibold text-white group-hover:text-pink-300 transition-colors">{displayName}</p>
               <p className="text-[10px] text-slate-400">4 Platforms</p>
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-200 hidden sm:block" />
