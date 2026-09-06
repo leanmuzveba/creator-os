@@ -79,7 +79,7 @@ export const EditProfileView: React.FC<EditProfileViewProps> = ({ onClose }) => 
                 value={birthdayInput}
                 onChange={(e) => setBirthdayInput(e.target.value)}
                 max={new Date().toISOString().split('T')[0]}
-                style={{ colorScheme: theme === 'pink' ? 'dark' : 'light' }}
+                style={{ colorScheme: theme === 'pink' || theme === 'moon' ? 'dark' : 'light' }}
                 className="w-full pl-10 pr-3.5 py-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-primary)] focus:border-[var(--accent)] outline-none transition-colors"
               />
             </div>

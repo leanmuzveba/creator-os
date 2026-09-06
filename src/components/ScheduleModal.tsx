@@ -211,7 +211,7 @@ export const ScheduleModal: React.FC = () => {
                     className="w-full h-full object-cover"
                   />
                   {videoUrl && (
-                    <span className="absolute bottom-0.5 right-0.5 p-0.5 bg-[var(--accent)] rounded text-white text-[8px] font-bold">
+                    <span className="absolute bottom-0.5 right-0.5 p-0.5 bg-[var(--accent)] rounded text-[var(--accent-text)] text-[8px] font-bold">
                       <Film className="w-2.5 h-2.5" />
                     </span>
                   )}
@@ -321,7 +321,7 @@ export const ScheduleModal: React.FC = () => {
                 type="date"
                 value={scheduledDate}
                 onChange={(e) => setScheduledDate(e.target.value)}
-                style={{ colorScheme: theme === 'pink' ? 'dark' : 'light' }}
+                style={{ colorScheme: theme === 'pink' || theme === 'moon' ? 'dark' : 'light' }}
                 className="w-full px-3 py-2 text-xs bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)]"
               />
             </div>

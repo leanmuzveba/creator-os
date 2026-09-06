@@ -10,12 +10,14 @@ import type { AppTheme } from '../context/AppContext';
 export function chartGridColor(theme: AppTheme): string {
   if (theme === 'light-blue') return '#d7e0f5';
   if (theme === 'default') return '#e4e4e7';
+  if (theme === 'moon') return '#3a3a3c';
   return '#232742';
 }
 
 export function chartAxisColor(theme: AppTheme): string {
   if (theme === 'light-blue') return '#5b7fbe';
   if (theme === 'default') return '#71717a';
+  if (theme === 'moon') return '#a1a1aa';
   return '#64748b';
 }
 
@@ -38,6 +40,15 @@ export function chartTooltipStyle(theme: AppTheme): CSSProperties {
       fontSize: '12px',
     };
   }
+  if (theme === 'moon') {
+    return {
+      backgroundColor: '#2c2c2e',
+      borderColor: 'rgba(255, 255, 255, 0.15)',
+      borderRadius: '12px',
+      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.5)',
+      fontSize: '12px',
+    };
+  }
   return {
     backgroundColor: '#131627',
     borderColor: 'rgba(255, 255, 255, 0.15)',
@@ -50,5 +61,6 @@ export function chartTooltipStyle(theme: AppTheme): CSSProperties {
 export function chartTooltipItemColor(theme: AppTheme): string {
   if (theme === 'light-blue') return '#1d4ed8';
   if (theme === 'default') return '#000000';
+  if (theme === 'moon') return '#ffffff';
   return '#f8fafc';
 }

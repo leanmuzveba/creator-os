@@ -34,7 +34,7 @@ export const HooksResults: React.FC<HooksResultsProps> = ({ hooks, onCopy, onUse
             </button>
             <button
               onClick={() => onUse(hook)}
-              className="px-3 py-1.5 rounded-xl bg-[var(--accent)] hover:opacity-90 text-xs font-bold text-white flex items-center gap-1"
+              className="px-3 py-1.5 rounded-xl bg-[var(--accent)] hover:opacity-90 text-xs font-bold text-[var(--accent-text)] flex items-center gap-1"
             >
               <span>Create Post</span>
             </button>

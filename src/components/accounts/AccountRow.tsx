@@ -209,7 +209,7 @@ export const AccountRow: React.FC<AccountRowProps> = ({
             <button
               type="button"
               onClick={() => onSaveStats(account.id)}
-              className="px-2.5 py-1 rounded-md bg-[var(--accent)] hover:opacity-90 text-[10px] font-bold text-white flex items-center gap-1 transition-colors"
+              className="px-2.5 py-1 rounded-md bg-[var(--accent)] hover:opacity-90 text-[10px] font-bold text-[var(--accent-text)] flex items-center gap-1 transition-colors"
             >
               <Save className="w-3 h-3" />
               <span>Save Stats</span>

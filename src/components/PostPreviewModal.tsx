@@ -269,7 +269,7 @@ export const PostPreviewModal: React.FC = () => {
               onClick={() => publishPostNow(previewPost.id)}
               className="flex-1 pink-glow-btn py-2.5 px-4 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-2 transition-all transform active:scale-95"
             >
-              <Sparkles className="w-4 h-4 text-white/80" />
+              <Sparkles className="w-4 h-4 text-[var(--accent-text)]" />
               <span>Publish Now to All Connected</span>
             </button>
           ) : (

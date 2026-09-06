@@ -145,7 +145,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
                   !cell.isCurrentMonth
                     ? 'text-[var(--text-secondary)] bg-black/20 opacity-40 hover:opacity-80'
                     : isSelected
-                    ? 'bg-[var(--accent)] text-white font-bold shadow-lg shadow-[var(--accent-40)] ring-2 ring-[var(--accent-40)] z-10'
+                    ? 'bg-[var(--accent)] text-[var(--accent-text)] font-bold shadow-lg shadow-[var(--accent-40)] ring-2 ring-[var(--accent-40)] z-10'
                     : cell.isToday
                     ? 'bg-[var(--accent-15)] text-[var(--accent)] border-2 border-[var(--accent-40)] hover:bg-[var(--accent-20)]'
                     : 'bg-[var(--bg-page)] hover:bg-[var(--overlay-hover)] text-[var(--text-primary)] border border-[var(--border-color)]'
@@ -180,7 +180,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
               <button
                 onClick={() => setMonthListMode('selected-day')}
                 className={`px-2 py-0.5 rounded font-semibold transition-all ${
-                  monthListMode === 'selected-day' ? 'bg-[var(--accent)] text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                  monthListMode === 'selected-day' ? 'bg-[var(--accent)] text-[var(--accent-text)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 Day ({selectedDayPosts.length})
@@ -188,7 +188,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
               <button
                 onClick={() => setMonthListMode('all-month')}
                 className={`px-2 py-0.5 rounded font-semibold transition-all ${
-                  monthListMode === 'all-month' ? 'bg-[var(--accent)] text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                  monthListMode === 'all-month' ? 'bg-[var(--accent)] text-[var(--accent-text)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 All Month ({currentMonthPosts.length})

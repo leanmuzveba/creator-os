@@ -34,8 +34,8 @@ const readStoredAvatar = (): string => {
 };
 
 /** Named App Theme choices, set as `data-theme` on <html> (see index.css). */
-export type AppTheme = 'default' | 'pink' | 'light-blue';
-const VALID_THEMES: AppTheme[] = ['default', 'pink', 'light-blue'];
+export type AppTheme = 'default' | 'pink' | 'light-blue' | 'moon';
+const VALID_THEMES: AppTheme[] = ['default', 'pink', 'light-blue', 'moon'];
 
 /** localStorage key used to persist the App Theme choice. */
 const THEME_STORAGE_KEY = 'creator_os_theme';

@@ -81,7 +81,7 @@ export const TrendsView: React.FC = () => {
               onClick={() => setActivePlatformFilter(pill.id)}
               className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
                 isActive
-                  ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]'
+                  ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-[0_4px_12px_var(--accent-30)]'
                   : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]'
               }`}
             >

@@ -35,6 +35,7 @@
 
   --accent: #000000;
   --accent-secondary: #000000;
+  --accent-text: #ffffff;
   --accent-fans: #18181b;
   --accent-positive: #000000;
 
@@ -81,6 +82,7 @@
 
   --accent: #ec4899;
   --accent-secondary: #f43fd8;
+  --accent-text: #ffffff;
   --accent-fans: #f9a8d4;
   --accent-positive: #34d399;
 
@@ -127,6 +129,7 @@
 
   --accent: #2563eb;
   --accent-secondary: #2563eb;
+  --accent-text: #ffffff;
   --accent-fans: #dc2626;
   --accent-positive: #15803d;
 
@@ -154,6 +157,53 @@
   --scrollbar-track: #eef2fb;
   --scrollbar-thumb: #c7d3ea;
   --scrollbar-thumb-hover: #a9bce0;
+}
+
+/* "Moon" theme — dark grey background, white text, light grey buttons. */
+[data-theme="moon"] {
+  --bg-page: #1c1c1e;
+  --bg-page-90: rgba(28, 28, 30, 0.9);
+  --bg-surface: #2c2c2e;
+  --bg-surface-95: rgba(44, 44, 46, 0.95);
+  --bg-surface-alt: #242426;
+  --bg-surface-alt-95: rgba(36, 36, 38, 0.95);
+
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-color-strong: rgba(255, 255, 255, 0.14);
+
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+
+  --accent: #d4d4d8;
+  --accent-secondary: #d4d4d8;
+  --accent-text: #18181b;
+  --accent-fans: #e4e4e7;
+  --accent-positive: #e4e4e7;
+
+  --accent-10: rgba(212, 212, 216, 0.1);
+  --accent-15: rgba(212, 212, 216, 0.15);
+  --accent-20: rgba(212, 212, 216, 0.2);
+  --accent-30: rgba(212, 212, 216, 0.3);
+  --accent-40: rgba(212, 212, 216, 0.4);
+
+  --positive-15: rgba(212, 212, 216, 0.15);
+  --positive-20: rgba(212, 212, 216, 0.2);
+
+  --overlay-hover: rgba(255, 255, 255, 0.06);
+  --overlay-faint: rgba(255, 255, 255, 0.03);
+  --overlay-border-faint: rgba(255, 255, 255, 0.05);
+
+  --bg-surface-hover: #333335;
+  --track-off: rgba(255, 255, 255, 0.15);
+  --frame-bezel: #3a3a3c;
+
+  --brand-gradient-start: #ffffff;
+  --brand-gradient-mid: #d4d4d8;
+  --brand-gradient-end: #a1a1aa;
+
+  --scrollbar-track: #1c1c1e;
+  --scrollbar-thumb: #3a3a3c;
+  --scrollbar-thumb-hover: #48484a;
 }
 
 @layer base {
@@ -205,6 +255,7 @@
 .purple-glow-btn, .pink-glow-btn {
   background: linear-gradient(135deg, var(--accent-secondary) 0%, var(--accent) 100%);
   box-shadow: 0 4px 18px var(--accent-40);
+  color: var(--accent-text);
 }
 .purple-glow-btn:hover, .pink-glow-btn:hover {
   filter: brightness(1.08);

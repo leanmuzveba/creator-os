@@ -55,7 +55,7 @@ export const IdeasResults: React.FC<IdeasResultsProps> = ({ ideas, category, cop
 
           <button
             onClick={() => onUse(idea)}
-            className="px-3.5 py-2 rounded-xl bg-[var(--accent)] hover:opacity-90 text-xs font-bold text-white flex items-center gap-1.5 transition-colors"
+            className="px-3.5 py-2 rounded-xl bg-[var(--accent)] hover:opacity-90 text-xs font-bold text-[var(--accent-text)] flex items-center gap-1.5 transition-colors"
           >
             <span>Use in Post</span>
             <ArrowRight className="w-3.5 h-3.5" />

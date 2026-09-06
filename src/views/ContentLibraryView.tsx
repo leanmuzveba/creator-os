@@ -132,7 +132,7 @@ export const ContentLibraryView: React.FC = () => {
           >
             {isUploading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin text-white/80" />
+                <Loader2 className="w-4 h-4 animate-spin text-[var(--accent-text)]" />
                 <span>Uploading...</span>
               </>
             ) : (
@@ -172,7 +172,7 @@ export const ContentLibraryView: React.FC = () => {
             <button
               onClick={() => setViewMode('grid')}
               className={`p-1.5 rounded-lg transition-colors ${
-                viewMode === 'grid' ? 'bg-[var(--accent)] text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                viewMode === 'grid' ? 'bg-[var(--accent)] text-[var(--accent-text)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
               title="Grid View"
             >
@@ -181,7 +181,7 @@ export const ContentLibraryView: React.FC = () => {
             <button
               onClick={() => setViewMode('list')}
               className={`p-1.5 rounded-lg transition-colors ${
-                viewMode === 'list' ? 'bg-[var(--accent)] text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                viewMode === 'list' ? 'bg-[var(--accent)] text-[var(--accent-text)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
               title="List View"
             >
@@ -196,7 +196,7 @@ export const ContentLibraryView: React.FC = () => {
             onClick={() => setStatusFilter('all')}
             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
               statusFilter === 'all'
-                ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]'
+                ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-[0_4px_12px_var(--accent-30)]'
                 : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]'
             }`}
           >
@@ -207,7 +207,7 @@ export const ContentLibraryView: React.FC = () => {
             onClick={() => setStatusFilter('draft')}
             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
               statusFilter === 'draft'
-                ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]'
+                ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-[0_4px_12px_var(--accent-30)]'
                 : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]'
             }`}
           >
@@ -218,7 +218,7 @@ export const ContentLibraryView: React.FC = () => {
             onClick={() => setStatusFilter('scheduled')}
             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
               statusFilter === 'scheduled'
-                ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]'
+                ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-[0_4px_12px_var(--accent-30)]'
                 : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]'
             }`}
           >
@@ -229,7 +229,7 @@ export const ContentLibraryView: React.FC = () => {
             onClick={() => setStatusFilter('published')}
             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
               statusFilter === 'published'
-                ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]'
+                ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-[0_4px_12px_var(--accent-30)]'
                 : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]'
             }`}
           >

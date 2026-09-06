@@ -180,7 +180,7 @@ export const AiAssistantView: React.FC = () => {
           onClick={() => setActiveSubTab('ideas')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
             activeSubTab === 'ideas'
-              ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]'
+              ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-[0_4px_12px_var(--accent-30)]'
               : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]'
           }`}
         >
@@ -192,7 +192,7 @@ export const AiAssistantView: React.FC = () => {
           onClick={() => setActiveSubTab('hooks')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
             activeSubTab === 'hooks'
-              ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]'
+              ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-[0_4px_12px_var(--accent-30)]'
               : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]'
           }`}
         >
@@ -204,7 +204,7 @@ export const AiAssistantView: React.FC = () => {
           onClick={() => setActiveSubTab('scripts')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
             activeSubTab === 'scripts'
-              ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]'
+              ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-[0_4px_12px_var(--accent-30)]'
               : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]'
           }`}
         >
@@ -216,7 +216,7 @@ export const AiAssistantView: React.FC = () => {
           onClick={() => setActiveSubTab('shotlist')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
             activeSubTab === 'shotlist'
-              ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]'
+              ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-[0_4px_12px_var(--accent-30)]'
               : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]'
           }`}
         >
@@ -289,12 +289,12 @@ export const AiAssistantView: React.FC = () => {
         >
           {isLoading ? (
             <>
-              <RefreshCw className="w-4 h-4 animate-spin text-white/80" />
+              <RefreshCw className="w-4 h-4 animate-spin text-[var(--accent-text)]" />
               <span>Generating with Gemini AI...</span>
             </>
           ) : (
             <>
-              <Sparkles className="w-4 h-4 text-white/80" />
+              <Sparkles className="w-4 h-4 text-[var(--accent-text)]" />
               <span>
                 {activeSubTab === 'ideas' && 'Generate Ideas'}
                 {activeSubTab === 'hooks' && 'Generate Viral Hooks'}

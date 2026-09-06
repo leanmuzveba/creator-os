@@ -288,7 +288,7 @@ export const ConnectedAccountsModal: React.FC = () => {
 
           <button
             onClick={closeModal}
-            className="px-4 py-2 rounded-xl bg-[var(--accent)] hover:opacity-90 text-xs font-bold text-white transition-colors"
+            className="px-4 py-2 rounded-xl bg-[var(--accent)] hover:opacity-90 text-xs font-bold text-[var(--accent-text)] transition-colors"
           >
             Done
           </button>

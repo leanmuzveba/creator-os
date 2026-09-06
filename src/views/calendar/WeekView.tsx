@@ -171,7 +171,7 @@ export const WeekView: React.FC<WeekViewProps> = ({
 
               <button
                 onClick={() => openScheduleModalWithData({ scheduledDate: dayItem.dateStr })}
-                className="mt-3 w-full py-1.5 rounded-lg bg-[var(--overlay-hover)] hover:bg-[var(--accent)] hover:text-white text-[var(--text-secondary)] border border-[var(--border-color)] text-[10px] font-bold flex items-center justify-center gap-1 transition-all"
+                className="mt-3 w-full py-1.5 rounded-lg bg-[var(--overlay-hover)] hover:bg-[var(--accent)] hover:text-[var(--accent-text)] text-[var(--text-secondary)] border border-[var(--border-color)] text-[10px] font-bold flex items-center justify-center gap-1 transition-all"
               >
                 <Plus className="w-3 h-3" />
                 <span>Schedule</span>

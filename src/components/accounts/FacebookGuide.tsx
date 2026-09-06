@@ -17,7 +17,7 @@ interface FacebookGuideProps {
 
 const StepHeading: React.FC<{ n: number; children: React.ReactNode }> = ({ n, children }) => (
   <p className="font-bold text-[var(--text-primary)] flex items-center gap-1.5">
-    <span className="w-4 h-4 rounded-full bg-[var(--accent)] text-white flex items-center justify-center text-[10px]">{n}</span>
+    <span className="w-4 h-4 rounded-full bg-[var(--accent)] text-[var(--accent-text)] flex items-center justify-center text-[10px]">{n}</span>
     <span>{children}</span>
   </p>
 );

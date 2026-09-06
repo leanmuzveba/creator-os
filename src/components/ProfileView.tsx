@@ -20,6 +20,7 @@ import {
   Moon,
   Sun,
   Contrast,
+  Heart,
   Check,
 } from 'lucide-react';
 import { useApp, AppTheme } from '../context/AppContext';
@@ -215,7 +216,7 @@ const ThemePicker: React.FC<{
       />
       <ThemeOption
         label="Pink"
-        icon={<Moon className="w-[18px] h-[18px]" />}
+        icon={<Heart className="w-[18px] h-[18px]" />}
         selected={theme === 'pink'}
         onClick={() => onSelect('pink')}
       />
@@ -224,6 +225,12 @@ const ThemePicker: React.FC<{
         icon={<Sun className="w-[18px] h-[18px]" />}
         selected={theme === 'light-blue'}
         onClick={() => onSelect('light-blue')}
+      />
+      <ThemeOption
+        label="Moon"
+        icon={<Moon className="w-[18px] h-[18px]" />}
+        selected={theme === 'moon'}
+        onClick={() => onSelect('moon')}
       />
     </div>
   </div>

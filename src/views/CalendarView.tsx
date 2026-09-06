@@ -208,7 +208,7 @@ export const CalendarView: React.FC = () => {
                 setJumpDateInput(e.target.value);
                 handleSetCustomDate(e.target.value);
               }}
-              style={{ colorScheme: theme === 'pink' ? 'dark' : 'light' }}
+              style={{ colorScheme: theme === 'pink' || theme === 'moon' ? 'dark' : 'light' }}
               className="bg-transparent text-xs text-[var(--text-primary)] font-mono outline-none cursor-pointer"
             />
           </div>
@@ -217,7 +217,7 @@ export const CalendarView: React.FC = () => {
             <button
               onClick={() => setViewType('month')}
               className={`px-3 py-1 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${
-                viewType === 'month' ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                viewType === 'month' ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-[0_4px_12px_var(--accent-30)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               <CalendarDays className="w-3.5 h-3.5" />
@@ -226,7 +226,7 @@ export const CalendarView: React.FC = () => {
             <button
               onClick={() => setViewType('week')}
               className={`px-3 py-1 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${
-                viewType === 'week' ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                viewType === 'week' ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-[0_4px_12px_var(--accent-30)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               <Layers className="w-3.5 h-3.5" />

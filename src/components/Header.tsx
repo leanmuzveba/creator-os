@@ -148,7 +148,7 @@ export const Header: React.FC = () => {
             onClick={() => setActiveTab('dashboard')}
             className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
               activeTab === 'dashboard'
-                ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]'
+                ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-[0_4px_12px_var(--accent-30)]'
                 : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--overlay-hover)]'
             }`}
           >
@@ -158,7 +158,7 @@ export const Header: React.FC = () => {
             onClick={() => setActiveTab('content')}
             className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
               activeTab === 'content'
-                ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]'
+                ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-[0_4px_12px_var(--accent-30)]'
                 : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--overlay-hover)]'
             }`}
           >
@@ -168,7 +168,7 @@ export const Header: React.FC = () => {
             onClick={() => setActiveTab('ai')}
             className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1 ${
               activeTab === 'ai'
-                ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]'
+                ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-[0_4px_12px_var(--accent-30)]'
                 : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--overlay-hover)]'
             }`}
           >
@@ -179,7 +179,7 @@ export const Header: React.FC = () => {
             onClick={() => setActiveTab('analytics')}
             className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
               activeTab === 'analytics'
-                ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]'
+                ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-[0_4px_12px_var(--accent-30)]'
                 : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--overlay-hover)]'
             }`}
           >
@@ -189,7 +189,7 @@ export const Header: React.FC = () => {
             onClick={() => setActiveTab('trends')}
             className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
               activeTab === 'trends'
-                ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]'
+                ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-[0_4px_12px_var(--accent-30)]'
                 : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--overlay-hover)]'
             }`}
           >
@@ -199,7 +199,7 @@ export const Header: React.FC = () => {
             onClick={() => setActiveTab('calendar')}
             className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
               activeTab === 'calendar'
-                ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]'
+                ? 'bg-[var(--accent)] text-[var(--accent-text)] shadow-[0_4px_12px_var(--accent-30)]'
                 : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--overlay-hover)]'
             }`}
           >
@@ -247,7 +247,7 @@ export const Header: React.FC = () => {
           >
             {isUploading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin text-white/80" />
+                <Loader2 className="w-4 h-4 animate-spin text-[var(--accent-text)]" />
                 <span>Uploading...</span>
               </>
             ) : (
