@@ -208,7 +208,7 @@ export const CalendarView: React.FC = () => {
                 setJumpDateInput(e.target.value);
                 handleSetCustomDate(e.target.value);
               }}
-              style={{ colorScheme: theme }}
+              style={{ colorScheme: theme === 'pink' ? 'dark' : 'light' }}
               className="bg-transparent text-xs text-[var(--text-primary)] font-mono outline-none cursor-pointer"
             />
           </div>

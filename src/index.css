@@ -6,11 +6,11 @@
  * Reusable primitives below (buttons, cards) consume these tokens so the whole
  * UI stays in sync with the brand rather than hard-coding hex values per component.
  *
- * The tokens below :root are theme-aware — dark (default) values here,
- * light-blue overrides in `[data-theme="light"]` — mirroring the mobile app's
- * `AppColors.applyTheme`. Components should read colors via these variables
- * (e.g. `bg-[var(--bg-surface)]`) instead of hardcoding hex so the App Theme
- * switch in Profile Settings re-colors them automatically.
+ * The tokens below :root are the "Default" theme (black & white) — the app's
+ * baseline look. Named themes override them via `[data-theme="..."]`, set on
+ * <html> from AppContext's `theme`/`setTheme`. Components should read colors
+ * via these variables (e.g. `bg-[var(--bg-surface)]`) instead of hardcoding
+ * hex so the App Theme picker in Profile Settings re-colors them automatically.
  */
 :root {
   --brand-navy: #1e1b7e;        /* logo wordmark / camera body navy */
@@ -19,7 +19,53 @@
   --brand-pink: #ec4899;        /* primary accent (logo pink) */
   --brand-magenta: #f43fd8;     /* brighter logo magenta for gradients/glow */
 
-  /* Semantic theme tokens (dark palette, the default) */
+  /* "Default" theme: black & white — white background, black text, black buttons. */
+  --bg-page: #ffffff;
+  --bg-page-90: rgba(255, 255, 255, 0.9);
+  --bg-surface: #f4f4f5;
+  --bg-surface-95: rgba(244, 244, 245, 0.95);
+  --bg-surface-alt: #e4e4e7;
+  --bg-surface-alt-95: rgba(228, 228, 231, 0.95);
+
+  --border-color: rgba(0, 0, 0, 0.12);
+  --border-color-strong: rgba(0, 0, 0, 0.18);
+
+  --text-primary: #000000;
+  --text-secondary: #52525b;
+
+  --accent: #000000;
+  --accent-secondary: #000000;
+  --accent-fans: #18181b;
+  --accent-positive: #000000;
+
+  --accent-10: rgba(0, 0, 0, 0.1);
+  --accent-15: rgba(0, 0, 0, 0.15);
+  --accent-20: rgba(0, 0, 0, 0.2);
+  --accent-30: rgba(0, 0, 0, 0.3);
+  --accent-40: rgba(0, 0, 0, 0.4);
+
+  --positive-15: rgba(0, 0, 0, 0.15);
+  --positive-20: rgba(0, 0, 0, 0.2);
+
+  --overlay-hover: rgba(0, 0, 0, 0.05);
+  --overlay-faint: rgba(0, 0, 0, 0.02);
+  --overlay-border-faint: rgba(0, 0, 0, 0.04);
+
+  --bg-surface-hover: #e4e4e7;
+  --track-off: rgba(0, 0, 0, 0.15);
+  --frame-bezel: #d4d4d8;
+
+  --brand-gradient-start: #000000;
+  --brand-gradient-mid: #3f3f46;
+  --brand-gradient-end: #000000;
+
+  --scrollbar-track: #f4f4f5;
+  --scrollbar-thumb: #d4d4d8;
+  --scrollbar-thumb-hover: #a1a1aa;
+}
+
+/* "Pink" theme — the original dark navy/pink look. */
+[data-theme="pink"] {
   --bg-page: #0b0d17;
   --bg-page-90: rgba(11, 13, 23, 0.9);
   --bg-surface: #131627;
@@ -64,8 +110,8 @@
   --scrollbar-thumb-hover: #3c4263;
 }
 
-/* Light Blue theme — set via `data-theme="light"` on <html> from AppContext. */
-[data-theme="light"] {
+/* "Light Blue" theme. */
+[data-theme="light-blue"] {
   --bg-page: #ffffff;
   --bg-page-90: rgba(255, 255, 255, 0.9);
   --bg-surface: #f1f5fb;
@@ -165,7 +211,7 @@
   box-shadow: 0 6px 24px var(--accent-40);
 }
 
-/* Brand lockup gradient (navy/white → pink/blue → magenta/blue), used for the logo wordmark. */
+/* Brand lockup gradient (used for the logo wordmark). */
 .brand-text-gradient {
   background: linear-gradient(90deg, var(--brand-gradient-start) 0%, var(--brand-gradient-mid) 60%, var(--brand-gradient-end) 100%);
   -webkit-background-clip: text;

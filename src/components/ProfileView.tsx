@@ -19,9 +19,10 @@ import {
   Pencil,
   Moon,
   Sun,
+  Contrast,
   Check,
 } from 'lucide-react';
-import { useApp } from '../context/AppContext';
+import { useApp, AppTheme } from '../context/AppContext';
 import { calculateTotalFollowers, formatMetric } from '../utils/metricUtils';
 import { compressAvatarToDataUrl } from '../utils/videoUtils';
 import { EditProfileView } from './EditProfileView';
@@ -195,8 +196,8 @@ export const ProfileView: React.FC = () => {
 
 /** Bottom-sheet App Theme picker, mirroring the mobile ProfileScreen's theme sheet. */
 const ThemePicker: React.FC<{
-  theme: 'dark' | 'light';
-  onSelect: (theme: 'dark' | 'light') => void;
+  theme: AppTheme;
+  onSelect: (theme: AppTheme) => void;
   onClose: () => void;
 }> = ({ theme, onSelect, onClose }) => (
   <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/60" onClick={onClose}>
@@ -208,15 +209,21 @@ const ThemePicker: React.FC<{
       <p className="px-6 pb-1 text-[11px] font-bold tracking-wider text-[var(--text-secondary)]">APP THEME</p>
       <ThemeOption
         label="Default"
+        icon={<Contrast className="w-[18px] h-[18px]" />}
+        selected={theme === 'default'}
+        onClick={() => onSelect('default')}
+      />
+      <ThemeOption
+        label="Pink"
         icon={<Moon className="w-[18px] h-[18px]" />}
-        selected={theme === 'dark'}
-        onClick={() => onSelect('dark')}
+        selected={theme === 'pink'}
+        onClick={() => onSelect('pink')}
       />
       <ThemeOption
         label="Light Blue"
         icon={<Sun className="w-[18px] h-[18px]" />}
-        selected={theme === 'light'}
-        onClick={() => onSelect('light')}
+        selected={theme === 'light-blue'}
+        onClick={() => onSelect('light-blue')}
       />
     </div>
   </div>
