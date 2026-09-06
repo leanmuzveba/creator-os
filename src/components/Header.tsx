@@ -17,6 +17,7 @@ export const Header: React.FC = () => {
     setIsAccountsModalOpen,
     setIsProfileOpen,
     displayName,
+    avatarUrl,
     openScheduleModalWithData,
     addPost,
     showToast,
@@ -322,7 +323,7 @@ export const Header: React.FC = () => {
           >
             <div className="relative">
               <img
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
+                src={avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'}
                 alt={displayName}
                 className="w-7 h-7 rounded-full object-cover ring-2 ring-pink-500/40"
               />

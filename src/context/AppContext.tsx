@@ -18,6 +18,20 @@ const PROFILE_AGE_KEY = 'creator_os_profile_age';
 const PROFILE_BIRTHDAY_KEY = 'creator_os_profile_birthday';
 const DEFAULT_DISPLAY_NAME = 'Lean';
 
+/** localStorage key used to persist the user's uploaded avatar (as a data URL). */
+const AVATAR_STORAGE_KEY = 'creator_os_avatar_path';
+
+/** Read the user's cached avatar data URL from localStorage, if any. */
+const readStoredAvatar = (): string => {
+  if (typeof window === 'undefined') return '';
+  try {
+    return localStorage.getItem(AVATAR_STORAGE_KEY) || '';
+  } catch (err) {
+    logger.warn('Could not read cached avatar from localStorage:', err);
+    return '';
+  }
+};
+
 /** Read the user's cached profile fields from localStorage, falling back to defaults. */
 const readStoredProfile = (): { name: string; age: number | null; birthday: string | null } => {
   if (typeof window === 'undefined') return { name: DEFAULT_DISPLAY_NAME, age: null, birthday: null };
@@ -104,6 +118,8 @@ interface AppContextType {
   age: number | null;
   birthday: string | null;
   updateProfile: (name: string, age: number | null, birthday: string | null) => void;
+  avatarUrl: string;
+  setAvatar: (dataUrl: string) => void;
 
   // Actions
   refreshAccounts: () => Promise<void>;
@@ -149,6 +165,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [displayName, setDisplayName] = useState<string>(() => readStoredProfile().name);
   const [age, setAge] = useState<number | null>(() => readStoredProfile().age);
   const [birthday, setBirthday] = useState<string | null>(() => readStoredProfile().birthday);
+  const [avatarUrl, setAvatarUrl] = useState<string>(() => readStoredAvatar());
 
   const [aiInitialPrompt, setAiInitialPrompt] = useState('');
   const [aiInitialCategory, setAiInitialCategory] = useState<ContentCategory>('Free Tech Resources');
@@ -194,6 +211,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     }
     showToast('Profile updated', 'success');
+  };
+
+  const setAvatar = (dataUrl: string) => {
+    setAvatarUrl(dataUrl);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(AVATAR_STORAGE_KEY, dataUrl);
+      } catch (err) {
+        logger.warn('Failed to save avatar to localStorage:', err);
+      }
+    }
   };
 
   const showToast = (message: string, type: 'success' | 'info' | 'error' = 'success') => {
@@ -456,6 +484,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         age,
         birthday,
         updateProfile,
+        avatarUrl,
+        setAvatar,
         refreshAccounts,
         updateAccount,
         addPost,

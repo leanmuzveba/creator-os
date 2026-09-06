@@ -4,10 +4,23 @@
  * Analytics, App Theme). Opened as a full-screen overlay from the Header
  * avatar button, mirroring the mobile app's pushed ProfileScreen.
  */
-import React, { useState } from 'react';
-import { ChevronLeft, Settings, User, Bell, Lock, BarChart3, Palette, ChevronRight, Users, Zap } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import {
+  ChevronLeft,
+  Settings,
+  User,
+  Bell,
+  Lock,
+  BarChart3,
+  Palette,
+  ChevronRight,
+  Users,
+  Zap,
+  Pencil,
+} from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { calculateTotalFollowers, formatMetric } from '../utils/metricUtils';
+import { compressAvatarToDataUrl } from '../utils/videoUtils';
 import { EditProfileView } from './EditProfileView';
 
 const DEFAULT_AVATAR_URL =
@@ -22,8 +35,23 @@ export const ProfileView: React.FC = () => {
     setActiveTab,
     showToast,
     displayName,
+    avatarUrl,
+    setAvatar,
   } = useApp();
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    try {
+      const dataUrl = await compressAvatarToDataUrl(file);
+      setAvatar(dataUrl);
+    } catch {
+      showToast('Could not process that image', 'error');
+    }
+  };
 
   if (!isProfileOpen) return null;
 
@@ -56,8 +84,32 @@ export const ProfileView: React.FC = () => {
 
         {/* Profile header */}
         <div className="flex flex-col items-center pt-2 pb-4 px-6">
-          <div className="w-[88px] h-[88px] rounded-full p-0.5 border-2 border-pink-500">
-            <img src={DEFAULT_AVATAR_URL} alt="Profile avatar" className="w-full h-full rounded-full object-cover" />
+          <div className="relative">
+            <button
+              onClick={() => avatarInputRef.current?.click()}
+              className="w-[88px] h-[88px] rounded-full p-0.5 border-2 border-pink-500 block"
+              aria-label="Change avatar"
+            >
+              <img
+                src={avatarUrl || DEFAULT_AVATAR_URL}
+                alt="Profile avatar"
+                className="w-full h-full rounded-full object-cover"
+              />
+            </button>
+            <button
+              onClick={() => avatarInputRef.current?.click()}
+              className="absolute right-0 bottom-0 w-7 h-7 rounded-full bg-pink-500 border-[3px] border-[#0b0d17] flex items-center justify-center"
+              aria-label="Change avatar"
+            >
+              <Pencil className="w-[13px] h-[13px] text-white" />
+            </button>
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarChange}
+              className="hidden"
+            />
           </div>
           <h2 className="mt-3 text-lg font-bold text-white">{displayName}</h2>
           <p className="mt-0.5 text-[12.5px] text-slate-400 text-center">

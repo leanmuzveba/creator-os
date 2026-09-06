@@ -105,6 +105,31 @@ export async function processMediaFile(file: File): Promise<{
   return { title, thumbnailUrl: FALLBACK_THUMB, duration: '00:30', videoUrl: fileUrl };
 }
 
+/**
+ * Load a user-selected image file, downscale it to avatar size, and return a
+ * compressed JPEG data URL. localStorage has no filesystem, so profile
+ * avatars are persisted as data URLs rather than paths (unlike the mobile
+ * app, which stores a local file path via SharedPreferences).
+ */
+export function compressAvatarToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const { w, h } = computeFitDimensions(img.width || 512, img.height || 512, 512, 512);
+      const dataUrl = drawToJpegDataUrl(img, w, h, 0.85);
+      URL.revokeObjectURL(objectUrl);
+      if (dataUrl) resolve(dataUrl);
+      else reject(new Error('Could not process image'));
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error('Could not read image file'));
+    };
+    img.src = objectUrl;
+  });
+}
+
 /** Load an image, downscale it to a reasonable thumbnail size, and return a JPEG data URL. */
 function compressImageToDataUrl(imageUrl: string): Promise<string> {
   return new Promise((resolve) => {
