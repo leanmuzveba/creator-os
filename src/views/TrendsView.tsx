@@ -47,12 +47,12 @@ export const TrendsView: React.FC = () => {
       {/* Header (matching Screen 5) */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-pink-600/20 text-pink-400 border border-pink-500/30">
+          <div className="p-2 rounded-xl bg-[var(--accent-20)] text-[var(--accent)] border border-[var(--accent-30)]">
             <TrendingUp className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">Trend Intelligence</h1>
-            <p className="text-xs text-slate-400">
+            <h1 className="text-xl sm:text-2xl font-black text-[var(--text-primary)] tracking-tight">Trend Intelligence</h1>
+            <p className="text-xs text-[var(--text-secondary)]">
               Real-time algorithm signals, virality breakdown & automated adaptation for Lean.
             </p>
           </div>
@@ -61,13 +61,13 @@ export const TrendsView: React.FC = () => {
 
       {/* Search Trends input (matching Screen 5) */}
       <div className="relative">
-        <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+        <Search className="w-4 h-4 text-[var(--text-secondary)] absolute left-3.5 top-1/2 -translate-y-1/2" />
         <input
           type="text"
           placeholder="Search trends, hashtags, audio..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-[#131627] border border-white/10 rounded-2xl text-white focus:outline-none focus:border-pink-500 placeholder:text-slate-500 shadow-sm"
+          className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-2xl text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] placeholder:text-[var(--text-secondary)] shadow-sm"
         />
       </div>
 
@@ -81,8 +81,8 @@ export const TrendsView: React.FC = () => {
               onClick={() => setActivePlatformFilter(pill.id)}
               className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
                 isActive
-                  ? 'bg-pink-600 text-white shadow-md shadow-pink-600/30'
-                  : 'bg-[#131627] text-slate-400 hover:text-slate-200 border border-white/[0.08]'
+                  ? 'bg-[var(--accent)] text-white shadow-[0_4px_12px_var(--accent-30)]'
+                  : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]'
               }`}
             >
               {pill.label}
@@ -94,11 +94,11 @@ export const TrendsView: React.FC = () => {
       {/* Trending Now List Section (matching Screen 5) */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+          <h3 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider flex items-center gap-1.5">
             <Flame className="w-4 h-4 text-amber-400" />
             <span>Trending Now</span>
           </h3>
-          <span className="text-xs text-pink-400 font-semibold">Updated 5m ago</span>
+          <span className="text-xs text-[var(--accent)] font-semibold">Updated 5m ago</span>
         </div>
 
         <div className="space-y-2.5">
@@ -110,17 +110,17 @@ export const TrendsView: React.FC = () => {
             >
               {/* Left Info with Platform Icon */}
               <div className="flex items-center gap-3.5 min-w-0">
-                <div className="w-10 h-10 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-center text-white flex-shrink-0 group-hover:border-pink-500/50 transition-colors">
+                <div className="w-10 h-10 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-center text-white flex-shrink-0 group-hover:border-[var(--accent-40)] transition-colors">
                   <PlatformIcon platform={trend.platform} size={18} />
                 </div>
 
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-pink-300 transition-colors truncate">
+                    <h4 className="text-xs sm:text-sm font-bold text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors truncate">
                       {trend.topic}
                     </h4>
                   </div>
-                  <p className="text-[11px] font-mono text-pink-300 mt-0.5">{trend.hashtag}</p>
+                  <p className="text-[11px] font-mono text-[var(--accent-fans)] mt-0.5">{trend.hashtag}</p>
                 </div>
               </div>
 
@@ -128,18 +128,18 @@ export const TrendsView: React.FC = () => {
               <div className="flex items-center gap-4 flex-shrink-0">
                 {/* Visual Sparkline SVG */}
                 <div className="hidden sm:block w-20 h-6">
-                  <svg viewBox="0 0 80 24" className="w-full h-full stroke-pink-400 fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg viewBox="0 0 80 24" className="w-full h-full stroke-[var(--accent)] fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M 2 20 Q 20 18, 30 12 T 50 10 T 78 4" />
                   </svg>
                 </div>
 
                 <div className="text-right">
-                  <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 inline-block">
+                  <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono font-semibold bg-[var(--positive-15)] text-[var(--accent-positive)] border border-[var(--positive-20)] inline-block">
                     {trend.growth}
                   </span>
                 </div>
 
-                <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-pink-400 transition-colors hidden sm:block" />
+                <ArrowUpRight className="w-4 h-4 text-[var(--text-secondary)] group-hover:text-[var(--accent)] transition-colors hidden sm:block" />
               </div>
             </div>
           ))}
