@@ -7,11 +7,13 @@
     "build": "vite build",
     "start": "node --env-file-if-exists=.env server.ts",
     "lint": "tsc --noEmit",
+    "db:migrate": "node --env-file-if-exists=.env server/migrateToSqlite.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },
   "dependencies": {
     "@google/genai": "^2.18.0",
+    "better-sqlite3": "^13.0.3",
     "clsx": "^2.1.1",
     "cors": "^2.8.5",
     "docx": "^9.7.1",
@@ -24,6 +26,7 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.6",
+    "@types/better-sqlite3": "^9.6.0",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/node": "^22.13.4",
