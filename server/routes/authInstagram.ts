@@ -8,7 +8,7 @@
  */
 import { Router } from 'express';
 import type { Request } from 'express';
-import { getAccount, upsertAccount, setOAuthToken, DEFAULT_LOCAL_USER_ID } from '../db.ts';
+import { getAccount, upsertAccount, setOAuthToken } from '../db.ts';
 import { logger } from '../logger.ts';
 import { computeGrowth } from '../metrics.ts';
 
@@ -166,13 +166,14 @@ authInstagramRouter.get(['/api/auth/instagram/callback', '/api/auth/instagram/ca
       logger.warn('Could not exchange Instagram token for a long-lived one:', llErr);
     }
 
-    setOAuthToken(DEFAULT_LOCAL_USER_ID, 'instagram', {
+    const userId = req.userId!;
+    setOAuthToken(userId, 'instagram', {
       accessToken,
       expiresAt: Date.now() + expiresIn * 1000,
       extra: tokenData.user_id ? { userId: tokenData.user_id } : undefined,
     });
 
-    const igAcc = getAccount(DEFAULT_LOCAL_USER_ID, 'instagram');
+    const igAcc = getAccount(userId, 'instagram');
     const oldIgFollowers = igAcc?.followers;
     let profileDisplayName = 'Instagram User';
     let profileAvatar = '';
@@ -220,7 +221,7 @@ authInstagramRouter.get(['/api/auth/instagram/callback', '/api/auth/instagram/ca
       // Reach isn't fetched here (requires additional Insights permissions),
       // so it's never real - keep it at 0 rather than a demo-seed placeholder.
       igAcc.views = '0';
-      upsertAccount(DEFAULT_LOCAL_USER_ID, igAcc);
+      upsertAccount(userId, igAcc);
     }
 
     const statusHeading = metricsSynced ? 'Instagram Connected!' : 'Instagram Partially Connected';

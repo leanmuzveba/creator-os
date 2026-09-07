@@ -9,11 +9,15 @@
  */
 import express from 'express';
 import cors from 'cors';
+import session from 'express-session';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 import { logger } from './server/logger.ts';
 import { getDb } from './server/db.ts';
+import { SqliteSessionStore } from './server/sessionStore.ts';
+import { requireAuth, isAuthRequired } from './server/authMiddleware.ts';
+import { authRouter } from './server/routes/auth.ts';
 import { postsRouter } from './server/routes/posts.ts';
 import { accountsRouter } from './server/routes/accounts.ts';
 import { authTiktokRouter } from './server/routes/authTiktok.ts';
@@ -37,15 +41,42 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // before serving requests.
 getDb();
 
-// Feature routes.
+if (isAuthRequired() && !process.env.SESSION_SECRET) {
+  logger.warn('REQUIRE_AUTH is on but SESSION_SECRET is not set — using an insecure default. Set SESSION_SECRET in .env.');
+}
+
+app.use(
+  session({
+    store: new SqliteSessionStore(),
+    secret: process.env.SESSION_SECRET || 'dev-insecure-secret-change-me',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+    },
+  })
+);
+
+// Account routes (signup/login/logout/me/config) — unauthenticated on purpose.
+app.use(authRouter);
+
+// Everything past here needs req.userId. When REQUIRE_AUTH is off (the
+// default), this is a no-op that attaches the single local-owner user, so
+// behavior is unchanged until the flag is deliberately turned on.
+app.use(requireAuth);
 app.use(postsRouter);
 app.use(accountsRouter);
 app.use(authTiktokRouter);
 app.use(authFacebookRouter);
 app.use(authInstagramRouter);
 app.use(authYoutubeRouter);
-app.use(trendsRouter);
 app.use(analyticsRouter);
+
+// Not user-scoped — no auth needed.
+app.use(trendsRouter);
 app.use(aiRouter);
 app.use(legalRouter);
 

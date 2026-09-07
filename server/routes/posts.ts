@@ -2,7 +2,7 @@
  * Content post routes: list (with filters), create, update, and delete posts.
  */
 import { Router } from 'express';
-import { listPosts, insertPost, updatePostFields, deletePost, DEFAULT_LOCAL_USER_ID } from '../db.ts';
+import { listPosts, insertPost, updatePostFields, deletePost } from '../db.ts';
 import type { PostItem } from '../store.ts';
 
 export const postsRouter = Router();
@@ -10,7 +10,7 @@ export const postsRouter = Router();
 // 1. Get all posts (optionally filtered by status, category, platform).
 postsRouter.get('/api/posts', (req, res) => {
   const { status, category, platform } = req.query;
-  let filtered = listPosts(DEFAULT_LOCAL_USER_ID);
+  let filtered = listPosts(req.userId!);
 
   if (status && status !== 'all') {
     filtered = filtered.filter((p) => p.status === status);
@@ -53,14 +53,14 @@ postsRouter.post('/api/posts', (req, res) => {
     script: req.body.script,
   };
 
-  insertPost(DEFAULT_LOCAL_USER_ID, newPost);
+  insertPost(req.userId!, newPost);
   res.status(201).json(newPost);
 });
 
 // 3. Update a post.
 postsRouter.put('/api/posts/:id', (req, res) => {
   const { id } = req.params;
-  const updated = updatePostFields(DEFAULT_LOCAL_USER_ID, id, req.body);
+  const updated = updatePostFields(req.userId!, id, req.body);
   if (!updated) {
     return res.status(404).json({ error: 'Post not found' });
   }
@@ -70,6 +70,6 @@ postsRouter.put('/api/posts/:id', (req, res) => {
 // 4. Delete a post.
 postsRouter.delete('/api/posts/:id', (req, res) => {
   const { id } = req.params;
-  deletePost(DEFAULT_LOCAL_USER_ID, id);
+  deletePost(req.userId!, id);
   res.json({ success: true, id });
 });

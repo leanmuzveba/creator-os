@@ -5,7 +5,7 @@
  */
 import { Router } from 'express';
 import type { Request } from 'express';
-import { getAccount, upsertAccount, setOAuthToken, DEFAULT_LOCAL_USER_ID } from '../db.ts';
+import { getAccount, upsertAccount, setOAuthToken } from '../db.ts';
 import { logger } from '../logger.ts';
 import { computeGrowth } from '../metrics.ts';
 
@@ -81,7 +81,8 @@ authYoutubeRouter.get('/api/auth/youtube/callback', async (req, res) => {
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
     const redirectUri = getYouTubeRedirectUri(req);
 
-    const existingYtAcc = getAccount(DEFAULT_LOCAL_USER_ID, 'youtube');
+    const userId = req.userId!;
+    const existingYtAcc = getAccount(userId, 'youtube');
     const oldViews = existingYtAcc?.views;
     let channelTitle = existingYtAcc?.handle || 'YouTube Creator';
     let channelAvatar =
@@ -104,7 +105,7 @@ authYoutubeRouter.get('/api/auth/youtube/callback', async (req, res) => {
       logger.debug('Google YouTube OAuth token response status:', tokenRes.status);
 
       if (tokenData.access_token) {
-        setOAuthToken(DEFAULT_LOCAL_USER_ID, 'youtube', {
+        setOAuthToken(userId, 'youtube', {
           accessToken: tokenData.access_token,
           refreshToken: tokenData.refresh_token,
           expiresAt: Date.now() + (tokenData.expires_in || 3600) * 1000,
@@ -154,7 +155,7 @@ authYoutubeRouter.get('/api/auth/youtube/callback', async (req, res) => {
       existingYtAcc.avatar = channelAvatar;
       existingYtAcc.status = 'active';
       existingYtAcc.viewsGrowth = computeGrowth(oldViews, existingYtAcc.views);
-      upsertAccount(DEFAULT_LOCAL_USER_ID, existingYtAcc);
+      upsertAccount(userId, existingYtAcc);
     }
 
     return res.send(`

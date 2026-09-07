@@ -5,7 +5,7 @@
  */
 import { Router } from 'express';
 import type { Request } from 'express';
-import { getAccount, upsertAccount, setOAuthToken, DEFAULT_LOCAL_USER_ID } from '../db.ts';
+import { getAccount, upsertAccount, setOAuthToken } from '../db.ts';
 import { logger } from '../logger.ts';
 import { computeGrowth } from '../metrics.ts';
 
@@ -139,12 +139,13 @@ authFacebookRouter.get(['/api/auth/facebook/callback', '/api/auth/facebook/callb
       `);
     }
 
-    setOAuthToken(DEFAULT_LOCAL_USER_ID, 'facebook', {
+    const userId = req.userId!;
+    setOAuthToken(userId, 'facebook', {
       accessToken: tokenData.access_token,
       expiresAt: Date.now() + (tokenData.expires_in || 5184000) * 1000,
     });
 
-    const fbAcc = getAccount(DEFAULT_LOCAL_USER_ID, 'facebook');
+    const fbAcc = getAccount(userId, 'facebook');
     const oldFbFollowers = fbAcc?.followers;
     let profileDisplayName = 'Facebook User';
     let profileAvatar = '';
@@ -217,7 +218,7 @@ authFacebookRouter.get(['/api/auth/facebook/callback', '/api/auth/facebook/callb
       // permissions), so it's never real - keep it at 0 rather than the
       // demo-seed placeholder.
       fbAcc.views = '0';
-      upsertAccount(DEFAULT_LOCAL_USER_ID, fbAcc);
+      upsertAccount(userId, fbAcc);
     }
 
     const statusHeading = metricsSynced ? 'Facebook Account Connected!' : 'Facebook Partially Connected';

@@ -8,6 +8,7 @@
  */
 import React from 'react';
 import { AppProvider, useApp } from './context/AppContext';
+import { AuthGate } from './components/AuthGate';
 import { Header } from './components/Header';
 import { BottomNav } from './components/BottomNav';
 import { DashboardView } from './views/DashboardView';
@@ -107,9 +108,11 @@ const MainAppContent: React.FC = () => {
 /** Application root: provides the global store to the app shell. */
 export function App() {
   return (
-    <AppProvider>
-      <MainAppContent />
-    </AppProvider>
+    <AuthGate>
+      <AppProvider>
+        <MainAppContent />
+      </AppProvider>
+    </AuthGate>
   );
 }
 

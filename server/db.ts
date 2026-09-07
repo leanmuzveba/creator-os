@@ -6,6 +6,7 @@
  * schema change.
  */
 import path from 'path';
+import { randomUUID } from 'crypto';
 import Database from 'better-sqlite3';
 import type { PostItem, SocialAccountRecord } from './store.ts';
 
@@ -90,6 +91,12 @@ function initSchema(database: Database.Database): void {
       expires_at INTEGER,
       extra TEXT,
       PRIMARY KEY (user_id, platform)
+    );
+
+    CREATE TABLE IF NOT EXISTS sessions (
+      sid TEXT PRIMARY KEY,
+      data TEXT NOT NULL,
+      expires_at INTEGER NOT NULL
     );
   `);
 }
@@ -344,4 +351,66 @@ export function setOAuthToken(userId: string, platform: string, token: OAuthToke
       expires_at: token.expiresAt ?? null,
       extra: token.extra ? JSON.stringify(token.extra) : null,
     });
+}
+
+// ---------------------------------------------------------------------------
+// Users (Creator OS signup/login accounts — separate from the OAuth tokens
+// used to connect a user's own TikTok/Instagram/Facebook/YouTube)
+// ---------------------------------------------------------------------------
+
+export interface UserRecord {
+  id: string;
+  email: string;
+  passwordHash: string;
+  name: string;
+}
+
+function rowToUser(row: any): UserRecord {
+  return { id: row.id, email: row.email, passwordHash: row.password_hash, name: row.name };
+}
+
+export function createUser(email: string, passwordHash: string, name: string): UserRecord {
+  const id = randomUUID();
+  getDb()
+    .prepare(`INSERT INTO users (id, email, password_hash, name) VALUES (?, ?, ?, ?)`)
+    .run(id, email, passwordHash, name);
+  return { id, email, passwordHash, name };
+}
+
+export function getUserByEmail(email: string): UserRecord | null {
+  const row = getDb().prepare(`SELECT * FROM users WHERE email = ?`).get(email);
+  return row ? rowToUser(row) : null;
+}
+
+export function getUserById(id: string): UserRecord | null {
+  const row = getDb().prepare(`SELECT * FROM users WHERE id = ?`).get(id);
+  return row ? rowToUser(row) : null;
+}
+
+// ---------------------------------------------------------------------------
+// Sessions (backs the express-session store in server/sessionStore.ts)
+// ---------------------------------------------------------------------------
+
+export function getSessionRow(sid: string): { data: string; expiresAt: number } | null {
+  const row = getDb().prepare(`SELECT data, expires_at FROM sessions WHERE sid = ?`).get(sid) as any;
+  return row ? { data: row.data, expiresAt: row.expires_at } : null;
+}
+
+export function setSessionRow(sid: string, data: string, expiresAt: number): void {
+  getDb()
+    .prepare(
+      `
+      INSERT INTO sessions (sid, data, expires_at) VALUES (?, ?, ?)
+      ON CONFLICT(sid) DO UPDATE SET data=excluded.data, expires_at=excluded.expires_at
+    `
+    )
+    .run(sid, data, expiresAt);
+}
+
+export function destroySessionRow(sid: string): void {
+  getDb().prepare(`DELETE FROM sessions WHERE sid = ?`).run(sid);
+}
+
+export function pruneExpiredSessions(): void {
+  getDb().prepare(`DELETE FROM sessions WHERE expires_at < ?`).run(Date.now());
 }

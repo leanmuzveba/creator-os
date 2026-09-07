@@ -4,7 +4,7 @@
  */
 import { Router } from 'express';
 import type { Request } from 'express';
-import { getAccount, upsertAccount, setOAuthToken, DEFAULT_LOCAL_USER_ID } from '../db.ts';
+import { getAccount, upsertAccount, setOAuthToken } from '../db.ts';
 import { logger } from '../logger.ts';
 import { computeGrowth } from '../metrics.ts';
 
@@ -127,7 +127,8 @@ authTiktokRouter.get(['/api/auth/tiktok/callback', '/api/auth/tiktok/callback/']
     const clientSecret = process.env.TIKTOK_CLIENT_SECRET;
     const redirectUri = getTikTokRedirectUri(req);
 
-    const tiktokAcc = getAccount(DEFAULT_LOCAL_USER_ID, 'tiktok');
+    const userId = req.userId!;
+    const tiktokAcc = getAccount(userId, 'tiktok');
     const oldViews = tiktokAcc?.views;
     let profileDisplayName = tiktokAcc?.handle || '@my_tiktok';
     let profileAvatar =
@@ -179,7 +180,7 @@ authTiktokRouter.get(['/api/auth/tiktok/callback', '/api/auth/tiktok/callback/']
       }
 
       if (tokenData.access_token) {
-        setOAuthToken(DEFAULT_LOCAL_USER_ID, 'tiktok', {
+        setOAuthToken(userId, 'tiktok', {
           accessToken: tokenData.access_token,
           refreshToken: tokenData.refresh_token,
           expiresAt: Date.now() + (tokenData.expires_in || 86400) * 1000,
@@ -231,7 +232,7 @@ authTiktokRouter.get(['/api/auth/tiktok/callback', '/api/auth/tiktok/callback/']
       tiktokAcc.avatar = profileAvatar;
       tiktokAcc.status = 'active';
       tiktokAcc.viewsGrowth = computeGrowth(oldViews, tiktokAcc.views);
-      upsertAccount(DEFAULT_LOCAL_USER_ID, tiktokAcc);
+      upsertAccount(userId, tiktokAcc);
     }
 
     return res.send(`

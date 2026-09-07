@@ -4,14 +4,14 @@
  * the requested date range.
  */
 import { Router } from 'express';
-import { listAccounts, listPosts, DEFAULT_LOCAL_USER_ID } from '../db.ts';
+import { listAccounts, listPosts } from '../db.ts';
 import { parseMetricServer, formatMetricServer } from '../metrics.ts';
 
 export const analyticsRouter = Router();
 
 analyticsRouter.get('/api/analytics', (req, res) => {
   const range = (req.query.range as string) || '7d';
-  const accounts = listAccounts(DEFAULT_LOCAL_USER_ID);
+  const accounts = listAccounts(req.userId!);
 
   const tiktokAcc = accounts.find((a) => a.id === 'tiktok');
   const igAcc = accounts.find((a) => a.id === 'instagram');
@@ -140,6 +140,6 @@ analyticsRouter.get('/api/analytics', (req, res) => {
     viewSeries,
     platformPerformance,
     categoryBreakdown,
-    topPost: listPosts(DEFAULT_LOCAL_USER_ID)[0],
+    topPost: listPosts(req.userId!)[0],
   });
 });
