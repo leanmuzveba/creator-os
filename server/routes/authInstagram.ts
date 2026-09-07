@@ -8,7 +8,7 @@
  */
 import { Router } from 'express';
 import type { Request } from 'express';
-import { store, saveStorage } from '../store.ts';
+import { getAccount, upsertAccount, setOAuthToken, DEFAULT_LOCAL_USER_ID } from '../db.ts';
 import { logger } from '../logger.ts';
 import { computeGrowth } from '../metrics.ts';
 
@@ -166,13 +166,14 @@ authInstagramRouter.get(['/api/auth/instagram/callback', '/api/auth/instagram/ca
       logger.warn('Could not exchange Instagram token for a long-lived one:', llErr);
     }
 
-    store.metaTokens.instagram = {
+    setOAuthToken(DEFAULT_LOCAL_USER_ID, 'instagram', {
       accessToken,
       expiresAt: Date.now() + expiresIn * 1000,
-      userId: tokenData.user_id,
-    };
+      extra: tokenData.user_id ? { userId: tokenData.user_id } : undefined,
+    });
 
-    const oldIgFollowers = store.socialAccounts.find((a) => a.id === 'instagram')?.followers;
+    const igAcc = getAccount(DEFAULT_LOCAL_USER_ID, 'instagram');
+    const oldIgFollowers = igAcc?.followers;
     let profileDisplayName = 'Instagram User';
     let profileAvatar = '';
     let followersCount = '0';
@@ -200,27 +201,26 @@ authInstagramRouter.get(['/api/auth/instagram/callback', '/api/auth/instagram/ca
       logger.warn('Could not fetch Instagram profile:', profileErr);
     }
 
-    const existingIgAcc = store.socialAccounts.find((a) => a.id === 'instagram');
-    if (existingIgAcc) {
-      existingIgAcc.connected = true;
-      existingIgAcc.handle = profileDisplayName;
+    if (igAcc) {
+      igAcc.connected = true;
+      igAcc.handle = profileDisplayName;
       if (profileAvatar) {
-        existingIgAcc.avatar = profileAvatar;
+        igAcc.avatar = profileAvatar;
       }
-      existingIgAcc.status = 'active';
+      igAcc.status = 'active';
       if (metricsSynced) {
-        existingIgAcc.followers = followersCount;
-        existingIgAcc.viewsGrowth = computeGrowth(oldIgFollowers, followersCount);
+        igAcc.followers = followersCount;
+        igAcc.viewsGrowth = computeGrowth(oldIgFollowers, followersCount);
       } else {
         // Personal account - no follower data available. Don't leave stale
         // demo-seed numbers looking like a real sync.
-        existingIgAcc.followers = '0';
-        existingIgAcc.viewsGrowth = '0%';
+        igAcc.followers = '0';
+        igAcc.viewsGrowth = '0%';
       }
       // Reach isn't fetched here (requires additional Insights permissions),
       // so it's never real - keep it at 0 rather than a demo-seed placeholder.
-      existingIgAcc.views = '0';
-      saveStorage();
+      igAcc.views = '0';
+      upsertAccount(DEFAULT_LOCAL_USER_ID, igAcc);
     }
 
     const statusHeading = metricsSynced ? 'Instagram Connected!' : 'Instagram Partially Connected';

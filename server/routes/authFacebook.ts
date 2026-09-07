@@ -5,7 +5,7 @@
  */
 import { Router } from 'express';
 import type { Request } from 'express';
-import { store, saveStorage } from '../store.ts';
+import { getAccount, upsertAccount, setOAuthToken, DEFAULT_LOCAL_USER_ID } from '../db.ts';
 import { logger } from '../logger.ts';
 import { computeGrowth } from '../metrics.ts';
 
@@ -139,12 +139,13 @@ authFacebookRouter.get(['/api/auth/facebook/callback', '/api/auth/facebook/callb
       `);
     }
 
-    store.metaTokens.facebook = {
+    setOAuthToken(DEFAULT_LOCAL_USER_ID, 'facebook', {
       accessToken: tokenData.access_token,
       expiresAt: Date.now() + (tokenData.expires_in || 5184000) * 1000,
-    };
+    });
 
-    const oldFbFollowers = store.socialAccounts.find((a) => a.id === 'facebook')?.followers;
+    const fbAcc = getAccount(DEFAULT_LOCAL_USER_ID, 'facebook');
+    const oldFbFollowers = fbAcc?.followers;
     let profileDisplayName = 'Facebook User';
     let profileAvatar = '';
     let followersCount = '1';
@@ -196,28 +197,27 @@ authFacebookRouter.get(['/api/auth/facebook/callback', '/api/auth/facebook/callb
     // count via the Graph API, so it never counts as "synced".
     const metricsSynced = followersCount !== '1';
 
-    const existingFbAcc = store.socialAccounts.find((a) => a.id === 'facebook');
-    if (existingFbAcc) {
-      existingFbAcc.connected = true;
-      existingFbAcc.handle = profileDisplayName;
+    if (fbAcc) {
+      fbAcc.connected = true;
+      fbAcc.handle = profileDisplayName;
       if (profileAvatar) {
-        existingFbAcc.avatar = profileAvatar;
+        fbAcc.avatar = profileAvatar;
       }
-      existingFbAcc.status = 'active';
+      fbAcc.status = 'active';
       if (metricsSynced) {
-        existingFbAcc.followers = followersCount;
-        existingFbAcc.viewsGrowth = computeGrowth(oldFbFollowers, followersCount);
+        fbAcc.followers = followersCount;
+        fbAcc.viewsGrowth = computeGrowth(oldFbFollowers, followersCount);
       } else {
         // Real follower/fan count unavailable (no accessible Page) - don't leave
         // the account showing stale demo-seed numbers as if synced.
-        existingFbAcc.followers = '0';
-        existingFbAcc.viewsGrowth = '0%';
+        fbAcc.followers = '0';
+        fbAcc.viewsGrowth = '0%';
       }
       // Reach isn't fetched from the Graph API here (requires Page Insights
       // permissions), so it's never real - keep it at 0 rather than the
       // demo-seed placeholder.
-      existingFbAcc.views = '0';
-      saveStorage();
+      fbAcc.views = '0';
+      upsertAccount(DEFAULT_LOCAL_USER_ID, fbAcc);
     }
 
     const statusHeading = metricsSynced ? 'Facebook Account Connected!' : 'Facebook Partially Connected';

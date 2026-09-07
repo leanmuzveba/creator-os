@@ -4,7 +4,7 @@
  */
 import { Router } from 'express';
 import type { Request } from 'express';
-import { store, saveStorage } from '../store.ts';
+import { getAccount, upsertAccount, setOAuthToken, DEFAULT_LOCAL_USER_ID } from '../db.ts';
 import { logger } from '../logger.ts';
 import { computeGrowth } from '../metrics.ts';
 
@@ -127,11 +127,11 @@ authTiktokRouter.get(['/api/auth/tiktok/callback', '/api/auth/tiktok/callback/']
     const clientSecret = process.env.TIKTOK_CLIENT_SECRET;
     const redirectUri = getTikTokRedirectUri(req);
 
-    const existingTiktokAcc = store.socialAccounts.find((a) => a.id === 'tiktok');
-    const oldViews = existingTiktokAcc?.views;
-    let profileDisplayName = existingTiktokAcc?.handle || '@my_tiktok';
+    const tiktokAcc = getAccount(DEFAULT_LOCAL_USER_ID, 'tiktok');
+    const oldViews = tiktokAcc?.views;
+    let profileDisplayName = tiktokAcc?.handle || '@my_tiktok';
     let profileAvatar =
-      existingTiktokAcc?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
+      tiktokAcc?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
 
     if (clientKey && clientSecret) {
       // Exchange code for token.
@@ -179,12 +179,12 @@ authTiktokRouter.get(['/api/auth/tiktok/callback', '/api/auth/tiktok/callback/']
       }
 
       if (tokenData.access_token) {
-        store.tiktokTokens = {
+        setOAuthToken(DEFAULT_LOCAL_USER_ID, 'tiktok', {
           accessToken: tokenData.access_token,
           refreshToken: tokenData.refresh_token,
-          openId: tokenData.open_id,
           expiresAt: Date.now() + (tokenData.expires_in || 86400) * 1000,
-        };
+          extra: tokenData.open_id ? { openId: tokenData.open_id } : undefined,
+        });
 
         // Fetch user info & stats (with fallback if stats scope is unapproved).
         try {
@@ -199,7 +199,6 @@ authTiktokRouter.get(['/api/auth/tiktok/callback', '/api/auth/tiktok/callback/']
               profileAvatar = user.avatar_url;
             }
 
-            const tiktokAcc = store.socialAccounts.find((a) => a.id === 'tiktok');
             if (tiktokAcc) {
               if (user.follower_count !== undefined && user.follower_count !== null) {
                 tiktokAcc.followers = abbreviate(Number(user.follower_count));
@@ -216,7 +215,6 @@ authTiktokRouter.get(['/api/auth/tiktok/callback', '/api/auth/tiktok/callback/']
         // Attempt video query to calculate total video views/engagement.
         try {
           const totalViews = await fetchTikTokTotalViews(tokenData.access_token);
-          const tiktokAcc = store.socialAccounts.find((a) => a.id === 'tiktok');
           if (tiktokAcc && totalViews > 0) {
             tiktokAcc.views = abbreviate(totalViews);
           }
@@ -226,15 +224,14 @@ authTiktokRouter.get(['/api/auth/tiktok/callback', '/api/auth/tiktok/callback/']
       }
     }
 
-    // Update in-memory TikTok account record.
-    const tiktokAcc = store.socialAccounts.find((a) => a.id === 'tiktok');
+    // Persist the (possibly stat-updated) TikTok account record.
     if (tiktokAcc) {
       tiktokAcc.connected = true;
       tiktokAcc.handle = profileDisplayName;
       tiktokAcc.avatar = profileAvatar;
       tiktokAcc.status = 'active';
       tiktokAcc.viewsGrowth = computeGrowth(oldViews, tiktokAcc.views);
-      saveStorage();
+      upsertAccount(DEFAULT_LOCAL_USER_ID, tiktokAcc);
     }
 
     return res.send(`

@@ -13,7 +13,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import { logger } from './server/logger.ts';
-import { loadStorage } from './server/store.ts';
+import { getDb } from './server/db.ts';
 import { postsRouter } from './server/routes/posts.ts';
 import { accountsRouter } from './server/routes/accounts.ts';
 import { authTiktokRouter } from './server/routes/authTiktok.ts';
@@ -33,8 +33,9 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Load any persisted state from disk before serving requests.
-loadStorage();
+// Open the SQLite store (creates the schema and local-owner user if needed)
+// before serving requests.
+getDb();
 
 // Feature routes.
 app.use(postsRouter);

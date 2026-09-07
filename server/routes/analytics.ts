@@ -4,18 +4,19 @@
  * the requested date range.
  */
 import { Router } from 'express';
-import { store } from '../store.ts';
+import { listAccounts, listPosts, DEFAULT_LOCAL_USER_ID } from '../db.ts';
 import { parseMetricServer, formatMetricServer } from '../metrics.ts';
 
 export const analyticsRouter = Router();
 
 analyticsRouter.get('/api/analytics', (req, res) => {
   const range = (req.query.range as string) || '7d';
+  const accounts = listAccounts(DEFAULT_LOCAL_USER_ID);
 
-  const tiktokAcc = store.socialAccounts.find((a) => a.id === 'tiktok');
-  const igAcc = store.socialAccounts.find((a) => a.id === 'instagram');
-  const ytAcc = store.socialAccounts.find((a) => a.id === 'youtube');
-  const fbAcc = store.socialAccounts.find((a) => a.id === 'facebook');
+  const tiktokAcc = accounts.find((a) => a.id === 'tiktok');
+  const igAcc = accounts.find((a) => a.id === 'instagram');
+  const ytAcc = accounts.find((a) => a.id === 'youtube');
+  const fbAcc = accounts.find((a) => a.id === 'facebook');
 
   const tiktokViews = tiktokAcc?.connected ? parseMetricServer(tiktokAcc?.views) : 0;
   const igViews = igAcc?.connected ? parseMetricServer(igAcc?.views) : 0;
@@ -36,7 +37,7 @@ analyticsRouter.get('/api/analytics', (req, res) => {
       ? Math.round(totalFollowers * (range === '30d' ? 0.078 : range === '90d' ? 0.18 : 0.026))
       : 0;
 
-  const hasConnected = store.socialAccounts.some((a) => a.connected);
+  const hasConnected = accounts.some((a) => a.connected);
 
   // Generate dynamic time-series points ending at the current latest view counts.
   let numDays = 7;
@@ -139,6 +140,6 @@ analyticsRouter.get('/api/analytics', (req, res) => {
     viewSeries,
     platformPerformance,
     categoryBreakdown,
-    topPost: store.posts[0],
+    topPost: listPosts(DEFAULT_LOCAL_USER_ID)[0],
   });
 });
