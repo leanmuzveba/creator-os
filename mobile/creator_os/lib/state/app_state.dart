@@ -41,7 +41,33 @@ class AppState extends ChangeNotifier {
   DateTime? birthday;
   bool notificationsEnabled = false;
 
+  /// Whether the backend currently requires Creator OS login (`REQUIRE_AUTH`),
+  /// and the signed-in user if so. Set once by [AuthGate] after checking
+  /// `/api/config` (+ `/api/auth/me`), and again by [logout]. When
+  /// `requireAuth` is true and [authUser] is null, `AuthGate` shows the
+  /// login/signup form instead of the app.
+  bool requireAuth = false;
+  Map<String, dynamic>? authUser;
+
   ToastMessage? toast;
+
+  /// Called by `AuthGate` once it knows whether login is required and, if
+  /// so, who (if anyone) is already signed in.
+  void setAuthState({required bool requireAuth, Map<String, dynamic>? user}) {
+    this.requireAuth = requireAuth;
+    authUser = user;
+    notifyListeners();
+  }
+
+  Future<void> logout() async {
+    try {
+      await api.logout();
+    } catch (e) {
+      debugPrint('Logout failed: $e');
+    }
+    authUser = null;
+    notifyListeners();
+  }
 
   void setActiveTab(ViewTab tab) {
     activeTab = tab;

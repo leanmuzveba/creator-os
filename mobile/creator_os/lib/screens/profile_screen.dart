@@ -143,6 +143,21 @@ class ProfileScreen extends StatelessWidget {
                       label: 'App Theme',
                       onTap: () => _showThemePicker(context, state),
                     ),
+                    // Only meaningful once REQUIRE_AUTH is on server-side and
+                    // this device has an actual session to end — omitted
+                    // otherwise, same as before Creator OS accounts existed.
+                    if (state.requireAuth) ...[
+                      const SizedBox(height: 20),
+                      const _SectionLabel('SESSION'),
+                      _SettingsTile(
+                        icon: Icons.logout_rounded,
+                        label: 'Log Out',
+                        onTap: () async {
+                          Navigator.of(context).maybePop();
+                          await state.logout();
+                        },
+                      ),
+                    ],
                   ],
                 ),
               ),

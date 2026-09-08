@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'models/models.dart';
 import 'screens/ai_assistant_screen.dart';
 import 'screens/analytics_screen.dart';
+import 'screens/auth_screen.dart';
 import 'screens/calendar_screen.dart';
 import 'screens/content_library_screen.dart';
 import 'screens/dashboard_screen.dart';
@@ -27,7 +28,10 @@ Future<void> main() async {
   await NotificationService.instance.init();
   runApp(
     ChangeNotifierProvider(
-      create: (_) => AppState()..loadInitialData(),
+      // Data loading is kicked off by AuthGate once it resolves the session
+      // is open/authenticated, not here — never fetch against a session that
+      // might still need a login.
+      create: (_) => AppState(),
       child: const CreatorOsApp(),
     ),
   );
@@ -67,7 +71,7 @@ class _RootSwitcherState extends State<_RootSwitcher> {
     if (_showSplash) {
       return SplashScreen(onFinished: () => setState(() => _showSplash = false));
     }
-    return const AppShell();
+    return const AuthGate(child: AppShell());
   }
 }
 
