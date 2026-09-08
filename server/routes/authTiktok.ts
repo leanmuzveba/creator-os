@@ -7,6 +7,7 @@ import type { Request } from 'express';
 import { getAccount, upsertAccount, setOAuthToken } from '../db.ts';
 import { logger } from '../logger.ts';
 import { computeGrowth } from '../metrics.ts';
+import { createOAuthState, verifyOAuthState } from '../oauthState.ts';
 
 export const authTiktokRouter = Router();
 
@@ -68,7 +69,7 @@ function abbreviate(count: number): string {
 authTiktokRouter.get('/api/auth/tiktok/url', (req, res) => {
   const clientKey = process.env.TIKTOK_CLIENT_KEY;
   const redirectUri = getTikTokRedirectUri(req);
-  const state = 'creator_os_' + Math.random().toString(36).substring(2, 15);
+  const state = createOAuthState(req.userId!);
   // Default to user.info.basic for universal compatibility with all TikTok app tiers.
   const requestedScope = (req.query.scope as string) || 'user.info.basic';
 
@@ -98,7 +99,7 @@ authTiktokRouter.get('/api/auth/tiktok/url', (req, res) => {
 
 // TikTok OAuth callback endpoint (handles the redirect from TikTok).
 authTiktokRouter.get(['/api/auth/tiktok/callback', '/api/auth/tiktok/callback/'], async (req, res) => {
-  const { code, error, error_description } = req.query;
+  const { code, error, error_description, state } = req.query;
 
   if (error || !code) {
     const errorMsg = (error_description as string) || (error as string) || 'Access denied by user';
@@ -113,6 +114,28 @@ authTiktokRouter.get(['/api/auth/tiktok/callback', '/api/auth/tiktok/callback/']
             <script>
               if (window.opener) {
                 window.opener.postMessage({ type: 'OAUTH_AUTH_ERROR', platform: 'tiktok', error: '${errorMsg}' }, '*');
+                setTimeout(() => window.close(), 2500);
+              }
+            </script>
+          </div>
+        </body>
+      </html>
+    `);
+  }
+
+  if (!verifyOAuthState(req.userId!, state)) {
+    logger.warn('TikTok OAuth callback rejected: invalid or expired state param');
+    return res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head><title>TikTok Authorization Failed</title></head>
+        <body style="font-family: system-ui, sans-serif; background: #0b0d17; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+          <div style="text-align: center; max-width: 400px; padding: 24px; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; background: #131627;">
+            <h2 style="color: #f43f5e; margin-bottom: 8px;">This link is invalid or expired</h2>
+            <p style="color: #94a3b8; font-size: 14px;">Please close this window and try connecting TikTok again.</p>
+            <script>
+              if (window.opener) {
+                window.opener.postMessage({ type: 'OAUTH_AUTH_ERROR', platform: 'tiktok', error: 'Invalid or expired authorization state' }, '*');
                 setTimeout(() => window.close(), 2500);
               }
             </script>

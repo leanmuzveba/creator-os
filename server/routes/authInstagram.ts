@@ -11,6 +11,7 @@ import type { Request } from 'express';
 import { getAccount, upsertAccount, setOAuthToken } from '../db.ts';
 import { logger } from '../logger.ts';
 import { computeGrowth } from '../metrics.ts';
+import { createOAuthState, verifyOAuthState } from '../oauthState.ts';
 
 export const authInstagramRouter = Router();
 
@@ -24,7 +25,7 @@ function getInstagramRedirectUri(req: Request): string {
 authInstagramRouter.get('/api/auth/instagram/url', (req, res) => {
   const appId = process.env.INSTAGRAM_APP_ID;
   const redirectUri = getInstagramRedirectUri(req);
-  const state = 'creator_os_ig_' + Math.random().toString(36).substring(2, 15);
+  const state = createOAuthState(req.userId!);
   // instagram_business_basic covers profile fields (username, account_type,
   // followers_count, media_count); instagram_business_manage_insights is
   // requested too since some accounts only expose follower counts once it's
@@ -57,7 +58,7 @@ authInstagramRouter.get('/api/auth/instagram/url', (req, res) => {
 
 // Instagram OAuth callback endpoint.
 authInstagramRouter.get(['/api/auth/instagram/callback', '/api/auth/instagram/callback/'], async (req, res) => {
-  const { code, error, error_description } = req.query;
+  const { code, error, error_description, state } = req.query;
 
   if (error || !code) {
     const errorMsg = (error_description as string) || (error as string) || 'Access denied';
@@ -73,6 +74,28 @@ authInstagramRouter.get(['/api/auth/instagram/callback', '/api/auth/instagram/ca
             <script>
               if (window.opener) {
                 window.opener.postMessage({ type: 'OAUTH_AUTH_ERROR', platform: 'instagram', error: '${errorMsg}' }, '*');
+              }
+            </script>
+          </div>
+        </body>
+      </html>
+    `);
+  }
+
+  if (!verifyOAuthState(req.userId!, state)) {
+    logger.warn('Instagram OAuth callback rejected: invalid or expired state param');
+    return res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head><title>Instagram Authorization Failed</title></head>
+        <body style="font-family: system-ui, sans-serif; background: #0b0d17; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+          <div style="text-align: center; max-width: 440px; padding: 28px; border: 1px solid rgba(244,63,94,0.3); border-radius: 16px; background: #131627;">
+            <h2 style="color: #f43f5e; margin: 0 0 10px 0; font-size: 18px;">This link is invalid or expired</h2>
+            <p style="color: #cbd5e1; font-size: 13px; line-height: 1.5; margin-bottom: 16px;">Please close this window and try connecting Instagram again.</p>
+            <button onclick="window.close()" style="background: #e11d48; color: #fff; border: none; padding: 8px 18px; border-radius: 8px; font-weight: bold; cursor: pointer;">Close Window</button>
+            <script>
+              if (window.opener) {
+                window.opener.postMessage({ type: 'OAUTH_AUTH_ERROR', platform: 'instagram', error: 'Invalid or expired authorization state' }, '*');
               }
             </script>
           </div>

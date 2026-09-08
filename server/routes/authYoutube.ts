@@ -8,6 +8,7 @@ import type { Request } from 'express';
 import { getAccount, upsertAccount, setOAuthToken } from '../db.ts';
 import { logger } from '../logger.ts';
 import { computeGrowth } from '../metrics.ts';
+import { createOAuthState, verifyOAuthState } from '../oauthState.ts';
 
 export const authYoutubeRouter = Router();
 
@@ -21,7 +22,7 @@ function getYouTubeRedirectUri(req: Request): string {
 authYoutubeRouter.get('/api/auth/youtube/url', (req, res) => {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const redirectUri = getYouTubeRedirectUri(req);
-  const state = 'creator_os_yt_' + Math.random().toString(36).substring(2, 15);
+  const state = createOAuthState(req.userId!);
   // Request YouTube readonly channel access and profile.
   const scopes = [
     'https://www.googleapis.com/auth/youtube.readonly',
@@ -51,7 +52,7 @@ authYoutubeRouter.get('/api/auth/youtube/url', (req, res) => {
 
 // YouTube OAuth callback handler.
 authYoutubeRouter.get('/api/auth/youtube/callback', async (req, res) => {
-  const { code, error, error_description } = req.query;
+  const { code, error, error_description, state } = req.query;
 
   if (error) {
     logger.error('YouTube OAuth authorization error:', error, error_description);
@@ -74,6 +75,25 @@ authYoutubeRouter.get('/api/auth/youtube/callback', async (req, res) => {
 
   if (!code) {
     return res.status(400).send('Authorization code missing');
+  }
+
+  if (!verifyOAuthState(req.userId!, state)) {
+    logger.warn('YouTube OAuth callback rejected: invalid or expired state param');
+    return res.send(`
+      <!DOCTYPE html>
+      <html>
+        <body style="font-family: system-ui; background: #0b0d17; color: #fff; text-align: center; padding: 40px;">
+          <h3 style="color: #ef4444;">This link is invalid or expired</h3>
+          <p>Please close this window and try connecting YouTube again.</p>
+          <script>
+            if (window.opener) {
+              window.opener.postMessage({ type: 'OAUTH_AUTH_ERROR', platform: 'youtube', error: 'Invalid or expired authorization state' }, '*');
+              setTimeout(() => window.close(), 2500);
+            }
+          </script>
+        </body>
+      </html>
+    `);
   }
 
   try {

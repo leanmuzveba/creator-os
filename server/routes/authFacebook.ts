@@ -8,6 +8,7 @@ import type { Request } from 'express';
 import { getAccount, upsertAccount, setOAuthToken } from '../db.ts';
 import { logger } from '../logger.ts';
 import { computeGrowth } from '../metrics.ts';
+import { createOAuthState, verifyOAuthState } from '../oauthState.ts';
 
 export const authFacebookRouter = Router();
 
@@ -21,7 +22,7 @@ function getFacebookRedirectUri(req: Request): string {
 authFacebookRouter.get('/api/auth/facebook/url', (req, res) => {
   const appId = process.env.META_APP_ID;
   const redirectUri = getFacebookRedirectUri(req);
-  const state = 'creator_os_fb_' + Math.random().toString(36).substring(2, 15);
+  const state = createOAuthState(req.userId!);
   // pages_show_list + pages_read_engagement are needed for /me/accounts to return
   // any pages (and their fan/follower counts) at all; public_profile alone only
   // gets the user's own name via /me, which is why follower sync was silently
@@ -54,7 +55,7 @@ authFacebookRouter.get('/api/auth/facebook/url', (req, res) => {
 
 // Facebook OAuth callback endpoint.
 authFacebookRouter.get(['/api/auth/facebook/callback', '/api/auth/facebook/callback/'], async (req, res) => {
-  const { code, error, error_description } = req.query;
+  const { code, error, error_description, state } = req.query;
 
   if (error || !code) {
     const errorMsg = (error_description as string) || (error as string) || 'Access denied';
@@ -70,6 +71,28 @@ authFacebookRouter.get(['/api/auth/facebook/callback', '/api/auth/facebook/callb
             <script>
               if (window.opener) {
                 window.opener.postMessage({ type: 'OAUTH_AUTH_ERROR', platform: 'facebook', error: '${errorMsg}' }, '*');
+              }
+            </script>
+          </div>
+        </body>
+      </html>
+    `);
+  }
+
+  if (!verifyOAuthState(req.userId!, state)) {
+    logger.warn('Facebook OAuth callback rejected: invalid or expired state param');
+    return res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head><title>Facebook Authorization Failed</title></head>
+        <body style="font-family: system-ui, sans-serif; background: #0b0d17; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+          <div style="text-align: center; max-width: 440px; padding: 28px; border: 1px solid rgba(59,130,246,0.3); border-radius: 16px; background: #131627;">
+            <h2 style="color: #3b82f6; margin: 0 0 10px 0; font-size: 18px;">This link is invalid or expired</h2>
+            <p style="color: #cbd5e1; font-size: 13px; line-height: 1.5; margin-bottom: 16px;">Please close this window and try connecting Facebook again.</p>
+            <button onclick="window.close()" style="background: #2563eb; color: #fff; border: none; padding: 8px 18px; border-radius: 8px; font-weight: bold; cursor: pointer;">Close Window</button>
+            <script>
+              if (window.opener) {
+                window.opener.postMessage({ type: 'OAUTH_AUTH_ERROR', platform: 'facebook', error: 'Invalid or expired authorization state' }, '*');
               }
             </script>
           </div>
