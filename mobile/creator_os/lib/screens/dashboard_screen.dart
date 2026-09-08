@@ -103,17 +103,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _platformGrid(List<SocialAccount> accounts) {
     SocialAccount? find(String id) => accounts.where((a) => a.id == id).cast<SocialAccount?>().firstWhere((_) => true, orElse: () => null);
 
-    final defaults = {
-      'tiktok': ('TikTok', '124.8K', '128.4K', '18.6%', 'Views'),
-      'instagram': ('Instagram', '89.4K', '89.4K', '12.4%', 'Reach'),
-      'youtube': ('YouTube', '56.7K', '56.7K', '9.3%', 'Views'),
-      'facebook': ('Facebook', '23.1K', '23.1K', '6.8%', 'Reach'),
+    // Display name + metric label per platform only — no placeholder numbers
+    // here. A disconnected or genuinely-empty account shows honest zeros via
+    // getAccountDisplayMetrics, same as the web app; it used to fall back to
+    // fixed demo numbers (124.8K etc.) for any account with empty stats,
+    // which misrepresented a brand-new multi-tenant signup's real (empty)
+    // data as if it were a synced, high-follower account.
+    const labels = {
+      'tiktok': ('TikTok', 'Views'),
+      'instagram': ('Instagram', 'Reach'),
+      'youtube': ('YouTube', 'Views'),
+      'facebook': ('Facebook', 'Reach'),
     };
 
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: defaults.length,
+      itemCount: labels.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 10,
@@ -121,10 +127,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
         childAspectRatio: 1.55,
       ),
       itemBuilder: (context, i) {
-        final id = defaults.keys.elementAt(i);
-        final (name, defViews, defFollowers, defGrowth, label) = defaults[id]!;
+        final id = labels.keys.elementAt(i);
+        final (name, label) = labels[id]!;
         final acc = find(id);
         final connected = acc?.connected ?? false;
+        final metrics = getAccountDisplayMetrics(acc);
 
         return Container(
           padding: const EdgeInsets.all(12),
@@ -157,20 +164,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                     decoration: BoxDecoration(color: AppColors.positiveAccent.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(4)),
-                    child: Text('↑ ${acc?.viewsGrowth ?? defGrowth}', style: TextStyle(fontSize: 9, color: AppColors.positiveAccent, fontFamily: 'monospace')),
+                    child: Text('↑ ${metrics.growth}', style: TextStyle(fontSize: 9, color: AppColors.positiveAccent, fontFamily: 'monospace')),
                   ),
                 ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(acc?.views.isNotEmpty == true ? acc!.views : defViews,
+                  Text(metrics.views,
                       style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(label, style: TextStyle(fontSize: 10, color: AppColors.textSecondary)),
-                      Text('${acc?.followers.isNotEmpty == true ? acc!.followers : defFollowers} fans',
+                      Text('${metrics.followers} fans',
                           style: TextStyle(fontSize: 10, color: AppColors.fansAccent, fontFamily: 'monospace')),
                     ],
                   ),

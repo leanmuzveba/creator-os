@@ -18,13 +18,27 @@ class ToastMessage {
 /// active tab, and the async actions that talk to the backend.
 /// Mirrors `src/context/AppContext.tsx`.
 class AppState extends ChangeNotifier {
-  static const _accountsStorageKey = 'creator_os_social_accounts';
-  static const _avatarPathKey = 'creator_os_avatar_path';
-  static const _profileNameKey = 'creator_os_profile_name';
-  static const _profileAgeKey = 'creator_os_profile_age';
-  static const _profileBirthdayKey = 'creator_os_profile_birthday';
+  // Theme/notifications are device-level preferences, same for whoever is
+  // using this phone, so these two stay unscoped.
   static const _themeKey = 'creator_os_theme';
   static const _notificationsKey = 'creator_os_notifications_enabled';
+
+  // Profile fields and the cached social-account stats are per-creator data,
+  // not device data — scoped below by [_userScope] so a second creator
+  // signing into the same physical device doesn't inherit the previous
+  // account's cached name/avatar/stats (`_mergeServerAndCached` will happily
+  // backfill a brand-new account's correctly-empty server fields with
+  // whatever's sitting in an unscoped cache). `authUser` is null both before
+  // AuthGate's first check resolves and whenever `REQUIRE_AUTH` is off, so
+  // scope falls back to the original unscoped key names in that case —
+  // this preserves today's single-owner on-device data exactly, no reset.
+  String? get _userScope => authUser?['id'] as String?;
+  String _scopedKey(String base) => _userScope == null ? base : '${base}_$_userScope';
+  String get _accountsStorageKey => _scopedKey('creator_os_social_accounts');
+  String get _avatarPathKey => _scopedKey('creator_os_avatar_path');
+  String get _profileNameKey => _scopedKey('creator_os_profile_name');
+  String get _profileAgeKey => _scopedKey('creator_os_profile_age');
+  String get _profileBirthdayKey => _scopedKey('creator_os_profile_birthday');
 
   final ApiClient api;
   AppState({ApiClient? api}) : api = api ?? ApiClient();
@@ -131,7 +145,13 @@ class AppState extends ChangeNotifier {
   Future<void> _loadPreferences() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      displayName = prefs.getString(_profileNameKey) ?? displayName;
+      // Not `?? displayName`: that would carry over whatever the *previous*
+      // signed-in account's name was if this account (or the no-auth local
+      // owner) hasn't cached one yet, since AppState lives across a
+      // logout/login within one app run. Fall back to this account's real
+      // signup name first, and only to the single-owner default if there's
+      // no account at all (REQUIRE_AUTH off).
+      displayName = prefs.getString(_profileNameKey) ?? (authUser?['name'] as String?) ?? 'Lean';
       avatarPath = prefs.getString(_avatarPathKey) ?? '';
       age = prefs.getInt(_profileAgeKey);
       final birthdayRaw = prefs.getString(_profileBirthdayKey);
