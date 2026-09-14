@@ -3,7 +3,7 @@
  * entry point, notifications dropdown, and the connected-accounts/profile menu.
  */
 import React, { useState, useRef } from 'react';
-import { Bell, Sparkles, Upload, Smartphone, Monitor, CheckCircle2, ChevronDown, Radio, Loader2, ShieldCheck } from 'lucide-react';
+import { Bell, Sparkles, Upload, CheckCircle2, ChevronDown, Radio, Loader2, ShieldCheck } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { PlatformIcon } from './PlatformIcon';
 import { processMediaFile } from '../utils/videoUtils';
@@ -21,8 +21,6 @@ export const Header: React.FC = () => {
     openScheduleModalWithData,
     addPost,
     showToast,
-    isMobileDeviceView,
-    setIsMobileDeviceView,
   } = useApp();
 
   const [showNotifications, setShowNotifications] = useState(false);
@@ -209,25 +207,6 @@ export const Header: React.FC = () => {
 
         {/* Right Controls & Profile */}
         <div className="flex items-center gap-2.5 sm:gap-3">
-          {/* Viewport Frame Toggle (Mobile App View vs Desktop Mode) */}
-          <button
-            onClick={() => setIsMobileDeviceView(!isMobileDeviceView)}
-            title={isMobileDeviceView ? "Switch to Wide Desktop View" : "Switch to Mobile Device Phone Preview"}
-            className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--accent-40)] transition-colors"
-          >
-            {isMobileDeviceView ? (
-              <>
-                <Monitor className="w-3.5 h-3.5 text-[var(--accent)]" />
-                <span>Wide Mode</span>
-              </>
-            ) : (
-              <>
-                <Smartphone className="w-3.5 h-3.5 text-[var(--accent)]" />
-                <span>Phone View</span>
-              </>
-            )}
-          </button>
-
           {/* Upload Button */}
           <input
             type="file"

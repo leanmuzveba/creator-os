@@ -3,8 +3,8 @@
  *
  * `App` wraps everything in the {@link AppProvider} global store, while
  * `MainAppContent` reads the active tab and renders the matching view, hosts
- * the shared modals, and shows the global toast. It also provides the optional
- * phone-frame "mobile device" preview mode.
+ * the shared modals, and shows the global toast. Layout is responsive via
+ * Tailwind breakpoints (see BottomNav for the mobile-width navigation).
  */
 import React from 'react';
 import { AppProvider, useApp } from './context/AppContext';
@@ -26,7 +26,7 @@ import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 
 /** App shell: header, active view, bottom nav, global modals, and toast. */
 const MainAppContent: React.FC = () => {
-  const { activeTab, isMobileDeviceView, toast } = useApp();
+  const { activeTab, toast } = useApp();
 
   /** Map the active tab to its view component. */
   const renderActiveView = () => {
@@ -55,21 +55,7 @@ const MainAppContent: React.FC = () => {
 
       {/* Main Body */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5">
-        {isMobileDeviceView ? (
-          /* Phone device container simulation mode for pixel-perfect mobile view */
-          <div className="flex justify-center py-2">
-            <div className="w-full max-w-[430px] min-h-[844px] bg-[var(--bg-page)] rounded-[42px] border-[8px] border-[var(--frame-bezel)] shadow-2xl shadow-pink-950/30 p-4 sm:p-5 relative overflow-hidden flex flex-col">
-              {/* Dynamic Island / Notch */}
-              <div className="w-28 h-4 bg-[var(--frame-bezel)] rounded-full mx-auto mb-4 flex-shrink-0" />
-              <div className="flex-1 overflow-y-auto pb-16 no-scrollbar">
-                {renderActiveView()}
-              </div>
-            </div>
-          </div>
-        ) : (
-          /* Wide desktop layout */
-          <div className="w-full">{renderActiveView()}</div>
-        )}
+        <div className="w-full">{renderActiveView()}</div>
       </main>
 
       {/* Mobile Fixed Bottom Navigation Bar */}
