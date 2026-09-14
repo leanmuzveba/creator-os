@@ -10,7 +10,7 @@ import { randomUUID } from 'crypto';
 import Database from 'better-sqlite3';
 import type { PostItem, SocialAccountRecord } from './store.ts';
 
-const DB_FILE = path.join(process.cwd(), 'creator_os.db');
+const DB_FILE = process.env.DB_PATH || path.join(process.cwd(), 'creator_os.db');
 
 /** The single local-owner user every pre-auth row belongs to. */
 export const DEFAULT_LOCAL_USER_ID = 'local-owner';

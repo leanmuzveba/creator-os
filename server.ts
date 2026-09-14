@@ -118,7 +118,7 @@ app.get('*', (req, res, next) => {
   });
 });
 
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 app.listen(PORT, '0.0.0.0', () => {
   logger.info(`Creator OS backend listening on http://0.0.0.0:${PORT}`);
 });
