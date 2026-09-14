@@ -53,7 +53,7 @@ export const TrendsView: React.FC = () => {
           <div>
             <h1 className="text-xl sm:text-2xl font-black text-[var(--text-primary)] tracking-tight">Trend Intelligence</h1>
             <p className="text-xs text-[var(--text-secondary)]">
-              Real-time algorithm signals, virality breakdown & automated adaptation for Lean.
+              Real-time algorithm signals, virality breakdown & automated adaptation for you.
             </p>
           </div>
         </div>

@@ -100,11 +100,11 @@ export const TrendModal: React.FC = () => {
             </p>
           </div>
 
-          {/* 4. How Lean Can Adapt It */}
+          {/* 4. How You Can Adapt It */}
           <div className="p-4 rounded-2xl bg-[var(--bg-surface)] border border-emerald-500/30 space-y-1.5">
             <div className="flex items-center gap-2 text-xs font-bold text-emerald-300">
               <CheckCircle className="w-4 h-4 text-emerald-400" />
-              <span>How Lean Can Adapt It (Customized Recommendation)</span>
+              <span>How You Can Adapt It (Customized Recommendation)</span>
             </div>
             <p className="text-xs text-[var(--text-primary)] leading-relaxed">{selectedTrend.leanAdaptation}</p>
           </div>

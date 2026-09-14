@@ -9,6 +9,15 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { PostItem, SocialAccount, TrendItem, ViewTab, ContentCategory, PlatformType } from '../types';
 import { logger } from '../utils/logger';
 import { requestPermission as requestNotificationPermission, showConfirmation as showNotificationConfirmation } from '../utils/notifications';
+import { useAuth } from '../components/AuthGate';
+
+/**
+ * localStorage keys below are suffixed with `:<userId>` whenever REQUIRE_AUTH
+ * is on, so different accounts signing into the same browser never see each
+ * other's cached profile/avatar/accounts (see [[project-creator-os-auth-migration-2026-09-07]]
+ * for the equivalent mobile fix this mirrors). With auth off, the suffix is
+ * empty and behavior is unchanged from before multi-user support existed.
+ */
 
 /** localStorage key used to persist connected social accounts between sessions. */
 const ACCOUNTS_STORAGE_KEY = 'creator_os_social_accounts';
@@ -23,10 +32,10 @@ const DEFAULT_DISPLAY_NAME = 'Lean';
 const AVATAR_STORAGE_KEY = 'creator_os_avatar_path';
 
 /** Read the user's cached avatar data URL from localStorage, if any. */
-const readStoredAvatar = (): string => {
+const readStoredAvatar = (suffix: string): string => {
   if (typeof window === 'undefined') return '';
   try {
-    return localStorage.getItem(AVATAR_STORAGE_KEY) || '';
+    return localStorage.getItem(AVATAR_STORAGE_KEY + suffix) || '';
   } catch (err) {
     logger.warn('Could not read cached avatar from localStorage:', err);
     return '';
@@ -66,18 +75,21 @@ const readStoredNotificationsEnabled = (): boolean => {
   }
 };
 
-/** Read the user's cached profile fields from localStorage, falling back to defaults. */
-const readStoredProfile = (): { name: string; age: number | null; birthday: string | null } => {
-  if (typeof window === 'undefined') return { name: DEFAULT_DISPLAY_NAME, age: null, birthday: null };
+/** Read the user's cached profile fields from localStorage, falling back to `fallbackName`. */
+const readStoredProfile = (
+  suffix: string,
+  fallbackName: string
+): { name: string; age: number | null; birthday: string | null } => {
+  if (typeof window === 'undefined') return { name: fallbackName, age: null, birthday: null };
   try {
-    const name = localStorage.getItem(PROFILE_NAME_KEY) || DEFAULT_DISPLAY_NAME;
-    const ageRaw = localStorage.getItem(PROFILE_AGE_KEY);
+    const name = localStorage.getItem(PROFILE_NAME_KEY + suffix) || fallbackName;
+    const ageRaw = localStorage.getItem(PROFILE_AGE_KEY + suffix);
     const parsedAge = ageRaw ? parseInt(ageRaw, 10) : NaN;
-    const birthday = localStorage.getItem(PROFILE_BIRTHDAY_KEY);
+    const birthday = localStorage.getItem(PROFILE_BIRTHDAY_KEY + suffix);
     return { name, age: Number.isFinite(parsedAge) ? parsedAge : null, birthday };
   } catch (err) {
     logger.warn('Could not read cached profile from localStorage:', err);
-    return { name: DEFAULT_DISPLAY_NAME, age: null, birthday: null };
+    return { name: fallbackName, age: null, birthday: null };
   }
 };
 
@@ -85,10 +97,10 @@ const readStoredProfile = (): { name: string; age: number | null; birthday: stri
  * Read and validate the cached social accounts from localStorage.
  * Returns `null` when running outside the browser or when nothing valid is stored.
  */
-const readCachedAccounts = (): SocialAccount[] | null => {
+const readCachedAccounts = (suffix: string): SocialAccount[] | null => {
   if (typeof window === 'undefined') return null;
   try {
-    const raw = localStorage.getItem(ACCOUNTS_STORAGE_KEY);
+    const raw = localStorage.getItem(ACCOUNTS_STORAGE_KEY + suffix);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) && parsed.length > 0 ? parsed : null;
@@ -177,18 +189,22 @@ interface AppContextType {
   // Notifications
   toast: { message: string; type: 'success' | 'info' | 'error' } | null;
   showToast: (message: string, type?: 'success' | 'info' | 'error') => void;
-
-  // Viewport mode
-  isMobileDeviceView: boolean;
-  setIsMobileDeviceView: (val: boolean) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  // When REQUIRE_AUTH is on, scope every per-person localStorage cache below
+  // to the signed-in account so a second account signing into the same
+  // browser doesn't inherit the first account's name/avatar/accounts. Off
+  // (the default), this is '' and behavior matches the pre-auth single-user app.
+  const { requireAuth, user } = useAuth();
+  const storageSuffix = requireAuth && user ? `:${user.id}` : '';
+  const fallbackDisplayName = requireAuth && user ? user.name : DEFAULT_DISPLAY_NAME;
+
   const [activeTab, setActiveTab] = useState<ViewTab>('dashboard');
   const [posts, setPosts] = useState<PostItem[]>([]);
-  const [socialAccounts, setSocialAccounts] = useState<SocialAccount[]>(() => readCachedAccounts() ?? []);
+  const [socialAccounts, setSocialAccounts] = useState<SocialAccount[]>(() => readCachedAccounts(storageSuffix) ?? []);
   const [trends, setTrends] = useState<TrendItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -200,10 +216,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isAccountsModalOpen, setIsAccountsModalOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  const [displayName, setDisplayName] = useState<string>(() => readStoredProfile().name);
-  const [age, setAge] = useState<number | null>(() => readStoredProfile().age);
-  const [birthday, setBirthday] = useState<string | null>(() => readStoredProfile().birthday);
-  const [avatarUrl, setAvatarUrl] = useState<string>(() => readStoredAvatar());
+  const [displayName, setDisplayName] = useState<string>(
+    () => readStoredProfile(storageSuffix, fallbackDisplayName).name
+  );
+  const [age, setAge] = useState<number | null>(() => readStoredProfile(storageSuffix, fallbackDisplayName).age);
+  const [birthday, setBirthday] = useState<string | null>(
+    () => readStoredProfile(storageSuffix, fallbackDisplayName).birthday
+  );
+  const [avatarUrl, setAvatarUrl] = useState<string>(() => readStoredAvatar(storageSuffix));
   const [notificationsEnabled, setNotificationsEnabledState] = useState<boolean>(() =>
     readStoredNotificationsEnabled()
   );
@@ -222,7 +242,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [aiInitialTab, setAiInitialTab] = useState<'ideas' | 'hooks' | 'scripts' | 'shotlist'>('ideas');
 
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
-  const [isMobileDeviceView, setIsMobileDeviceView] = useState(false);
 
   // Sync to localStorage whenever socialAccounts updates
   const setAndCacheAccounts = (accounts: SocialAccount[] | ((prev: SocialAccount[]) => SocialAccount[])) => {
@@ -230,7 +249,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const next = typeof accounts === 'function' ? accounts(prev) : accounts;
       if (typeof window !== 'undefined') {
         try {
-          localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(next));
+          localStorage.setItem(ACCOUNTS_STORAGE_KEY + storageSuffix, JSON.stringify(next));
         } catch (e) {
           logger.warn('Failed to cache accounts to localStorage:', e);
         }
@@ -245,16 +264,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setBirthday(newBirthday);
     if (typeof window !== 'undefined') {
       try {
-        localStorage.setItem(PROFILE_NAME_KEY, name);
+        localStorage.setItem(PROFILE_NAME_KEY + storageSuffix, name);
         if (newAge !== null) {
-          localStorage.setItem(PROFILE_AGE_KEY, String(newAge));
+          localStorage.setItem(PROFILE_AGE_KEY + storageSuffix, String(newAge));
         } else {
-          localStorage.removeItem(PROFILE_AGE_KEY);
+          localStorage.removeItem(PROFILE_AGE_KEY + storageSuffix);
         }
         if (newBirthday) {
-          localStorage.setItem(PROFILE_BIRTHDAY_KEY, newBirthday);
+          localStorage.setItem(PROFILE_BIRTHDAY_KEY + storageSuffix, newBirthday);
         } else {
-          localStorage.removeItem(PROFILE_BIRTHDAY_KEY);
+          localStorage.removeItem(PROFILE_BIRTHDAY_KEY + storageSuffix);
         }
       } catch (err) {
         logger.warn('Failed to save profile to localStorage:', err);
@@ -267,7 +286,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setAvatarUrl(dataUrl);
     if (typeof window !== 'undefined') {
       try {
-        localStorage.setItem(AVATAR_STORAGE_KEY, dataUrl);
+        localStorage.setItem(AVATAR_STORAGE_KEY + storageSuffix, dataUrl);
       } catch (err) {
         logger.warn('Failed to save avatar to localStorage:', err);
       }
@@ -350,7 +369,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         if (accountsRes.ok) {
           const serverAccs: SocialAccount[] = await accountsRes.json();
           // Merge with any cached localStorage state if the server was cold or restarted.
-          const cached = readCachedAccounts();
+          const cached = readCachedAccounts(storageSuffix);
           const merged = cached ? mergeServerAndCachedAccounts(serverAccs, cached) : serverAccs;
 
           // If cached had custom connections, sync them back to the server in the background.
@@ -589,8 +608,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         navigateToAiWith,
         toast,
         showToast,
-        isMobileDeviceView,
-        setIsMobileDeviceView,
       }}
     >
       {children}

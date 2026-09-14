@@ -250,6 +250,24 @@ export const defaultSocialAccounts: SocialAccountRecord[] = [
   },
 ];
 
+/**
+ * Genuinely empty, disconnected starting rows for a brand-new signup.
+ * `defaultSocialAccounts` above is real demo data for the original
+ * single-user (local-owner) app — Lean's own handles and follower counts,
+ * all pre-`connected: true` — and must never be copied into a new account;
+ * that would show every new signup someone else's "connected" accounts.
+ */
+export const blankSocialAccounts: SocialAccountRecord[] = defaultSocialAccounts.map((acc) => ({
+  ...acc,
+  handle: '',
+  connected: false,
+  avatar: '',
+  followers: '0',
+  views: '0',
+  viewsGrowth: '0%',
+  status: 'disconnected',
+}));
+
 /** Curated trending topics surfaced in the Trends view. */
 export const trendsFeed = [
   {

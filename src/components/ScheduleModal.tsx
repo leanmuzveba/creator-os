@@ -273,7 +273,7 @@ export const ScheduleModal: React.FC = () => {
 
           {/* Pillar Category Dropdown */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-[var(--text-secondary)]">Content Pillar (Lean's 5 Pillars)</label>
+            <label className="text-xs font-bold text-[var(--text-secondary)]">Content Pillar (5 Content Pillars)</label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value as ContentCategory)}

@@ -170,7 +170,7 @@ export const AiAssistantView: React.FC = () => {
         {/* 5 Content Pillars Quick Tag */}
         <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs text-[var(--accent)]">
           <Wand2 className="w-3.5 h-3.5 text-[var(--accent)]" />
-          <span>Tuned to Lean's 5 Brand Pillars</span>
+          <span>Tuned to your 5 Brand Pillars</span>
         </div>
       </div>
 

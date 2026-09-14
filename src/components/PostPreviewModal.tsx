@@ -8,7 +8,8 @@ import { useApp } from '../context/AppContext';
 import { PlatformIcon } from './PlatformIcon';
 
 export const PostPreviewModal: React.FC = () => {
-  const { previewPost, setPreviewPost, publishPostNow, openScheduleModalWithData, showToast } = useApp();
+  const { previewPost, setPreviewPost, publishPostNow, openScheduleModalWithData, showToast, displayName, avatarUrl } =
+    useApp();
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [likeCount, setLikeCount] = useState(previewPost?.likes || 12400);
@@ -21,6 +22,8 @@ export const PostPreviewModal: React.FC = () => {
   ]);
 
   if (!previewPost) return null;
+
+  const previewHandle = `@${displayName.toLowerCase().replace(/\s+/g, '')}`;
 
   const handleLikeToggle = () => {
     if (isLiked) {
@@ -139,8 +142,8 @@ export const PostPreviewModal: React.FC = () => {
             {/* Creator Avatar with follow badge */}
             <div className="relative cursor-pointer group">
               <img
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-                alt="Lean"
+                src={avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'}
+                alt={displayName}
                 className="w-10 h-10 rounded-full border-2 border-white object-cover"
               />
               <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-pink-500 text-white flex items-center justify-center text-[10px] font-bold ring-2 ring-black">
@@ -208,7 +211,7 @@ export const PostPreviewModal: React.FC = () => {
           {/* Bottom Left Meta & Caption Overlay */}
           <div className="absolute left-4 right-16 bottom-4 z-20 text-left">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-sm font-bold text-white drop-shadow">@lean.muzveba</span>
+              <span className="text-sm font-bold text-white drop-shadow">{previewHandle}</span>
               <span className="px-1.5 py-0.2 text-[9px] font-bold rounded bg-pink-600 text-white">
                 Creator
               </span>
@@ -220,7 +223,7 @@ export const PostPreviewModal: React.FC = () => {
 
             <div className="flex items-center gap-2 mt-2 text-[11px] text-slate-300">
               <Music className="w-3.5 h-3.5 text-pink-400 animate-spin" />
-              <span className="truncate">Original sound — Lean in Tech</span>
+              <span className="truncate">Original sound — {displayName}</span>
             </div>
           </div>
 

@@ -37,7 +37,7 @@ import { PostCard } from '../components/PostCard';
 import { formatMetric, calculateTotalViews, parseMetric, getAccountDisplayMetrics } from '../utils/metricUtils';
 
 export const DashboardView: React.FC = () => {
-  const { posts, socialAccounts, openScheduleModalWithData, setActiveTab, setPreviewPost, theme } = useApp();
+  const { posts, socialAccounts, openScheduleModalWithData, setActiveTab, setPreviewPost, theme, displayName } = useApp();
   const [dateRange, setDateRange] = useState('May 12 – May 18, 2025');
   const [chartRange, setChartRange] = useState('7d');
   const [chartData, setChartData] = useState<any[]>([]);
@@ -63,7 +63,7 @@ export const DashboardView: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-[var(--text-primary)] tracking-tight flex items-center gap-2">
-            <span>Welcome back, Lean!</span>
+            <span>Welcome back, {displayName}!</span>
             <span className="inline-block animate-bounce">👋</span>
           </h1>
           <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-0.5">
@@ -381,7 +381,7 @@ export const DashboardView: React.FC = () => {
                 <span className="text-[10px] px-1.5 py-0.2 rounded bg-[var(--accent-20)] text-[var(--accent)] font-bold">5 Pillars</span>
               </div>
               <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-                Generate high-retention hooks, scripts, shot lists & ideas tailored to Lean's brand.
+                Generate high-retention hooks, scripts, shot lists & ideas tailored to your brand.
               </p>
             </div>
           </div>

@@ -5,9 +5,10 @@
  */
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
-import { createUser, getUserByEmail, getUserById } from '../db.ts';
+import { createUser, getUserByEmail, getUserById, upsertAccount } from '../db.ts';
 import { isAuthRequired } from '../authMiddleware.ts';
 import { logger } from '../logger.ts';
+import { blankSocialAccounts } from '../store.ts';
 
 export const authRouter = Router();
 
@@ -35,6 +36,13 @@ authRouter.post('/api/auth/signup', async (req, res) => {
   try {
     const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
     const user = createUser(normalizedEmail, passwordHash, (name || normalizedEmail.split('@')[0]).trim());
+    // The pre-auth local-owner got its rows from the one-time SQLite migration;
+    // a fresh signup has none, so the Connected Accounts modal would otherwise
+    // render with nothing to connect at all. Blank/disconnected only — see
+    // blankSocialAccounts for why this can't reuse defaultSocialAccounts.
+    for (const acc of blankSocialAccounts) {
+      upsertAccount(user.id, { ...acc });
+    }
     req.session.userId = user.id;
     res.status(201).json({ id: user.id, email: user.email, name: user.name });
   } catch (err) {
