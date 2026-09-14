@@ -5,7 +5,7 @@
  * `AppProvider` in App.tsx so the app's own data fetching never starts
  * until the gate has resolved.
  */
-import React, { useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 interface AuthUser {
   id: string;
@@ -15,8 +15,25 @@ interface AuthUser {
 
 type GateStatus = 'checking' | 'open' | 'authenticated' | 'anonymous';
 
+interface AuthContextValue {
+  /** Whether the backend has REQUIRE_AUTH on — controls whether a "Log Out" control should be shown at all. */
+  requireAuth: boolean;
+  user: AuthUser | null;
+  logout: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextValue>({
+  requireAuth: false,
+  user: null,
+  logout: async () => {},
+});
+
+/** Access the signed-in user and logout action from anywhere under AuthGate. */
+export const useAuth = () => useContext(AuthContext);
+
 export const AuthGate: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [status, setStatus] = useState<GateStatus>('checking');
+  const [user, setUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -35,6 +52,7 @@ export const AuthGate: React.FC<{ children: React.ReactNode }> = ({ children }) 
         const meRes = await fetch('/api/auth/me');
         const me = await meRes.json();
         if (cancelled) return;
+        setUser(me.user ?? null);
         setStatus(me.user ? 'authenticated' : 'anonymous');
       } catch {
         // If the config check itself fails, fail open to the app's existing
@@ -48,18 +66,38 @@ export const AuthGate: React.FC<{ children: React.ReactNode }> = ({ children }) 
     };
   }, []);
 
+  const logout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } finally {
+      setUser(null);
+      setStatus('anonymous');
+    }
+  };
+
   if (status === 'checking') {
     return <div className="min-h-screen bg-[var(--bg-page)]" />;
   }
 
   if (status === 'anonymous') {
-    return <AuthForms onAuthenticated={() => setStatus('authenticated')} />;
+    return (
+      <AuthForms
+        onAuthenticated={(authedUser) => {
+          setUser(authedUser);
+          setStatus('authenticated');
+        }}
+      />
+    );
   }
 
-  return <>{children}</>;
+  return (
+    <AuthContext.Provider value={{ requireAuth: status === 'authenticated', user, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
-const AuthForms: React.FC<{ onAuthenticated: () => void }> = ({ onAuthenticated }) => {
+const AuthForms: React.FC<{ onAuthenticated: (user: AuthUser) => void }> = ({ onAuthenticated }) => {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -82,7 +120,7 @@ const AuthForms: React.FC<{ onAuthenticated: () => void }> = ({ onAuthenticated 
         setError(data.error || 'Something went wrong');
         return;
       }
-      onAuthenticated();
+      onAuthenticated(data);
     } catch {
       setError('Could not reach the server. Please try again.');
     } finally {

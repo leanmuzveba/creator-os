@@ -22,8 +22,10 @@ import {
   Contrast,
   Heart,
   Check,
+  LogOut,
 } from 'lucide-react';
 import { useApp, AppTheme } from '../context/AppContext';
+import { useAuth } from './AuthGate';
 import { calculateTotalFollowers, formatMetric } from '../utils/metricUtils';
 import { compressAvatarToDataUrl } from '../utils/videoUtils';
 import { EditProfileView } from './EditProfileView';
@@ -47,6 +49,7 @@ export const ProfileView: React.FC = () => {
     theme,
     setTheme,
   } = useApp();
+  const { requireAuth, logout } = useAuth();
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [isThemePickerOpen, setIsThemePickerOpen] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
@@ -69,6 +72,11 @@ export const ProfileView: React.FC = () => {
   const totalFollowers = calculateTotalFollowers(socialAccounts);
 
   const close = () => setIsProfileOpen(false);
+
+  const handleLogout = () => {
+    close();
+    logout();
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-[var(--bg-page)] overflow-y-auto">
@@ -176,6 +184,18 @@ export const ProfileView: React.FC = () => {
             label="App Theme"
             onClick={() => setIsThemePickerOpen(true)}
           />
+
+          {requireAuth && (
+            <>
+              <SectionLabel text="SESSION" className="mt-5" />
+              <SettingsTile
+                icon={<LogOut className="w-[18px] h-[18px]" />}
+                label="Log Out"
+                tone="danger"
+                onClick={handleLogout}
+              />
+            </>
+          )}
         </div>
       </div>
 
@@ -258,20 +278,31 @@ const SectionLabel: React.FC<{ text: string; className?: string }> = ({ text, cl
   </p>
 );
 
-const SettingsTile: React.FC<{ icon: React.ReactNode; label: string; onClick: () => void }> = ({
-  icon,
-  label,
-  onClick,
-}) => (
+const SettingsTile: React.FC<{
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+  tone?: 'default' | 'danger';
+}> = ({ icon, label, onClick, tone = 'default' }) => (
   <button
     onClick={onClick}
     className="w-full flex items-center gap-3.5 px-3.5 py-3.5 mb-2.5 rounded-2xl bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-hover)] transition-colors text-left"
   >
-    <span className="w-9 h-9 flex items-center justify-center rounded-full bg-[var(--accent-15)] text-[var(--accent)]">
+    <span
+      className={`w-9 h-9 flex items-center justify-center rounded-full ${
+        tone === 'danger' ? 'bg-red-500/15 text-red-400' : 'bg-[var(--accent-15)] text-[var(--accent)]'
+      }`}
+    >
       {icon}
     </span>
-    <span className="flex-1 text-[14.5px] font-semibold text-[var(--text-primary)]">{label}</span>
-    <ChevronRight className="w-5 h-5 text-[var(--text-secondary)]" />
+    <span
+      className={`flex-1 text-[14.5px] font-semibold ${
+        tone === 'danger' ? 'text-red-400' : 'text-[var(--text-primary)]'
+      }`}
+    >
+      {label}
+    </span>
+    {tone === 'default' && <ChevronRight className="w-5 h-5 text-[var(--text-secondary)]" />}
   </button>
 );
 
