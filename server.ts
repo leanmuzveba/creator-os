@@ -63,10 +63,14 @@ app.use(
 // Account routes (signup/login/logout/me/config) — unauthenticated on purpose.
 app.use(authRouter);
 
-// Everything past here needs req.userId. When REQUIRE_AUTH is off (the
-// default), this is a no-op that attaches the single local-owner user, so
-// behavior is unchanged until the flag is deliberately turned on.
-app.use(requireAuth);
+// Scoped to /api so it can't shadow the unauthenticated routes mounted
+// below it — including the static app shell an anonymous visitor needs in
+// order to see the login screen at all. (/api/auth/* and /api/config are
+// handled by authRouter above and never reach this middleware.) When
+// REQUIRE_AUTH is off (the default), this is a no-op that attaches the
+// single local-owner user, so behavior is unchanged until the flag is
+// deliberately turned on.
+app.use('/api', requireAuth);
 app.use(postsRouter);
 app.use(accountsRouter);
 app.use(authTiktokRouter);
