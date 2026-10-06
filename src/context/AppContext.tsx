@@ -412,10 +412,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // Listen for OAuth popup completion messages
   useEffect(() => {
     const handleOAuthMessage = (event: MessageEvent) => {
-      const origin = event.origin;
-      if (!origin.endsWith('.run.app') && !origin.includes('localhost')) {
-        return;
-      }
+      // The OAuth callback page is served by our own server, so only trust
+      // messages from this origin (the old *.run.app check ignored Render).
+      if (event.origin !== window.location.origin) return;
       if (event.data?.type === 'OAUTH_AUTH_SUCCESS') {
         refreshAccounts();
         if (event.data.metricsSynced === false) {
