@@ -93,6 +93,18 @@ function initSchema(database: Database.Database): void {
       PRIMARY KEY (user_id, platform)
     );
 
+    CREATE TABLE IF NOT EXISTS instagram_jobs (
+      post_id TEXT NOT NULL,
+      user_id TEXT NOT NULL REFERENCES users(id),
+      run_at INTEGER NOT NULL,
+      video_path TEXT NOT NULL,
+      caption TEXT NOT NULL,
+      status TEXT NOT NULL,
+      error TEXT,
+      media_id TEXT,
+      PRIMARY KEY (user_id, post_id)
+    );
+
     CREATE TABLE IF NOT EXISTS sessions (
       sid TEXT PRIMARY KEY,
       data TEXT NOT NULL,
@@ -413,4 +425,60 @@ export function destroySessionRow(sid: string): void {
 
 export function pruneExpiredSessions(): void {
   getDb().prepare(`DELETE FROM sessions WHERE expires_at < ?`).run(Date.now());
+}
+
+// ---------------------------------------------------------------------------
+// Instagram Reel publish jobs (one per post; replaced on reschedule)
+// ---------------------------------------------------------------------------
+
+export interface InstagramJob {
+  postId: string;
+  userId: string;
+  runAt: number;
+  videoPath: string;
+  caption: string;
+  status: 'pending' | 'running' | 'published' | 'failed';
+  error?: string;
+  mediaId?: string;
+}
+
+function rowToJob(row: any): InstagramJob {
+  return {
+    postId: row.post_id,
+    userId: row.user_id,
+    runAt: row.run_at,
+    videoPath: row.video_path,
+    caption: row.caption,
+    status: row.status,
+    error: row.error ?? undefined,
+    mediaId: row.media_id ?? undefined,
+  };
+}
+
+export function upsertInstagramJob(job: InstagramJob): void {
+  getDb()
+    .prepare(
+      `
+      INSERT INTO instagram_jobs (post_id, user_id, run_at, video_path, caption, status, error, media_id)
+      VALUES (@postId, @userId, @runAt, @videoPath, @caption, @status, @error, @mediaId)
+      ON CONFLICT(user_id, post_id) DO UPDATE SET
+        run_at=excluded.run_at, video_path=excluded.video_path, caption=excluded.caption,
+        status=excluded.status, error=excluded.error, media_id=excluded.media_id
+    `
+    )
+    .run({ ...job, error: job.error ?? null, mediaId: job.mediaId ?? null });
+}
+
+export function getInstagramJob(userId: string, postId: string): InstagramJob | null {
+  const row = getDb().prepare(`SELECT * FROM instagram_jobs WHERE user_id = ? AND post_id = ?`).get(userId, postId);
+  return row ? rowToJob(row) : null;
+}
+
+/** Pending jobs whose time has come, oldest first. */
+export function listDueInstagramJobs(now: number): InstagramJob[] {
+  return (
+    getDb()
+      .prepare(`SELECT * FROM instagram_jobs WHERE status = 'pending' AND run_at <= ? ORDER BY run_at`)
+      .all(now) as any[]
+  ).map(rowToJob);
 }

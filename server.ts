@@ -24,6 +24,8 @@ import { authTiktokRouter } from './server/routes/authTiktok.ts';
 import { authFacebookRouter } from './server/routes/authFacebook.ts';
 import { authInstagramRouter } from './server/routes/authInstagram.ts';
 import { authYoutubeRouter } from './server/routes/authYoutube.ts';
+import { instagramPublishRouter } from './server/routes/instagramPublish.ts';
+import { startInstagramScheduler } from './server/instagramPublish.ts';
 import { trendsRouter } from './server/routes/trends.ts';
 import { analyticsRouter } from './server/routes/analytics.ts';
 import { aiRouter } from './server/routes/ai.ts';
@@ -40,6 +42,7 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // Open the SQLite store (creates the schema and local-owner user if needed)
 // before serving requests.
 getDb();
+startInstagramScheduler();
 
 if (isAuthRequired() && !process.env.SESSION_SECRET) {
   logger.warn('REQUIRE_AUTH is on but SESSION_SECRET is not set — using an insecure default. Set SESSION_SECRET in .env.');
@@ -72,6 +75,7 @@ app.use(authRouter);
 // deliberately turned on.
 app.use('/api', requireAuth);
 app.use(postsRouter);
+app.use(instagramPublishRouter);
 app.use(accountsRouter);
 app.use(authTiktokRouter);
 app.use(authFacebookRouter);

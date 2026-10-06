@@ -11,6 +11,7 @@ creator_storage.json
 creator_os.db
 creator_os.db-shm
 creator_os.db-wal
+uploads/
 
 # Test coverage output
 coverage
