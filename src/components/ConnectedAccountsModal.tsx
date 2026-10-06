@@ -62,7 +62,7 @@ export const ConnectedAccountsModal: React.FC = () => {
   };
 
   const startEditing = (shown: SocialAccount) => {
-    // The Meta card shows merged FB+IG info; edit the real Facebook record.
+    // The Meta card shows merged FB+IG info; edit the real Instagram record.
     const account = socialAccounts.find((a) => a.id === shown.id) ?? shown;
     setEditingAccountId(account.id);
     setEditForm({
@@ -138,7 +138,7 @@ export const ConnectedAccountsModal: React.FC = () => {
 
   const handleConnectAccount = (id: PlatformType) => {
     // Meta card: Disconnect turns off both Facebook and Instagram.
-    const targets: PlatformType[] = id === 'facebook' ? ['facebook', 'instagram'] : [id];
+    const targets: PlatformType[] = id === 'instagram' ? ['instagram', 'facebook'] : [id];
     const connected = socialAccounts.filter((a) => targets.includes(a.id) && a.connected);
     if (connected.length) {
       connected.forEach((a) => toggleAccountConnection(a.id));
@@ -168,19 +168,21 @@ export const ConnectedAccountsModal: React.FC = () => {
     setShowYouTubeGuide(false);
   };
 
-  // Facebook and Instagram share one Meta card: a single Facebook login
-  // connects both (Instagram via the Page it's linked to).
-  const ig = socialAccounts.find((a) => a.id === 'instagram');
+  // Facebook and Instagram share one Meta card, which connects through the
+  // Instagram login: no Facebook Page needed, and it can publish Reels.
+  // (Personal Facebook profiles have no API access, so Facebook itself only
+  // connects via the Page-based Facebook login, which this card doesn't use.)
+  const fb = socialAccounts.find((a) => a.id === 'facebook');
   const displayAccounts = socialAccounts
-    .filter((a) => a.id !== 'instagram')
+    .filter((a) => a.id !== 'facebook')
     .map((a) =>
-      a.id !== 'facebook'
+      a.id !== 'instagram'
         ? a
         : {
             ...a,
-            name: 'Meta (Facebook + Instagram)',
-            connected: a.connected || !!ig?.connected,
-            handle: [a.connected && a.handle, ig?.connected && ig.handle].filter(Boolean).join(' · ') || a.handle,
+            name: 'Meta',
+            connected: a.connected || !!fb?.connected,
+            handle: [a.connected && a.handle, fb?.connected && fb.handle].filter(Boolean).join(' · ') || a.handle,
           }
     );
 
