@@ -27,7 +27,14 @@ authFacebookRouter.get('/api/auth/facebook/url', (req, res) => {
   // any pages (and their fan/follower counts) at all; public_profile alone only
   // gets the user's own name via /me, which is why follower sync was silently
   // failing before this was added.
-  const scope = (req.query.scope as string) || 'public_profile,pages_show_list,pages_read_engagement';
+  // instagram_basic + instagram_content_publish let this single Facebook login
+  // also connect the Instagram Professional account linked to the user's Page
+  // and publish/schedule Reels to it - no separate Instagram login needed.
+  // business_management is needed for /me/accounts to see Pages owned through a
+  // Business portfolio.
+  const scope =
+    (req.query.scope as string) ||
+    'public_profile,pages_show_list,pages_read_engagement,business_management,instagram_basic,instagram_content_publish';
 
   if (!appId) {
     return res.json({
@@ -173,6 +180,8 @@ authFacebookRouter.get(['/api/auth/facebook/callback', '/api/auth/facebook/callb
     let profileDisplayName = 'Facebook User';
     let profileAvatar = '';
     let followersCount = '1';
+    let linkedIg: any = null;
+    let linkedIgPageToken = '';
 
     // 1. Fetch authenticated Facebook User profile (/me).
     try {
@@ -195,7 +204,7 @@ authFacebookRouter.get(['/api/auth/facebook/callback', '/api/auth/facebook/callb
     // 2. Fetch Facebook Managed Pages (/me/accounts) if available.
     try {
       const pagesRes = await fetch(
-        `https://graph.facebook.com/v19.0/me/accounts?fields=name,id,fan_count,followers_count,picture{url}&access_token=${tokenData.access_token}`
+        `https://graph.facebook.com/v19.0/me/accounts?fields=name,id,fan_count,followers_count,picture{url},access_token,instagram_business_account{id,username,followers_count,profile_picture_url}&access_token=${tokenData.access_token}`
       );
       const pagesData = await pagesRes.json();
       logger.debug('Meta Facebook pages response:', pagesData);
@@ -210,6 +219,12 @@ authFacebookRouter.get(['/api/auth/facebook/callback', '/api/auth/facebook/callb
         if (rawCount !== undefined) {
           const count = Number(rawCount);
           followersCount = count >= 1000 ? `${(count / 1000).toFixed(1)}K` : `${count}`;
+        }
+        // The first Page with a linked Instagram Professional account wins.
+        const igPage = pagesData.data.find((p: any) => p.instagram_business_account);
+        if (igPage) {
+          linkedIg = igPage.instagram_business_account;
+          linkedIgPageToken = igPage.access_token;
         }
       }
     } catch (fbErr) {
@@ -244,10 +259,37 @@ authFacebookRouter.get(['/api/auth/facebook/callback', '/api/auth/facebook/callb
       upsertAccount(userId, fbAcc);
     }
 
-    const statusHeading = metricsSynced ? 'Facebook Account Connected!' : 'Facebook Partially Connected';
+    // Instagram linked to the Page: connect it off the same login. The Page
+    // token (Graph API on graph.facebook.com) is what publishes Reels for it.
+    const igAcc = linkedIg && getAccount(userId, 'instagram');
+    if (igAcc) {
+      setOAuthToken(userId, 'instagram', {
+        accessToken: linkedIgPageToken || tokenData.access_token,
+        expiresAt: Date.now() + (tokenData.expires_in || 5184000) * 1000,
+        extra: { userId: linkedIg.id, via: 'facebook' },
+      });
+      const oldIgFollowers = igAcc.followers;
+      igAcc.connected = true;
+      igAcc.handle = `@${linkedIg.username}`;
+      if (linkedIg.profile_picture_url) igAcc.avatar = linkedIg.profile_picture_url;
+      igAcc.status = 'active';
+      if (linkedIg.followers_count !== undefined) {
+        const fc = Number(linkedIg.followers_count);
+        igAcc.followers = fc >= 1000 ? `${(fc / 1000).toFixed(1)}K` : `${fc}`;
+        igAcc.viewsGrowth = computeGrowth(oldIgFollowers, igAcc.followers);
+      }
+      igAcc.views = '0';
+      upsertAccount(userId, igAcc);
+    }
+    const igNote = igAcc
+      ? `<br/><br/>Instagram <strong>@${linkedIg.username}</strong> was connected too.`
+      : `<br/><br/>No Instagram account is linked to your Facebook Page yet - link it in the Instagram app (Settings → Accounts Center), then reconnect.`;
+
+    const statusHeading = metricsSynced ? 'Meta Account Connected!' : 'Meta Partially Connected';
     const statusMessage = metricsSynced
       ? `<strong>${profileDisplayName}</strong> has been linked to Creator OS.`
       : `We linked your personal profile (<strong>${profileDisplayName}</strong>), but Facebook only exposes follower/fan counts for Pages you manage - not personal profiles. Create or claim a Facebook Page for your creator brand, make sure you're an admin on it, then reconnect.`;
+    const statusMessageFull = statusMessage + igNote;
 
     return res.send(`
       <!DOCTYPE html>
@@ -257,7 +299,7 @@ authFacebookRouter.get(['/api/auth/facebook/callback', '/api/auth/facebook/callb
           <div style="text-align: center; max-width: 420px; padding: 32px; border: 1px solid rgba(59,130,246,0.3); border-radius: 20px; background: #131627; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
             <div style="width: 52px; height: 52px; border-radius: 50%; background: rgba(59,130,246,0.2); border: 2px solid #3b82f6; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 24px;">${metricsSynced ? '✓' : '⚠️'}</div>
             <h2 style="color: #fff; margin: 0 0 8px 0; font-size: 18px;">${statusHeading}</h2>
-            <p style="color: #94a3b8; font-size: 13px; margin: 0 0 16px 0; line-height: 1.5;">${statusMessage}</p>
+            <p style="color: #94a3b8; font-size: 13px; margin: 0 0 16px 0; line-height: 1.5;">${statusMessageFull}</p>
             <p style="color: #64748b; font-size: 11px;">This window should close automatically...</p>
             <script>
               if (window.opener) {

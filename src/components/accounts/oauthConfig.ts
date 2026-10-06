@@ -17,7 +17,8 @@ export const SITE_URL = 'https://ais-dev-trgypbutyowyfjrxvbpubj-294594473820.eur
 export const PRIVACY_POLICY_URL =
   'https://ais-dev-trgypbutyowyfjrxvbpubj-294594473820.europe-west1.run.app/privacy';
 export const TERMS_URL = 'https://ais-dev-trgypbutyowyfjrxvbpubj-294594473820.europe-west1.run.app/terms';
-export const META_SCOPES = 'public_profile,pages_show_list,pages_read_engagement';
+export const META_SCOPES =
+  'public_profile,pages_show_list,pages_read_engagement,business_management,instagram_basic,instagram_content_publish';
 
 export const INSTAGRAM_DEV_CALLBACK_URL =
   'https://ais-dev-trgypbutyowyfjrxvbpubj-294594473820.europe-west1.run.app/api/auth/instagram/callback';
