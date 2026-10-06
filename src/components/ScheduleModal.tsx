@@ -10,6 +10,7 @@ import { PlatformType, ContentCategory, PostItem } from '../types';
 import { PlatformIcon } from './PlatformIcon';
 import { processMediaFile } from '../utils/videoUtils';
 import { logger } from '../utils/logger';
+import { parseScheduleTime } from '../utils/scheduleTime';
 
 export const ScheduleModal: React.FC = () => {
   const { isScheduleModalOpen, setIsScheduleModalOpen, scheduleModalInitialData, addPost, updatePost, showToast, socialAccounts, theme } = useApp();
@@ -152,6 +153,26 @@ export const ScheduleModal: React.FC = () => {
       return;
     }
 
+    // Instagram gets a real Reel: the video is uploaded to the server, which
+    // publishes it now or at the scheduled time.
+    const toInstagram =
+      selectedPlatforms.includes('instagram') && !!socialAccounts.find((a) => a.id === 'instagram')?.connected;
+    const runAt = publishImmediately ? Date.now() : parseScheduleTime(scheduledDate, scheduledTime);
+    if (toInstagram) {
+      if (!videoUrl) {
+        showToast('Instagram Reels need a video - add one or untick Instagram', 'error');
+        return;
+      }
+      if (runAt === null) {
+        showToast('Could not read the time - use something like 10:00 AM or 14:30', 'error');
+        return;
+      }
+      if (!publishImmediately && runAt < Date.now()) {
+        showToast('That time has already passed', 'error');
+        return;
+      }
+    }
+
     const postPayload = {
       title,
       category,
@@ -167,15 +188,49 @@ export const ScheduleModal: React.FC = () => {
       duration,
     };
 
+    let postId: string;
     if (scheduleModalInitialData?.id) {
-      await updatePost(scheduleModalInitialData.id, postPayload);
+      postId = (await updatePost(scheduleModalInitialData.id, postPayload)).id;
       showToast(publishImmediately ? 'Post published successfully! 🚀' : 'Post scheduled successfully! 📅', 'success');
     } else {
-      await addPost(postPayload);
+      postId = (await addPost(postPayload)).id;
       showToast(publishImmediately ? 'Post published to all platforms! 🚀' : 'Post scheduled successfully! 📅', 'success');
     }
 
     setIsScheduleModalOpen(false);
+    if (toInstagram) sendToInstagram(postId, videoUrl!, runAt!);
+  };
+
+  // Runs after the modal closes; reports progress through toasts.
+  const sendToInstagram = async (postId: string, video: string, runAt: number) => {
+    let blob: Blob;
+    try {
+      blob = await (await fetch(video)).blob();
+    } catch {
+      // Object URLs die on page reload, so an older post's video is gone.
+      showToast('Video is no longer available - re-attach it to post to Instagram', 'error');
+      return;
+    }
+    // Image uploads also land in videoUrl, but a Reel must be a video.
+    if (blob.type && !blob.type.startsWith('video/')) {
+      showToast('Instagram Reels need a video file, not an image', 'error');
+      return;
+    }
+    showToast(publishImmediately ? 'Uploading Reel to Instagram... this can take a minute' : 'Uploading Reel for scheduling...', 'info');
+    try {
+      const res = await fetch(`/api/posts/${postId}/instagram?runAt=${runAt}`, {
+        method: 'POST',
+        headers: { 'Content-Type': blob.type || 'video/mp4' },
+        body: blob,
+      });
+      const job = await res.json();
+      if (job.status === 'published') showToast('Reel is live on Instagram! 🎉', 'success');
+      else if (job.status === 'pending') showToast(`Reel scheduled for Instagram at ${new Date(runAt).toLocaleString()}`, 'success');
+      else showToast(`Instagram: ${job.error || 'publish failed'}`, 'error');
+    } catch (err) {
+      logger.error('Instagram publish error:', err);
+      showToast('Could not reach the server to post to Instagram', 'error');
+    }
   };
 
   return (
