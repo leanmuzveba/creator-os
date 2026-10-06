@@ -29,8 +29,11 @@ authInstagramRouter.get('/api/auth/instagram/url', (req, res) => {
   // instagram_business_basic covers profile fields (username, account_type,
   // followers_count, media_count); instagram_business_manage_insights is
   // requested too since some accounts only expose follower counts once it's
-  // granted.
-  const scope = (req.query.scope as string) || 'instagram_business_basic,instagram_business_manage_insights';
+  // granted. instagram_business_content_publish lets Creator OS publish and
+  // schedule Reels.
+  const scope =
+    (req.query.scope as string) ||
+    'instagram_business_basic,instagram_business_manage_insights,instagram_business_content_publish';
 
   if (!appId) {
     return res.json({

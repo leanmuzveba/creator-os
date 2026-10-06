@@ -24,7 +24,8 @@ export const INSTAGRAM_DEV_CALLBACK_URL =
   'https://ais-dev-trgypbutyowyfjrxvbpubj-294594473820.europe-west1.run.app/api/auth/instagram/callback';
 export const INSTAGRAM_SHARED_CALLBACK_URL =
   'https://ais-pre-trgypbutyowyfjrxvbpubj-294594473820.europe-west1.run.app/api/auth/instagram/callback';
-export const INSTAGRAM_SCOPES = 'instagram_business_basic,instagram_business_manage_insights';
+export const INSTAGRAM_SCOPES =
+  'instagram_business_basic,instagram_business_manage_insights,instagram_business_content_publish';
 
 export const YT_DEV_CALLBACK_URL =
   'https://ais-dev-trgypbutyowyfjrxvbpubj-294594473820.europe-west1.run.app/api/auth/youtube/callback';
