@@ -61,7 +61,9 @@ export const ConnectedAccountsModal: React.FC = () => {
     setTimeout(() => setCopiedKey(null), 2500);
   };
 
-  const startEditing = (account: SocialAccount) => {
+  const startEditing = (shown: SocialAccount) => {
+    // The Meta card shows merged FB+IG info; edit the real Facebook record.
+    const account = socialAccounts.find((a) => a.id === shown.id) ?? shown;
     setEditingAccountId(account.id);
     setEditForm({
       handle: account.handle,
@@ -135,6 +137,13 @@ export const ConnectedAccountsModal: React.FC = () => {
   };
 
   const handleConnectAccount = (id: PlatformType) => {
+    // Meta card: Disconnect turns off both Facebook and Instagram.
+    const targets: PlatformType[] = id === 'facebook' ? ['facebook', 'instagram'] : [id];
+    const connected = socialAccounts.filter((a) => targets.includes(a.id) && a.connected);
+    if (connected.length) {
+      connected.forEach((a) => toggleAccountConnection(a.id));
+      return;
+    }
     const launcher = oauthLaunchers[id];
     if (launcher) {
       launchOAuth(id, launcher);
@@ -158,6 +167,22 @@ export const ConnectedAccountsModal: React.FC = () => {
     setShowInstagramGuide(false);
     setShowYouTubeGuide(false);
   };
+
+  // Facebook and Instagram share one Meta card: a single Facebook login
+  // connects both (Instagram via the Page it's linked to).
+  const ig = socialAccounts.find((a) => a.id === 'instagram');
+  const displayAccounts = socialAccounts
+    .filter((a) => a.id !== 'instagram')
+    .map((a) =>
+      a.id !== 'facebook'
+        ? a
+        : {
+            ...a,
+            name: 'Meta (Facebook + Instagram)',
+            connected: a.connected || !!ig?.connected,
+            handle: [a.connected && a.handle, ig?.connected && ig.handle].filter(Boolean).join(' · ') || a.handle,
+          }
+    );
 
   // Decide what to render in the modal body: a setup guide, or the accounts list.
   const renderBody = () => {
@@ -216,7 +241,7 @@ export const ConnectedAccountsModal: React.FC = () => {
 
     return (
       <>
-        {socialAccounts.map((account) => (
+        {displayAccounts.map((account) => (
           <AccountRow
             key={account.id}
             account={account}
