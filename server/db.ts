@@ -110,6 +110,14 @@ function initSchema(database: Database.Database): void {
       data TEXT NOT NULL,
       expires_at INTEGER NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS password_resets (
+      user_id TEXT PRIMARY KEY REFERENCES users(id),
+      code_hash TEXT NOT NULL,
+      expires_at INTEGER NOT NULL,
+      attempts INTEGER NOT NULL DEFAULT 0,
+      created_at INTEGER NOT NULL
+    );
   `);
 }
 
@@ -399,6 +407,43 @@ export function getUserById(id: string): UserRecord | null {
   return row ? rowToUser(row) : null;
 }
 
+export function updateUserPassword(id: string, passwordHash: string): void {
+  getDb().prepare(`UPDATE users SET password_hash = ? WHERE id = ?`).run(passwordHash, id);
+}
+
+// ---------------------------------------------------------------------------
+// Password reset codes (one live code per user; a new request replaces it)
+// ---------------------------------------------------------------------------
+
+export interface PasswordResetRecord {
+  codeHash: string;
+  expiresAt: number;
+  attempts: number;
+  createdAt: number;
+}
+
+export function setPasswordReset(userId: string, codeHash: string, expiresAt: number): void {
+  getDb()
+    .prepare(
+      `INSERT INTO password_resets (user_id, code_hash, expires_at, attempts, created_at) VALUES (?, ?, ?, 0, ?)
+       ON CONFLICT(user_id) DO UPDATE SET code_hash=excluded.code_hash, expires_at=excluded.expires_at, attempts=0, created_at=excluded.created_at`
+    )
+    .run(userId, codeHash, expiresAt, Date.now());
+}
+
+export function getPasswordReset(userId: string): PasswordResetRecord | null {
+  const row = getDb().prepare(`SELECT * FROM password_resets WHERE user_id = ?`).get(userId) as any;
+  return row ? { codeHash: row.code_hash, expiresAt: row.expires_at, attempts: row.attempts, createdAt: row.created_at } : null;
+}
+
+export function bumpPasswordResetAttempts(userId: string): void {
+  getDb().prepare(`UPDATE password_resets SET attempts = attempts + 1 WHERE user_id = ?`).run(userId);
+}
+
+export function deletePasswordReset(userId: string): void {
+  getDb().prepare(`DELETE FROM password_resets WHERE user_id = ?`).run(userId);
+}
+
 // ---------------------------------------------------------------------------
 // Sessions (backs the express-session store in server/sessionStore.ts)
 // ---------------------------------------------------------------------------
@@ -421,6 +466,11 @@ export function setSessionRow(sid: string, data: string, expiresAt: number): voi
 
 export function destroySessionRow(sid: string): void {
   getDb().prepare(`DELETE FROM sessions WHERE sid = ?`).run(sid);
+}
+
+/** Log a user out everywhere (e.g. after a password reset). */
+export function destroyUserSessions(userId: string): void {
+  getDb().prepare(`DELETE FROM sessions WHERE json_extract(data, '$.userId') = ?`).run(userId);
 }
 
 export function pruneExpiredSessions(): void {
