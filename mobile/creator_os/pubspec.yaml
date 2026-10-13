@@ -65,9 +65,9 @@ dev_dependencies:
 # Regenerate native splash assets after changing this with:
 #   dart run flutter_native_splash:create
 flutter_native_splash:
-  color: "#0B1120"
+  color: "#0B0D17"
   android_12:
-    color: "#0B1120"
+    color: "#0B0D17"
 
 # Home-screen launcher icon — the same camera glyph as the splash screen,
 # on the same navy background. Regenerate after changing this with:
