@@ -186,6 +186,30 @@ class ApiClient {
     return Map<String, dynamic>.from(_decode(res));
   }
 
+  /// Emails a 6-digit reset code; returns the server's (account-agnostic) message.
+  Future<String> forgotPassword(String email) async {
+    final res = await _send(
+      'POST',
+      _uri('/api/auth/forgot-password'),
+      headers: _jsonHeaders,
+      body: jsonEncode({'email': email}),
+    );
+    _checkOk(res, 'Could not send the reset code');
+    return Map<String, dynamic>.from(_decode(res))['message']?.toString() ?? 'Check your email for a code.';
+  }
+
+  /// Sets a new password with the emailed code; the server logs the user in.
+  Future<Map<String, dynamic>> resetPassword(String email, String code, String password) async {
+    final res = await _send(
+      'POST',
+      _uri('/api/auth/reset-password'),
+      headers: _jsonHeaders,
+      body: jsonEncode({'email': email, 'code': code, 'password': password}),
+    );
+    _checkOk(res, 'Password reset failed');
+    return Map<String, dynamic>.from(_decode(res));
+  }
+
   Future<void> logout() async {
     try {
       final res = await _send('POST', _uri('/api/auth/logout'));

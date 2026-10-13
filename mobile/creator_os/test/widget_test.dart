@@ -92,16 +92,18 @@ void main() {
 
     // Gated: the app shell must not be reachable pre-login.
     expect(find.text('Dashboard'), findsNothing);
-    expect(find.text('Log In'), findsOneWidget);
+    expect(find.text('Sign Into OS'), findsOneWidget);
 
     await tester.enterText(find.byType(TextField).at(0), 'creator@example.com');
     await tester.enterText(find.byType(TextField).at(1), 'hunter22');
-    await tester.tap(find.text('Log In'));
+    await tester.ensureVisible(find.text('Sign Into OS'));
+    await tester.pump();
+    await tester.tap(find.text('Sign Into OS'));
     await tester.pump();
     await tester.pump();
     await tester.pump();
 
     expect(find.text('Dashboard'), findsOneWidget);
-    expect(find.text('Log In'), findsNothing);
+    expect(find.text('Sign Into OS'), findsNothing);
   });
 }
