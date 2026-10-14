@@ -14,7 +14,7 @@
  */
 import fs from 'fs';
 import { Readable } from 'stream';
-import { getDb, getOAuthToken, listDueInstagramJobs, upsertInstagramJob, updatePostFields } from './db.ts';
+import { failInterruptedInstagramJobs, getOAuthToken, listDueInstagramJobs, upsertInstagramJob, updatePostFields } from './db.ts';
 import type { InstagramJob } from './db.ts';
 import { logger } from './logger.ts';
 
@@ -33,7 +33,7 @@ async function graphCall(url: string, init?: RequestInit): Promise<any> {
 
 /** Upload and publish one Reel. Returns the published media id. */
 export async function publishReel(userId: string, videoPath: string, caption: string): Promise<string> {
-  const token = getOAuthToken(userId, 'instagram');
+  const token = await getOAuthToken(userId, 'instagram');
   if (!token?.accessToken) throw new Error('Instagram is not connected');
   if (token.expiresAt && token.expiresAt < Date.now()) {
     // ponytail: no auto-refresh of the 60-day token; reconnecting renews it.
@@ -78,12 +78,12 @@ export async function publishReel(userId: string, videoPath: string, caption: st
 
 /** Run one job to completion, recording the outcome on the job and the post. */
 export async function runInstagramJob(job: InstagramJob): Promise<InstagramJob> {
-  upsertInstagramJob({ ...job, status: 'running' });
+  await upsertInstagramJob({ ...job, status: 'running' });
   try {
     const mediaId = await publishReel(job.userId, job.videoPath, job.caption);
     const done: InstagramJob = { ...job, status: 'published', mediaId, error: undefined };
-    upsertInstagramJob(done);
-    updatePostFields(job.userId, job.postId, {
+    await upsertInstagramJob(done);
+    await updatePostFields(job.userId, job.postId, {
       status: 'published',
       publishedDate: new Date().toISOString().split('T')[0],
     });
@@ -92,7 +92,7 @@ export async function runInstagramJob(job: InstagramJob): Promise<InstagramJob> 
     return done;
   } catch (err: any) {
     const failed: InstagramJob = { ...job, status: 'failed', error: err.message || String(err) };
-    upsertInstagramJob(failed);
+    await upsertInstagramJob(failed);
     logger.warn(`Instagram publish failed for post ${job.postId}:`, failed.error);
     return failed;
   }
@@ -110,15 +110,15 @@ let ticking = false;
 export function startInstagramScheduler(): void {
   // A job left "running" means the server died mid-publish; we can't know if
   // Instagram got it, so flag it rather than risk posting twice.
-  getDb()
-    .prepare(`UPDATE instagram_jobs SET status = 'failed', error = 'Server restarted while publishing' WHERE status = 'running'`)
-    .run();
+  failInterruptedInstagramJobs().catch((err) => logger.error("Couldn't flag interrupted Instagram jobs:", err));
 
   setInterval(async () => {
     if (ticking) return;
     ticking = true;
     try {
-      for (const job of listDueInstagramJobs(Date.now())) await runInstagramJob(job);
+      for (const job of await listDueInstagramJobs(Date.now())) await runInstagramJob(job);
+    } catch (err) {
+      logger.error('Instagram scheduler error:', err);
     } finally {
       ticking = false;
     }

@@ -9,6 +9,7 @@ bun.lockb
 # Runtime-generated persistent store
 creator_storage.json
 creator_os.db
+.pgdata
 creator_os.db-shm
 creator_os.db-wal
 uploads/

@@ -9,9 +9,9 @@ import { parseMetricServer, formatMetricServer } from '../metrics.ts';
 
 export const analyticsRouter = Router();
 
-analyticsRouter.get('/api/analytics', (req, res) => {
+analyticsRouter.get('/api/analytics', async (req, res) => {
   const range = (req.query.range as string) || '7d';
-  const accounts = listAccounts(req.userId!);
+  const accounts = await listAccounts(req.userId!);
 
   const tiktokAcc = accounts.find((a) => a.id === 'tiktok');
   const igAcc = accounts.find((a) => a.id === 'instagram');
@@ -140,6 +140,6 @@ analyticsRouter.get('/api/analytics', (req, res) => {
     viewSeries,
     platformPerformance,
     categoryBreakdown,
-    topPost: listPosts(req.userId!)[0],
+    topPost: (await listPosts(req.userId!))[0],
   });
 });

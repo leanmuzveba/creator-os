@@ -66,7 +66,7 @@ function abbreviate(count: number): string {
 }
 
 // Get TikTok OAuth authorization URL.
-authTiktokRouter.get('/api/auth/tiktok/url', (req, res) => {
+authTiktokRouter.get('/api/auth/tiktok/url', async (req, res) => {
   const clientKey = process.env.TIKTOK_CLIENT_KEY;
   const redirectUri = getTikTokRedirectUri(req);
   const state = createOAuthState(req.userId!);
@@ -151,7 +151,7 @@ authTiktokRouter.get(['/api/auth/tiktok/callback', '/api/auth/tiktok/callback/']
     const redirectUri = getTikTokRedirectUri(req);
 
     const userId = req.userId!;
-    const tiktokAcc = getAccount(userId, 'tiktok');
+    const tiktokAcc = await getAccount(userId, 'tiktok');
     const oldViews = tiktokAcc?.views;
     let profileDisplayName = tiktokAcc?.handle || '@my_tiktok';
     let profileAvatar =
@@ -203,7 +203,7 @@ authTiktokRouter.get(['/api/auth/tiktok/callback', '/api/auth/tiktok/callback/']
       }
 
       if (tokenData.access_token) {
-        setOAuthToken(userId, 'tiktok', {
+        await setOAuthToken(userId, 'tiktok', {
           accessToken: tokenData.access_token,
           refreshToken: tokenData.refresh_token,
           expiresAt: Date.now() + (tokenData.expires_in || 86400) * 1000,
@@ -255,7 +255,7 @@ authTiktokRouter.get(['/api/auth/tiktok/callback', '/api/auth/tiktok/callback/']
       tiktokAcc.avatar = profileAvatar;
       tiktokAcc.status = 'active';
       tiktokAcc.viewsGrowth = computeGrowth(oldViews, tiktokAcc.views);
-      upsertAccount(userId, tiktokAcc);
+      await upsertAccount(userId, tiktokAcc);
     }
 
     return res.send(`

@@ -9,50 +9,50 @@ import { defaultSocialAccounts } from '../store.ts';
 export const accountsRouter = Router();
 
 // List all social accounts.
-accountsRouter.get('/api/accounts', (req, res) => {
-  res.json(listAccounts(req.userId!));
+accountsRouter.get('/api/accounts', async (req, res) => {
+  res.json(await listAccounts(req.userId!));
 });
 
 // Batch sync/save social account state from the client.
-accountsRouter.post('/api/accounts/sync', (req, res) => {
+accountsRouter.post('/api/accounts/sync', async (req, res) => {
   const incomingAccounts = req.body;
   if (Array.isArray(incomingAccounts) && incomingAccounts.length > 0) {
-    for (const existing of listAccounts(req.userId!)) {
+    for (const existing of await listAccounts(req.userId!)) {
       const matched = incomingAccounts.find((inc: any) => inc.id === existing.id);
       if (!matched) continue;
-      upsertAccount(req.userId!, {
+      await upsertAccount(req.userId!, {
         ...existing,
         ...matched,
         connected: matched.connected !== undefined ? matched.connected : existing.connected,
       });
     }
   }
-  res.json(listAccounts(req.userId!));
+  res.json(await listAccounts(req.userId!));
 });
 
 // Reset social accounts to their default state.
-accountsRouter.post('/api/accounts/reset', (req, res) => {
+accountsRouter.post('/api/accounts/reset', async (req, res) => {
   for (const acc of defaultSocialAccounts) {
-    upsertAccount(req.userId!, { ...acc });
+    await upsertAccount(req.userId!, { ...acc });
   }
-  res.json(listAccounts(req.userId!));
+  res.json(await listAccounts(req.userId!));
 });
 
 // Toggle a single account's connection state.
-accountsRouter.post('/api/accounts/:id/toggle', (req, res) => {
+accountsRouter.post('/api/accounts/:id/toggle', async (req, res) => {
   const { id } = req.params;
-  const account = getAccount(req.userId!, id);
+  const account = await getAccount(req.userId!, id);
   if (!account) {
     return res.status(404).json({ error: 'Account not found' });
   }
-  const updated = updateAccountFields(req.userId!, id, { connected: !account.connected });
+  const updated = await updateAccountFields(req.userId!, id, { connected: !account.connected });
   res.json(updated);
 });
 
 // Update a single account's handle and metrics.
-accountsRouter.put('/api/accounts/:id', (req, res) => {
+accountsRouter.put('/api/accounts/:id', async (req, res) => {
   const { id } = req.params;
-  const account = getAccount(req.userId!, id);
+  const account = await getAccount(req.userId!, id);
   if (!account) {
     return res.status(404).json({ error: 'Account not found' });
   }
@@ -65,6 +65,6 @@ accountsRouter.put('/api/accounts/:id', (req, res) => {
   if (viewsGrowth !== undefined) patch.viewsGrowth = viewsGrowth;
   if (avatar !== undefined) patch.avatar = avatar;
 
-  const updated = updateAccountFields(req.userId!, id, patch);
+  const updated = await updateAccountFields(req.userId!, id, patch);
   res.json(updated);
 });

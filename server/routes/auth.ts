@@ -28,7 +28,7 @@ export const authRouter = Router();
 const BCRYPT_ROUNDS = 12;
 const MIN_PASSWORD_LENGTH = 8;
 
-authRouter.get('/api/config', (req, res) => {
+authRouter.get('/api/config', async (req, res) => {
   res.json({ requireAuth: isAuthRequired() });
 });
 
@@ -42,19 +42,19 @@ authRouter.post('/api/auth/signup', async (req, res) => {
   }
 
   const normalizedEmail = email.trim().toLowerCase();
-  if (getUserByEmail(normalizedEmail)) {
+  if (await getUserByEmail(normalizedEmail)) {
     return res.status(409).json({ error: 'An account with that email already exists' });
   }
 
   try {
     const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
-    const user = createUser(normalizedEmail, passwordHash, (name || normalizedEmail.split('@')[0]).trim());
+    const user = await createUser(normalizedEmail, passwordHash, (name || normalizedEmail.split('@')[0]).trim());
     // The pre-auth local-owner got its rows from the one-time SQLite migration;
     // a fresh signup has none, so the Connected Accounts modal would otherwise
     // render with nothing to connect at all. Blank/disconnected only — see
     // blankSocialAccounts for why this can't reuse defaultSocialAccounts.
     for (const acc of blankSocialAccounts) {
-      upsertAccount(user.id, { ...acc });
+      await upsertAccount(user.id, { ...acc });
     }
     req.session.userId = user.id;
     res.status(201).json({ id: user.id, email: user.email, name: user.name });
@@ -71,7 +71,7 @@ authRouter.post('/api/auth/login', async (req, res) => {
   }
 
   try {
-    const user = getUserByEmail(email.trim().toLowerCase());
+    const user = await getUserByEmail(email.trim().toLowerCase());
     const valid = user ? await bcrypt.compare(password, user.passwordHash) : false;
     if (!user || !valid) {
       return res.status(401).json({ error: 'Invalid email or password' });
@@ -102,15 +102,15 @@ authRouter.post('/api/auth/forgot-password', async (req, res) => {
   }
 
   const sent = { success: true, message: 'If an account exists for that email, a code is on its way.' };
-  const user = getUserByEmail(email.trim().toLowerCase());
+  const user = await getUserByEmail(email.trim().toLowerCase());
   if (!user?.email) return res.json(sent);
 
-  const existing = getPasswordReset(user.id);
+  const existing = await getPasswordReset(user.id);
   if (existing && Date.now() - existing.createdAt < RESET_RESEND_MS) return res.json(sent);
 
   const code = randomInt(0, 1_000_000).toString().padStart(6, '0');
   try {
-    setPasswordReset(user.id, await bcrypt.hash(code, 10), Date.now() + RESET_CODE_TTL_MS);
+    await setPasswordReset(user.id, await bcrypt.hash(code, 10), Date.now() + RESET_CODE_TTL_MS);
     await sendEmail(
       user.email,
       'Your Creator OS password reset code',
@@ -134,18 +134,18 @@ authRouter.post('/api/auth/reset-password', async (req, res) => {
   }
 
   const invalid = () => res.status(400).json({ error: 'That code is invalid or has expired. Request a new one.' });
-  const user = getUserByEmail(email.trim().toLowerCase());
-  const reset = user ? getPasswordReset(user.id) : null;
+  const user = await getUserByEmail(email.trim().toLowerCase());
+  const reset = user ? await getPasswordReset(user.id) : null;
   if (!user || !reset || reset.expiresAt < Date.now() || reset.attempts >= RESET_MAX_ATTEMPTS) return invalid();
 
   try {
     if (!(await bcrypt.compare(code.trim(), reset.codeHash))) {
-      bumpPasswordResetAttempts(user.id);
+      await bumpPasswordResetAttempts(user.id);
       return invalid();
     }
-    updateUserPassword(user.id, await bcrypt.hash(password, BCRYPT_ROUNDS));
-    deletePasswordReset(user.id);
-    destroyUserSessions(user.id);
+    await updateUserPassword(user.id, await bcrypt.hash(password, BCRYPT_ROUNDS));
+    await deletePasswordReset(user.id);
+    await destroyUserSessions(user.id);
     req.session.userId = user.id;
     res.json({ id: user.id, email: user.email, name: user.name });
   } catch (err) {
@@ -154,7 +154,7 @@ authRouter.post('/api/auth/reset-password', async (req, res) => {
   }
 });
 
-authRouter.post('/api/auth/logout', (req, res) => {
+authRouter.post('/api/auth/logout', async (req, res) => {
   req.session.destroy((err) => {
     if (err) {
       logger.error('Session destroy error:', err);
@@ -165,8 +165,8 @@ authRouter.post('/api/auth/logout', (req, res) => {
   });
 });
 
-authRouter.get('/api/auth/me', (req, res) => {
+authRouter.get('/api/auth/me', async (req, res) => {
   const userId = req.session?.userId;
-  const user = userId ? getUserById(userId) : null;
+  const user = userId ? await getUserById(userId) : null;
   res.json({ user: user ? { id: user.id, email: user.email, name: user.name } : null });
 });

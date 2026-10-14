@@ -19,7 +19,7 @@ function getYouTubeRedirectUri(req: Request): string {
 }
 
 // YouTube OAuth authorization URL.
-authYoutubeRouter.get('/api/auth/youtube/url', (req, res) => {
+authYoutubeRouter.get('/api/auth/youtube/url', async (req, res) => {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const redirectUri = getYouTubeRedirectUri(req);
   const state = createOAuthState(req.userId!);
@@ -102,7 +102,7 @@ authYoutubeRouter.get('/api/auth/youtube/callback', async (req, res) => {
     const redirectUri = getYouTubeRedirectUri(req);
 
     const userId = req.userId!;
-    const existingYtAcc = getAccount(userId, 'youtube');
+    const existingYtAcc = await getAccount(userId, 'youtube');
     const oldViews = existingYtAcc?.views;
     let channelTitle = existingYtAcc?.handle || 'YouTube Creator';
     let channelAvatar =
@@ -125,7 +125,7 @@ authYoutubeRouter.get('/api/auth/youtube/callback', async (req, res) => {
       logger.debug('Google YouTube OAuth token response status:', tokenRes.status);
 
       if (tokenData.access_token) {
-        setOAuthToken(userId, 'youtube', {
+        await setOAuthToken(userId, 'youtube', {
           accessToken: tokenData.access_token,
           refreshToken: tokenData.refresh_token,
           expiresAt: Date.now() + (tokenData.expires_in || 3600) * 1000,
@@ -175,7 +175,7 @@ authYoutubeRouter.get('/api/auth/youtube/callback', async (req, res) => {
       existingYtAcc.avatar = channelAvatar;
       existingYtAcc.status = 'active';
       existingYtAcc.viewsGrowth = computeGrowth(oldViews, existingYtAcc.views);
-      upsertAccount(userId, existingYtAcc);
+      await upsertAccount(userId, existingYtAcc);
     }
 
     return res.send(`

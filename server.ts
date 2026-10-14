@@ -4,7 +4,7 @@
  * Wires up the Express app: middleware, feature route modules (posts,
  * accounts, OAuth, trends, analytics, AI, legal pages), a JSON API 404/error
  * handler, static serving of the built Vite app, and SPA fallback routing.
- * All data lives in the in-memory store (`server/store.ts`); feature logic
+ * All data lives in Postgres (`server/db.ts`); feature logic
  * lives in the route modules under `server/routes/`.
  */
 import express from 'express';
@@ -15,7 +15,7 @@ import { fileURLToPath } from 'url';
 
 import { logger } from './server/logger.ts';
 import { getDb } from './server/db.ts';
-import { SqliteSessionStore } from './server/sessionStore.ts';
+import { DbSessionStore } from './server/sessionStore.ts';
 import { requireAuth, isAuthRequired } from './server/authMiddleware.ts';
 import { authRouter } from './server/routes/auth.ts';
 import { postsRouter } from './server/routes/posts.ts';
@@ -42,9 +42,9 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Open the SQLite store (creates the schema and local-owner user if needed)
+// Open the database (creates the schema and local-owner user if needed)
 // before serving requests.
-getDb();
+await getDb();
 startInstagramScheduler();
 
 if (isAuthRequired() && !process.env.SESSION_SECRET) {
@@ -53,7 +53,7 @@ if (isAuthRequired() && !process.env.SESSION_SECRET) {
 
 app.use(
   session({
-    store: new SqliteSessionStore(),
+    store: new DbSessionStore(),
     secret: process.env.SESSION_SECRET || 'dev-insecure-secret-change-me',
     resave: false,
     saveUninitialized: false,
@@ -92,7 +92,7 @@ app.use(aiRouter);
 app.use(legalRouter);
 
 // Fallback for unmatched API routes so they return JSON instead of HTML.
-app.all('/api/*', (req, res) => {
+app.all('/api/*splat', (req, res) => {
   res.status(404).json({ error: `API route ${req.method} ${req.path} not found` });
 });
 
@@ -113,7 +113,7 @@ const distPath = path.join(__dirname, 'dist');
 app.use(express.static(distPath));
 
 // SPA routing: serve index.html for non-API paths.
-app.get('*', (req, res, next) => {
+app.get('/{*splat}', (req, res, next) => {
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'Endpoint not found' });
   }

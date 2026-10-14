@@ -17,7 +17,7 @@ const MAX_BYTES = 300 * 1024 * 1024; // Instagram's Reel size cap
 
 instagramPublishRouter.post('/api/posts/:id/instagram', async (req, res) => {
   const userId = req.userId!;
-  const post = listPosts(userId).find((p) => p.id === req.params.id);
+  const post = (await listPosts(userId)).find((p) => p.id === req.params.id);
   if (!post) return res.status(404).json({ error: 'Post not found' });
   if (Number(req.headers['content-length'] || 0) > MAX_BYTES) {
     return res.status(413).json({ error: 'Instagram Reels must be 300MB or smaller' });
@@ -40,7 +40,7 @@ instagramPublishRouter.post('/api/posts/:id/instagram', async (req, res) => {
   }
 
   // Rescheduling replaces the post's job; drop the video it was holding.
-  const previous = getInstagramJob(userId, post.id);
+  const previous = await getInstagramJob(userId, post.id);
   if (previous && previous.status !== 'running') fs.rmSync(previous.videoPath, { force: true });
   if (previous?.status === 'running') {
     fs.rmSync(videoPath, { force: true });
@@ -56,7 +56,7 @@ instagramPublishRouter.post('/api/posts/:id/instagram', async (req, res) => {
     caption: post.caption,
     status: 'pending' as const,
   };
-  upsertInstagramJob(job);
+  await upsertInstagramJob(job);
 
   if (runAt > Date.now()) return res.json(job);
   const result = await runInstagramJob(job);

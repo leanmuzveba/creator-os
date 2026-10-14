@@ -19,7 +19,7 @@ function getFacebookRedirectUri(req: Request): string {
 }
 
 // Facebook OAuth authorization URL.
-authFacebookRouter.get('/api/auth/facebook/url', (req, res) => {
+authFacebookRouter.get('/api/auth/facebook/url', async (req, res) => {
   const appId = process.env.META_APP_ID;
   const redirectUri = getFacebookRedirectUri(req);
   const state = createOAuthState(req.userId!);
@@ -170,12 +170,12 @@ authFacebookRouter.get(['/api/auth/facebook/callback', '/api/auth/facebook/callb
     }
 
     const userId = req.userId!;
-    setOAuthToken(userId, 'facebook', {
+    await setOAuthToken(userId, 'facebook', {
       accessToken: tokenData.access_token,
       expiresAt: Date.now() + (tokenData.expires_in || 5184000) * 1000,
     });
 
-    const fbAcc = getAccount(userId, 'facebook');
+    const fbAcc = await getAccount(userId, 'facebook');
     const oldFbFollowers = fbAcc?.followers;
     let profileDisplayName = 'Facebook User';
     let profileAvatar = '';
@@ -256,14 +256,14 @@ authFacebookRouter.get(['/api/auth/facebook/callback', '/api/auth/facebook/callb
       // permissions), so it's never real - keep it at 0 rather than the
       // demo-seed placeholder.
       fbAcc.views = '0';
-      upsertAccount(userId, fbAcc);
+      await upsertAccount(userId, fbAcc);
     }
 
     // Instagram linked to the Page: connect it off the same login. The Page
     // token (Graph API on graph.facebook.com) is what publishes Reels for it.
-    const igAcc = linkedIg && getAccount(userId, 'instagram');
+    const igAcc = linkedIg && await getAccount(userId, 'instagram');
     if (igAcc) {
-      setOAuthToken(userId, 'instagram', {
+      await setOAuthToken(userId, 'instagram', {
         accessToken: linkedIgPageToken || tokenData.access_token,
         expiresAt: Date.now() + (tokenData.expires_in || 5184000) * 1000,
         extra: { userId: linkedIg.id, via: 'facebook' },
@@ -279,7 +279,7 @@ authFacebookRouter.get(['/api/auth/facebook/callback', '/api/auth/facebook/callb
         igAcc.viewsGrowth = computeGrowth(oldIgFollowers, igAcc.followers);
       }
       igAcc.views = '0';
-      upsertAccount(userId, igAcc);
+      await upsertAccount(userId, igAcc);
     }
     const igNote = igAcc
       ? `<br/><br/>Instagram <strong>@${linkedIg.username}</strong> was connected too.`

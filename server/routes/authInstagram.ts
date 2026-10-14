@@ -22,7 +22,7 @@ function getInstagramRedirectUri(req: Request): string {
 }
 
 // Instagram OAuth authorization URL (Instagram Login - authorizes on instagram.com).
-authInstagramRouter.get('/api/auth/instagram/url', (req, res) => {
+authInstagramRouter.get('/api/auth/instagram/url', async (req, res) => {
   const appId = process.env.INSTAGRAM_APP_ID;
   const redirectUri = getInstagramRedirectUri(req);
   const state = createOAuthState(req.userId!);
@@ -193,13 +193,13 @@ authInstagramRouter.get(['/api/auth/instagram/callback', '/api/auth/instagram/ca
     }
 
     const userId = req.userId!;
-    setOAuthToken(userId, 'instagram', {
+    await setOAuthToken(userId, 'instagram', {
       accessToken,
       expiresAt: Date.now() + expiresIn * 1000,
       extra: tokenData.user_id ? { userId: tokenData.user_id } : undefined,
     });
 
-    const igAcc = getAccount(userId, 'instagram');
+    const igAcc = await getAccount(userId, 'instagram');
     const oldIgFollowers = igAcc?.followers;
     let profileDisplayName = 'Instagram User';
     let profileAvatar = '';
@@ -247,7 +247,7 @@ authInstagramRouter.get(['/api/auth/instagram/callback', '/api/auth/instagram/ca
       // Reach isn't fetched here (requires additional Insights permissions),
       // so it's never real - keep it at 0 rather than a demo-seed placeholder.
       igAcc.views = '0';
-      upsertAccount(userId, igAcc);
+      await upsertAccount(userId, igAcc);
     }
 
     const statusHeading = metricsSynced ? 'Instagram Connected!' : 'Instagram Partially Connected';

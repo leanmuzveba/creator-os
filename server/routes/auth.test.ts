@@ -1,10 +1,9 @@
 import { afterAll, beforeAll, expect, test, vi } from 'vitest';
-import os from 'os';
-import path from 'path';
 import type { Server } from 'http';
 
 // Throwaway DB, and capture outgoing emails instead of calling Brevo.
-process.env.DB_PATH = path.join(os.tmpdir(), `creator-os-auth-test-${Date.now()}.db`);
+process.env.DB_PATH = 'memory://';
+delete process.env.DATABASE_URL;
 process.env.BREVO_API_KEY = 'test';
 process.env.MAIL_FROM_EMAIL = 'noreply@test.local';
 const sent: string[] = [];
@@ -20,10 +19,10 @@ beforeAll(async () => {
   const express = (await import('express')).default;
   const session = (await import('express-session')).default;
   const { authRouter } = await import('./auth.ts');
-  const { SqliteSessionStore } = await import('../sessionStore.ts');
+  const { DbSessionStore } = await import('../sessionStore.ts');
   const app = express();
   app.use(express.json());
-  app.use(session({ store: new SqliteSessionStore(), secret: 'test', resave: false, saveUninitialized: false }));
+  app.use(session({ store: new DbSessionStore(), secret: 'test', resave: false, saveUninitialized: false }));
   app.use(authRouter);
   server = app.listen(0);
   base = `http://localhost:${(server.address() as any).port}`;

@@ -8,9 +8,9 @@ import type { PostItem } from '../store.ts';
 export const postsRouter = Router();
 
 // 1. Get all posts (optionally filtered by status, category, platform).
-postsRouter.get('/api/posts', (req, res) => {
+postsRouter.get('/api/posts', async (req, res) => {
   const { status, category, platform } = req.query;
-  let filtered = listPosts(req.userId!);
+  let filtered = await listPosts(req.userId!);
 
   if (status && status !== 'all') {
     filtered = filtered.filter((p) => p.status === status);
@@ -26,7 +26,7 @@ postsRouter.get('/api/posts', (req, res) => {
 });
 
 // 2. Create a post.
-postsRouter.post('/api/posts', (req, res) => {
+postsRouter.post('/api/posts', async (req, res) => {
   const isPublished = req.body.status === 'published';
   const newPost: PostItem = {
     id: `post-${Date.now()}`,
@@ -53,14 +53,14 @@ postsRouter.post('/api/posts', (req, res) => {
     script: req.body.script,
   };
 
-  insertPost(req.userId!, newPost);
+  await insertPost(req.userId!, newPost);
   res.status(201).json(newPost);
 });
 
 // 3. Update a post.
-postsRouter.put('/api/posts/:id', (req, res) => {
+postsRouter.put('/api/posts/:id', async (req, res) => {
   const { id } = req.params;
-  const updated = updatePostFields(req.userId!, id, req.body);
+  const updated = await updatePostFields(req.userId!, id, req.body);
   if (!updated) {
     return res.status(404).json({ error: 'Post not found' });
   }
@@ -68,8 +68,8 @@ postsRouter.put('/api/posts/:id', (req, res) => {
 });
 
 // 4. Delete a post.
-postsRouter.delete('/api/posts/:id', (req, res) => {
+postsRouter.delete('/api/posts/:id', async (req, res) => {
   const { id } = req.params;
-  deletePost(req.userId!, id);
+  await deletePost(req.userId!, id);
   res.json({ success: true, id });
 });
