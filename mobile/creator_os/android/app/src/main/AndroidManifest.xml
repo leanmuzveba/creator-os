@@ -8,6 +8,16 @@
         android:label="creator_os"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- In-app updates (ota_update): hands the downloaded APK to Android's installer. -->
+        <provider
+            android:name="sk.fourq.otaupdate.OtaUpdateFileProvider"
+            android:authorities="${applicationId}.ota_update_provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths" />
+        </provider>
         <activity
             android:name=".MainActivity"
             android:exported="true"

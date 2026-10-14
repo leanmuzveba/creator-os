@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:ota_update/ota_update.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Version baked in by `scripts/release_mobile.sh` (`--dart-define=APP_VERSION`).
@@ -23,7 +24,7 @@ bool isNewerVersion(String latest, String current) {
 }
 
 /// Looks up the newest `mobile-v*` GitHub Release and, if it's newer than
-/// this build, offers to download its APK. Failures are silent — an update
+/// this build, offers to download and install its APK in-app. Failures are silent — an update
 /// check must never get in the way of using the app.
 Future<void> checkForUpdate(BuildContext context) async {
   if (kAppVersion.isEmpty) return;
@@ -47,27 +48,104 @@ Future<void> checkForUpdate(BuildContext context) async {
     final notes = '${release['body'] ?? ''}'.trim();
     showDialog<void>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Update available — v$latest'),
-        content: SingleChildScrollView(
-          child: Text(
-            '${notes.isEmpty ? '' : '$notes\n\n'}You have v$kAppVersion. '
-            'Tap Download, then open the file to install the update.',
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Later')),
-          FilledButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              launchUrl(Uri.parse('${apk['browser_download_url']}'), mode: LaunchMode.externalApplication);
-            },
-            child: const Text('Download'),
-          ),
-        ],
+      barrierDismissible: false,
+      builder: (ctx) => _UpdateDialog(
+        version: latest,
+        notes: notes,
+        apkUrl: '${apk['browser_download_url']}',
+        // GitHub reports "sha256:<hex>"; lets the installer reject a corrupted download.
+        sha256: '${apk['digest'] ?? ''}'.startsWith('sha256:') ? '${apk['digest']}'.substring(7) : null,
       ),
     );
   } catch (_) {
     // Offline, rate-limited, or GitHub changed shape — try again next launch.
+  }
+}
+
+class _UpdateDialog extends StatefulWidget {
+  const _UpdateDialog({required this.version, required this.notes, required this.apkUrl, this.sha256});
+  final String version, notes, apkUrl;
+  final String? sha256;
+
+  @override
+  State<_UpdateDialog> createState() => _UpdateDialogState();
+}
+
+class _UpdateDialogState extends State<_UpdateDialog> {
+  double? _progress; // null = not started
+  String? _error;
+
+  void _install() {
+    setState(() {
+      _progress = 0;
+      _error = null;
+    });
+    OtaUpdate()
+        .execute(widget.apkUrl, destinationFilename: 'CreatorOS-${widget.version}.apk', sha256checksum: widget.sha256)
+        .listen(
+      (event) {
+        if (!mounted) return;
+        switch (event.status) {
+          case OtaStatus.DOWNLOADING:
+            setState(() => _progress = (int.tryParse(event.value ?? '') ?? 0) / 100);
+          case OtaStatus.INSTALLING:
+          case OtaStatus.INSTALLATION_DONE:
+            // Android's own "Install this update?" screen takes over from here.
+            Navigator.pop(context);
+          default:
+            setState(() {
+              _progress = null;
+              _error = event.status == OtaStatus.PERMISSION_NOT_GRANTED_ERROR
+                  ? 'Allow Creator OS to install apps when Android asks, then try again.'
+                  : 'The update could not be installed. Try again, or download it in your browser.';
+            });
+        }
+      },
+      onError: (_) {
+        if (!mounted) return;
+        setState(() {
+          _progress = null;
+          _error = 'The download failed. Check your connection and try again.';
+        });
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final downloading = _progress != null;
+    return AlertDialog(
+      title: Text('New update available — v${widget.version}'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('${widget.notes.isEmpty ? '' : '${widget.notes}\n\n'}You have v$kAppVersion.'),
+            if (downloading) ...[
+              const SizedBox(height: 16),
+              LinearProgressIndicator(value: _progress == 0 ? null : _progress),
+              const SizedBox(height: 8),
+              Text('Downloading… ${((_progress ?? 0) * 100).round()}%'),
+            ],
+            if (_error != null) ...[
+              const SizedBox(height: 16),
+              Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+            ],
+          ],
+        ),
+      ),
+      actions: downloading
+          ? null
+          : [
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text('Later')),
+              if (_error != null)
+                TextButton(
+                  onPressed: () => launchUrl(Uri.parse(widget.apkUrl), mode: LaunchMode.externalApplication),
+                  child: const Text('Browser'),
+                ),
+              FilledButton(onPressed: _install, child: Text(_error == null ? 'Install update' : 'Try again')),
+            ],
+    );
   }
 }
