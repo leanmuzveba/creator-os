@@ -86,7 +86,6 @@ class AuthFormsScreen extends StatelessWidget {
       child: Scaffold(
         body: Stack(
           children: [
-            const BrandGlow(),
             SafeArea(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -96,10 +95,7 @@ class AuthFormsScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 24),
-                          child: Align(alignment: Alignment.centerLeft, child: Wordmark()),
-                        ),
+                        const SizedBox(height: 40),
                         const _Hero(),
                         const SizedBox(height: 32),
                         _AuthCard(onAuthenticated: onAuthenticated),
@@ -124,7 +120,7 @@ class _Hero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text.rich(
@@ -144,12 +140,6 @@ class _Hero extends StatelessWidget {
               ),
             ],
           ),
-        ),
-        SizedBox(height: 16),
-        Text(
-          'Manage your content, scheduling, and analytics in one place. '
-          'Built for the modern creative workflow.',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, height: 1.6, color: Brand.textSecondary),
         ),
       ],
     );
@@ -270,9 +260,9 @@ class _AuthCardState extends State<_AuthCard> {
             key: ValueKey(_mode),
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(title, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: Brand.textPrimary)),
+              Text(title, style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: Brand.textPrimary)),
               const SizedBox(height: 8),
-              Text(subtitle, style: const TextStyle(fontSize: 15, color: Brand.textSecondary)),
+              Text(subtitle, style: TextStyle(fontSize: 15, color: Brand.textSecondary)),
               const SizedBox(height: 28),
               if (_mode == _Mode.signUp) ...[
                 const _FieldLabel('Name'),
@@ -305,7 +295,7 @@ class _AuthCardState extends State<_AuthCard> {
                   trailing: _mode == _Mode.signIn
                       ? GestureDetector(
                           onTap: _submitting ? null : () => _switchTo(_Mode.forgot),
-                          child: const Text(
+                          child: Text(
                             'Forgot?',
                             style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Brand.pink),
                           ),
@@ -322,11 +312,11 @@ class _AuthCardState extends State<_AuthCard> {
               ],
               if (_info != null) ...[
                 const SizedBox(height: 12),
-                Text(_info!, style: const TextStyle(color: Brand.textSecondary, fontSize: 13)),
+                Text(_info!, style: TextStyle(color: Brand.textSecondary, fontSize: 13)),
               ],
               if (_error != null) ...[
                 const SizedBox(height: 12),
-                Text(_error!, style: const TextStyle(color: Brand.red, fontSize: 13)),
+                Text(_error!, style: TextStyle(color: Brand.red, fontSize: 13)),
               ],
               const SizedBox(height: 24),
               _PrimaryButton(label: _submitting ? 'Please wait...' : button, onPressed: _submitting ? null : _submit),
@@ -368,7 +358,7 @@ class _FieldLabel extends StatelessWidget {
       padding: const EdgeInsets.only(left: 4, right: 4, bottom: 8),
       child: Row(
         children: [
-          Text(text, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Brand.label)),
+          Text(text, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Brand.label)),
           const Spacer(),
           ?trailing,
         ],
@@ -419,10 +409,10 @@ class _AuthFieldState extends State<_AuthField> {
       maxLength: widget.maxLength,
       autocorrect: false,
       onSubmitted: widget.onSubmitted,
-      style: const TextStyle(color: Brand.textPrimary, fontSize: 16),
+      style: TextStyle(color: Brand.textPrimary, fontSize: 16),
       decoration: InputDecoration(
         hintText: widget.hint,
-        hintStyle: const TextStyle(color: Brand.textMuted),
+        hintStyle: TextStyle(color: Brand.textMuted),
         counterText: '',
         filled: true,
         fillColor: Brand.background.withValues(alpha: 0.5),
@@ -505,7 +495,7 @@ class _PrimaryButtonState extends State<_PrimaryButton> {
                   ),
                   child: Text(
                     widget.label,
-                    style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: Colors.white),
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: Brand.onPink),
                   ),
                 ),
               ),
@@ -530,10 +520,10 @@ class _SwitchPrompt extends StatelessWidget {
       alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        if (prompt.isNotEmpty) Text('$prompt ', style: const TextStyle(fontSize: 14, color: Brand.textSecondary)),
+        if (prompt.isNotEmpty) Text('$prompt ', style: TextStyle(fontSize: 14, color: Brand.textSecondary)),
         GestureDetector(
           onTap: onTap,
-          child: Text(action, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Brand.pink)),
+          child: Text(action, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Brand.pink)),
         ),
       ],
     );

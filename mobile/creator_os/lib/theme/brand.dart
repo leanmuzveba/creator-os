@@ -1,38 +1,39 @@
 import 'package:flutter/material.dart';
 
-/// Fixed Creator OS brand palette for the pre-login screens (splash + auth).
-/// These ignore the user's chosen App Theme on purpose: they're shown before
-/// the user is in the app, so they always use the brand pink — the same
-/// `--accent` and page background as the web app's dark theme (src/index.css).
+import 'app_theme.dart';
+
+/// Palette for the pre-login screens (splash + auth). Follows the user's App
+/// Theme (Default black & white unless they picked another), except the logo
+/// mark, which always keeps its brand colors.
 class Brand {
   Brand._();
 
-  static const background = Color(0xFF0B0D17);
-  static const surface = Color(0xFF131627);
-  static const border = Color(0x1AFFFFFF);
-  static const pink = Color(0xFFEC4899);
-  static const pinkDeep = Color(0xFFBE185D); // 3D button underside
-  static const red = Color(0xFFEF4444);
-  static const textPrimary = Color(0xFFF1F5F9);
-  static const textSecondary = Color(0xFF94A3B8);
-  static const textMuted = Color(0xFF64748B);
-  static const label = Color(0xFFCBD5E1);
+  static const logoPink = Color(0xFFEC4899);
+  static const logoInk = Color(0xFF0B0D17);
+
+  static Color get background => AppColors.background;
+  static Color get surface => AppColors.surface;
+  static Color get border => AppColors.border;
+  static Color get pink => AppColors.pink; // the theme's accent
+  static Color get pinkDeep => Color.lerp(AppColors.pink, Colors.black, 0.35)!; // 3D button underside
+  static Color get onPink => AppColors.accentText;
+  static Color get red => AppColors.red;
+  static Color get textPrimary => AppColors.textPrimary;
+  static Color get textSecondary => AppColors.textSecondary;
+  static Color get textMuted => AppColors.textSecondary;
+  static Color get label => AppColors.textPrimary;
 
   /// Same font as the web app (index.html loads Plus Jakarta Sans).
   static const font = 'PlusJakartaSans';
 
-  static final theme = ThemeData(
-    useMaterial3: true,
-    brightness: Brightness.dark,
-    fontFamily: font,
-    scaffoldBackgroundColor: background,
-    colorScheme: const ColorScheme.dark(primary: pink, surface: surface, error: red),
-    textSelectionTheme: const TextSelectionThemeData(
-      cursorColor: pink,
-      selectionColor: Color(0x55EC4899),
-      selectionHandleColor: pink,
-    ),
-  );
+  static ThemeData get theme => buildAppTheme().copyWith(
+        textTheme: buildAppTheme().textTheme.apply(fontFamily: font),
+        textSelectionTheme: TextSelectionThemeData(
+          cursorColor: pink,
+          selectionColor: pink.withValues(alpha: 0.33),
+          selectionHandleColor: pink,
+        ),
+      );
 }
 
 /// Pink rounded "screen" with a lens dot — the Creator OS mark.
@@ -47,12 +48,12 @@ class LogoMark extends StatelessWidget {
       width: size,
       height: size * 0.7,
       alignment: Alignment.center,
-      decoration: BoxDecoration(color: Brand.pink, borderRadius: BorderRadius.circular(size * 0.2)),
+      decoration: BoxDecoration(color: Brand.logoPink, borderRadius: BorderRadius.circular(size * 0.2)),
       child: Container(
         width: size * 0.32,
         height: size * 0.32,
         decoration: BoxDecoration(
-          color: Brand.background,
+          color: Brand.logoInk,
           shape: BoxShape.circle,
           border: Border.all(color: Colors.white, width: size * 0.04),
         ),
@@ -82,7 +83,7 @@ class Wordmark extends StatelessWidget {
               fontStyle: FontStyle.italic,
               color: Brand.textPrimary,
             ),
-            children: const [
+            children: [
               TextSpan(text: 'Creator'),
               TextSpan(text: 'OS', style: TextStyle(color: Brand.pink)),
             ],
@@ -93,32 +94,12 @@ class Wordmark extends StatelessWidget {
   }
 }
 
-/// Faint pink radial glow behind the brand screens.
-class BrandGlow extends StatelessWidget {
-  const BrandGlow({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned.fill(
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: RadialGradient(
-            center: const Alignment(0.6, -0.4),
-            radius: 1.2,
-            colors: [Brand.pink.withValues(alpha: 0.05), Brand.background],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class BrandFooter extends StatelessWidget {
   const BrandFooter({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Text(
+    return Text(
       'POWERED BY CREATOR OS',
       textAlign: TextAlign.center,
       style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 2, color: Brand.textMuted),

@@ -27,6 +27,7 @@ const kDefaultAvatarUrl =
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService.instance.init();
+  await AppState.applySavedTheme();
   runApp(
     ChangeNotifierProvider(
       // Data loading is kicked off by AuthGate once it resolves the session

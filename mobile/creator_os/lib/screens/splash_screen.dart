@@ -58,7 +58,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       child: Scaffold(
         body: Stack(
           children: [
-            const BrandGlow(),
             Center(
               child: FadeTransition(
                 opacity: _fadeIn,
@@ -68,13 +67,13 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                     const LogoMark(size: 64),
                     const SizedBox(height: 20),
                     Text.rich(
-                      const TextSpan(
+                      TextSpan(
                         children: [
                           TextSpan(text: 'Creator'),
                           TextSpan(text: 'OS', style: TextStyle(color: Brand.pink)),
                         ],
                       ),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.w800,
                         fontStyle: FontStyle.italic,

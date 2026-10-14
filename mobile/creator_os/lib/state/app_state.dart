@@ -49,7 +49,7 @@ class AppState extends ChangeNotifier {
   List<TrendItem> trends = [];
   bool isLoading = true;
 
-  String displayName = 'Lean';
+  String displayName = 'Creator';
   String avatarPath = '';
   int? age;
   DateTime? birthday;
@@ -151,7 +151,7 @@ class AppState extends ChangeNotifier {
       // logout/login within one app run. Fall back to this account's real
       // signup name first, and only to the single-owner default if there's
       // no account at all (REQUIRE_AUTH off).
-      displayName = prefs.getString(_profileNameKey) ?? (authUser?['name'] as String?) ?? 'Lean';
+      displayName = prefs.getString(_profileNameKey) ?? (authUser?['name'] as String?) ?? 'Creator';
       avatarPath = prefs.getString(_avatarPathKey) ?? '';
       age = prefs.getInt(_profileAgeKey);
       final birthdayRaw = prefs.getString(_profileBirthdayKey);
@@ -200,7 +200,18 @@ class AppState extends ChangeNotifier {
 
   /// Parses a stored theme name back into [AppThemeName], defaulting to
   /// [AppThemeName.defaultTheme] for missing/unrecognized values.
-  AppThemeName _parseTheme(String? stored) {
+  /// Applies the saved App Theme before anything renders, so the splash and
+  /// login screens (shown before [_loadPreferences] runs) use it too.
+  static Future<void> applySavedTheme() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      AppColors.applyTheme(_parseTheme(prefs.getString(_themeKey)));
+    } catch (_) {
+      AppColors.applyTheme(AppThemeName.defaultTheme);
+    }
+  }
+
+  static AppThemeName _parseTheme(String? stored) {
     return AppThemeName.values.firstWhere(
       (t) => t.name == stored,
       orElse: () => AppThemeName.defaultTheme,
