@@ -64,7 +64,6 @@ export const DashboardView: React.FC = () => {
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-[var(--text-primary)] tracking-tight flex items-center gap-2">
             <span>Welcome back, {displayName}!</span>
-            <span className="inline-block animate-bounce">👋</span>
           </h1>
           <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-0.5">
             Here's what's happening across your connected platforms.
