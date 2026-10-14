@@ -13,6 +13,7 @@ import 'screens/profile_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/trends_screen.dart';
 import 'services/notification_service.dart';
+import 'services/update_checker.dart';
 import 'state/app_state.dart';
 import 'theme/app_theme.dart';
 import 'widgets/accounts/connected_accounts_sheet.dart';
@@ -69,7 +70,10 @@ class _RootSwitcherState extends State<_RootSwitcher> {
   @override
   Widget build(BuildContext context) {
     if (_showSplash) {
-      return SplashScreen(onFinished: () => setState(() => _showSplash = false));
+      return SplashScreen(onFinished: () {
+        setState(() => _showSplash = false);
+        checkForUpdate(context);
+      });
     }
     return const AuthGate(child: AppShell());
   }
